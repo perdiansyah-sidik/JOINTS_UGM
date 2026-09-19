@@ -1,0 +1,245 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <div class="header-content">
+      <div class="logo">
+        <ion-icon name="leaf-outline"></ion-icon>
+      </div>
+
+      <div class="header-title">
+        <h1>Pengolahan Limbah</h1>
+        <p>Kelola limbah dengan lebih bijak</p>
+      </div>
+
+      <ion-button fill="clear" class="notification-btn">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content [fullscreen]="true">
+
+  <div class="home-container">
+
+    <!-- HERO -->
+    <section class="hero-card">
+
+      <div class="hero-text">
+        <span class="greeting">Halo! 👋</span>
+
+        <h2>
+          Yuk, kelola limbah
+          <br>
+          untuk lingkungan
+          <br>
+          yang lebih baik!
+        </h2>
+
+        <p>
+          Mulai dari pemilahan, pengolahan, hingga daur ulang
+          limbah, kita bisa membuat perubahan besar.
+        </p>
+
+        <ion-button class="start-button">
+          <ion-icon name="leaf-outline" slot="start"></ion-icon>
+          Mulai Sekarang
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="hero-image">
+        <div class="earth">
+          🌎
+        </div>
+
+        <div class="bins">
+          <div class="bin organic">
+            <span>🌿</span>
+          </div>
+
+          <div class="bin recycle">
+            <span>♻️</span>
+          </div>
+
+          <div class="bin plastic">
+            <span>♻</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- MENU UTAMA -->
+    <section class="section">
+
+      <div class="section-header">
+        <h2>Menu Utama</h2>
+
+        <button class="see-all">
+          Lihat Semua
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+
+
+      <div class="menu-grid">
+
+        <!-- Pemilahan -->
+        <div class="menu-card green">
+          <div class="menu-icon">
+            <ion-icon name="trash-outline"></ion-icon>
+          </div>
+
+          <h3>
+            Pemilahan
+            <br>
+            Limbah
+          </h3>
+        </div>
+
+
+        <!-- Pengolahan -->
+        <div class="menu-card blue">
+          <div class="menu-icon">
+            <ion-icon name="sync-outline"></ion-icon>
+          </div>
+
+          <h3>
+            Pengolahan
+            <br>
+            Limbah
+          </h3>
+        </div>
+
+
+        <!-- Data -->
+        <div class="menu-card orange">
+          <div class="menu-icon">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+          </div>
+
+          <h3>
+            Data
+            <br>
+            Limbah
+          </h3>
+        </div>
+
+
+        <!-- Edukasi -->
+        <div class="menu-card purple">
+          <div class="menu-icon">
+            <ion-icon name="book-outline"></ion-icon>
+          </div>
+
+          <h3>
+            Informasi
+            <br>
+            & Edukasi
+          </h3>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- STATISTIK -->
+    <section class="section">
+
+      <div class="section-header">
+        <h2>Statistik Limbah</h2>
+      </div>
+
+
+      <div class="statistics-card">
+
+        <div class="stat-item">
+          <ion-icon
+            name="trash-outline"
+            class="stat-icon green-icon">
+          </ion-icon>
+
+          <strong>12.5 kg</strong>
+
+          <span>Limbah Organik</span>
+        </div>
+
+
+        <div class="stat-item">
+          <ion-icon
+            name="sync-outline"
+            class="stat-icon blue-icon">
+          </ion-icon>
+
+          <strong>8.7 kg</strong>
+
+          <span>Limbah Anorganik</span>
+        </div>
+
+
+        <div class="stat-item">
+          <ion-icon
+            name="water-outline"
+            class="stat-icon orange-icon">
+          </ion-icon>
+
+          <strong>5.2 kg</strong>
+
+          <span>Limbah Plastik</span>
+        </div>
+
+
+        <div class="stat-item">
+          <ion-icon
+            name="leaf-outline"
+            class="stat-icon purple-icon">
+          </ion-icon>
+
+          <strong>3.1 kg</strong>
+
+          <span>Limbah Lainnya</span>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</ion-content>
+
+
+<!-- BOTTOM NAVIGATION -->
+<ion-footer class="ion-no-border">
+
+  <div class="bottom-nav">
+
+    <button class="nav-item active">
+      <ion-icon name="home"></ion-icon>
+      <span>Beranda</span>
+    </button>
+
+
+    <button class="nav-item">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span>Riwayat</span>
+    </button>
+
+
+    <button class="nav-item">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>Lokasi</span>
+    </button>
+
+
+    <button class="nav-item">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Profil</span>
+    </button>
+
+  </div>
+
+</ion-footer>

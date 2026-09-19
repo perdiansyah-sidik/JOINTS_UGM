@@ -1,0 +1,673 @@
+ion-content {
+  --background: #fff8f2;
+}
+
+ion-toolbar {
+  --background: #ff851a;
+  --color: rgb(252, 248, 248);
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header-content {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.logo ion-icon {
+  font-size: 30px;
+}
+
+.header-title {
+  flex: 1;
+  margin-left: 14px;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.header-title p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.notification-btn {
+  --color: white;
+  font-size: 25px;
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
+
+.home-container {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: auto;
+
+  padding: 25px 24px 35px;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero-card {
+  min-height: 340px;
+
+  display: flex;
+  align-items: center;
+
+  background: linear-gradient(
+    135deg,
+    #fff2e2,
+    #ffe4c7
+  );
+
+  border-radius: 28px;
+
+  padding: 35px 40px;
+
+  overflow: hidden;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.greeting {
+  display: block;
+
+  color: #ffcf9e;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  margin-bottom: 10px;
+}
+
+.hero-text h2 {
+  margin: 0;
+
+  color: #7a3305;
+
+  font-size: 34px;
+  line-height: 1.2;
+
+  font-weight: 800;
+}
+
+.hero-text p {
+  max-width: 570px;
+
+  color: #8a5a3a;
+
+  font-size: 16px;
+  line-height: 1.6;
+
+  margin: 18px 0;
+}
+
+.start-button {
+  --background: #ff851a;
+  --background-hover: #e0730f;
+  --border-radius: 30px;
+
+  --padding-start: 22px;
+  --padding-end: 22px;
+
+  height: 52px;
+
+  font-weight: 700;
+
+  margin-top: 5px;
+}
+
+
+/* =========================
+   HERO ILLUSTRATION
+========================= */
+
+.hero-image {
+  width: 40%;
+
+  min-width: 300px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.earth {
+  font-size: 110px;
+
+  margin-bottom: -15px;
+
+  filter: drop-shadow(
+    0 10px 15px rgba(0, 0, 0, 0.12)
+  );
+}
+
+.bins {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+
+.bin {
+  width: 70px;
+  height: 90px;
+
+  border-radius: 10px 10px 14px 14px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 30px;
+
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.organic {
+  background: #18a566;
+}
+
+.recycle {
+  background: #f7ad22;
+}
+
+.plastic {
+  background: #347fe2;
+}
+
+
+/* =========================
+   SECTION
+========================= */
+
+.section {
+  margin-top: 38px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  margin: 0;
+
+  color: #8a3d0a;
+
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.see-all {
+  border: none;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #e2650f;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+/* =========================
+   MENU GRID
+========================= */
+
+.menu-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 18px;
+}
+
+.menu-card {
+  min-height: 180px;
+
+  border-radius: 22px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+
+  transition: 0.25s;
+
+  cursor: pointer;
+}
+
+.menu-card:hover {
+  transform: translateY(-5px);
+}
+
+.menu-card h3 {
+  margin: 12px 0 0;
+
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.menu-icon {
+  width: 60px;
+  height: 60px;
+
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 32px;
+}
+
+.green {
+  background: #fff1e0;
+  color: #e2650f;
+}
+
+.green .menu-icon {
+  background: #ffe0b8;
+}
+
+.blue {
+  background: #e7f2ff;
+  color: #1766a5;
+}
+
+.blue .menu-icon {
+  background: #cce4ff;
+}
+
+.orange {
+  background: #fdece0;
+  color: #a4530f;
+}
+
+.orange .menu-icon {
+  background: #f8d3b3;
+}
+
+.purple {
+  background: #f0ebff;
+  color: #6543aa;
+}
+
+.purple .menu-icon {
+  background: #ded4ff;
+}
+
+
+/* =========================
+   STATISTICS
+========================= */
+
+.statistics-card {
+  background: white;
+
+  border: 2px solid #fbe6d3;
+
+  border-radius: 22px;
+
+  padding: 25px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.03);
+}
+
+.stat-item {
+  text-align: center;
+
+  padding: 5px 15px;
+
+  border-right: 1px solid #f0e2d3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-icon {
+  font-size: 32px;
+
+  margin-bottom: 8px;
+}
+
+.stat-item strong {
+  color: #7a3305;
+
+  font-size: 23px;
+
+  margin-bottom: 5px;
+}
+
+.stat-item span {
+  color: #8a7d75;
+
+  font-size: 13px;
+}
+
+.green-icon {
+  color: #ff851a;
+}
+
+.blue-icon {
+  color: #347fe2;
+}
+
+.orange-icon {
+  color: #f2a415;
+}
+
+.purple-icon {
+  color: #7953c6;
+}
+
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+ion-footer {
+  background: white;
+}
+
+.bottom-nav {
+  max-width: 700px;
+
+  margin: auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  padding: 10px 10px 12px;
+
+  background: white;
+
+  border-top: 1px solid #f5ece3;
+}
+
+.nav-item {
+  border: none;
+
+  background: transparent;
+
+  color: #8b929b;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 4px;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  padding: 6px;
+}
+
+.nav-item ion-icon {
+  font-size: 25px;
+}
+
+.nav-item.active {
+  color: #e2650f;
+
+  font-weight: 700;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+
+  .hero-card {
+    padding: 30px;
+  }
+
+  .hero-text h2 {
+    font-size: 28px;
+  }
+
+  .hero-image {
+    min-width: 250px;
+  }
+
+  .menu-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .statistics-card {
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    gap: 20px;
+  }
+
+  .stat-item:nth-child(2) {
+    border-right: none;
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .header-content {
+    padding: 12px 16px;
+  }
+
+  .logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .header-title h1 {
+    font-size: 17px;
+  }
+
+  .header-title p {
+    display: none;
+  }
+
+  .home-container {
+    padding: 18px 15px 25px;
+  }
+
+
+  /* HERO MOBILE */
+
+  .hero-card {
+    min-height: auto;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    padding: 25px 20px;
+
+    border-radius: 22px;
+  }
+
+  .hero-text h2 {
+    font-size: 27px;
+  }
+
+  .hero-text p {
+    font-size: 14px;
+  }
+
+  .start-button {
+    width: 100%;
+  }
+
+  .hero-image {
+    width: 100%;
+    min-width: 0;
+
+    margin-top: 20px;
+  }
+
+  .earth {
+    font-size: 80px;
+  }
+
+  .bin {
+    width: 55px;
+    height: 70px;
+
+    font-size: 23px;
+  }
+
+
+  /* MENU */
+
+  .section {
+    margin-top: 28px;
+  }
+
+  .section-header h2 {
+    font-size: 22px;
+  }
+
+  .see-all {
+    font-size: 13px;
+  }
+
+  .menu-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    gap: 12px;
+  }
+
+  .menu-card {
+    min-height: 145px;
+
+    border-radius: 18px;
+  }
+
+  .menu-icon {
+    width: 50px;
+    height: 50px;
+
+    font-size: 27px;
+
+    border-radius: 15px;
+  }
+
+  .menu-card h3 {
+    font-size: 14px;
+  }
+
+
+  /* STATISTICS */
+
+  .statistics-card {
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    padding: 15px;
+  }
+
+  .stat-item {
+    padding: 12px 5px;
+
+    border-right: none;
+    border-bottom: 1px solid #f0e2d3;
+  }
+
+  .stat-item:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .stat-item strong {
+    font-size: 18px;
+  }
+
+  .stat-item span {
+    font-size: 11px;
+  }
+
+  .stat-icon {
+    font-size: 27px;
+  }
+
+
+  /* NAV */
+
+  .nav-item ion-icon {
+    font-size: 22px;
+  }
+
+  .nav-item {
+    font-size: 11px;
+  }
+
+}

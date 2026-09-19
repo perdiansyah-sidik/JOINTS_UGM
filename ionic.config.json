@@ -1,0 +1,7 @@
+{
+  "name": "aplikasi-limbah",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
