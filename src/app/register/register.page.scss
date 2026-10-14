@@ -1,133 +1,485 @@
-.register-content {
-  --background: #ffffff;
+.eco-register-bg {
+  --background: linear-gradient(180deg, #F2FBF6 0%, #FFFFFF 55%, #EFF9F3 100%);
+  position: relative;
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(55px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-top {
+  width: 220px;
+  height: 220px;
+  background: rgba(29, 161, 242, 0.08);
+  top: -50px;
+  right: -50px;
+}
+
+.glow-bottom {
+  width: 240px;
+  height: 240px;
+  background: rgba(34, 173, 92, 0.1);
+  bottom: -60px;
+  left: -60px;
 }
 
 .register-container {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 28px 22px 24px;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-.logo-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 14px;
-
-  img {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-  }
-}
-
-h1 {
-  text-align: center;
-  font-size: 22px;
-  font-weight: 800;
-  color: #111827;
-  margin: 0 0 6px;
-}
-
-.subtitle {
-  text-align: center;
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0 0 24px;
-}
-
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-.type-card {
   position: relative;
-  border: 1.5px solid #e5e7eb;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 18px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  z-index: 1;
+  min-height: 100%;
+  padding: 20px 20px 28px;
+  max-width: 450px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
 
-  .icon-circle {
-    width: 44px;
-    height: 44px;
-    margin: 0 auto 10px;
-    border-radius: 50%;
-    background: #f3f4f6;
+/* Navigasi Atas & Indikator 4 Bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: #3B7A57;
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+  }
 
-    ion-icon {
-      font-size: 22px;
-      color: #6b7280;
+  .step-indicator {
+    text-align: center;
+
+    .step-text {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748B;
+      margin-bottom: 5px;
+    }
+
+    .step-bars {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+
+      .bar {
+        width: 22px;
+        height: 5px;
+        border-radius: 8px;
+        background: #DCE7E0;
+        transition: all 0.3s ease;
+
+        &.active {
+          background: #22AD5C;
+          width: 30px;
+        }
+      }
     }
   }
 
-  h3 {
-    font-size: 14px;
-    font-weight: 700;
+  .spacer {
+    width: 40px;
+  }
+}
+
+/* Header & Logo EcoApp */
+.hero-header {
+  text-align: center;
+  margin-bottom: 18px;
+
+  .logo-badge-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    .mini-eco-logo {
+      position: relative;
+      width: 68px;
+      height: 68px;
+
+      svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 6px 14px rgba(34, 173, 92, 0.16));
+      }
+
+      .leaf-corner-badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        background: #22AD5C;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        border: 2px solid #FFFFFF;
+      }
+    }
+  }
+
+  h2 {
+    font-size: 23px;
+    font-weight: 800;
     color: #111827;
     margin: 0 0 6px;
   }
 
   p {
-    font-size: 11px;
-    color: #6b7280;
+    font-size: 13px;
+    color: #6B7280;
     line-height: 1.5;
-    margin: 0;
+    margin: 0 auto;
+    max-width: 320px;
   }
+}
 
-  .check {
+.step-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ================================================= */
+/* LAYAR 1: KARTU PILIH PERAN                        */
+/* ================================================= */
+.role-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.role-card-modern {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 18px 16px;
+  border: 2px solid #E2E8F0;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  overflow: hidden;
+
+  .popular-ribbon {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    color: #22c55e;
+    top: 0;
+    right: 0;
+    background: linear-gradient(90deg, #22AD5C, #1DA1F2);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-bottom-left-radius: 12px;
   }
 
-  &.active {
-    border-color: #22c55e;
-    background: #f0fdf4;
+  &.selected {
+    border-color: #1E8E4A;
+    background: #FAFFFC;
+    box-shadow: 0 12px 24px rgba(34, 173, 92, 0.14);
 
-    .icon-circle {
-      background: #dcfce7;
+    .radio-check ion-icon {
+      color: #22AD5C;
+    }
+  }
+
+  .card-top-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+
+    .role-icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+
+      &.green-box {
+        background: #E8F8EE;
+        color: #22AD5C;
+      }
+
+      &.blue-box {
+        background: #E6F4FE;
+        color: #1DA1F2;
+      }
+    }
+
+    .role-title-area {
+      flex: 1;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 800;
+        color: #0F172A;
+        margin: 0 0 2px;
+      }
+
+      span {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #64748B;
+      }
+    }
+
+    .radio-check ion-icon {
+      font-size: 24px;
+      color: #CBD5E1;
+    }
+  }
+
+  .role-desc {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #475569;
+    margin: 0 0 12px;
+  }
+
+  .feature-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #F1F5F9;
+      color: #334155;
+      padding: 5px 9px;
+      border-radius: 9px;
+      font-size: 11px;
+      font-weight: 700;
 
       ion-icon {
-        color: #16a34a;
+        font-size: 13px;
+        color: #22AD5C;
+      }
+
+      &.highlight-chip {
+        background: #E8F8EE;
+        color: #166534;
+      }
+
+      &.blue-chip {
+        background: #E6F4FE;
+        color: #0369A1;
+        ion-icon { color: #1DA1F2; }
       }
     }
   }
 }
 
-.btn-next {
-  --background: #22c55e;
-  --border-radius: 12px;
-  --box-shadow: none;
-  height: 48px;
-  font-weight: 700;
+/* ================================================= */
+/* LAYAR 2, 3, 4: KARTU PUTIH UTAMA                  */
+/* ================================================= */
+.white-box-card {
+  background: #FFFFFF;
+  border-radius: 22px;
+  padding: 22px 18px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  margin-bottom: 20px;
+
+  .card-eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #2E6F40;
+    letter-spacing: 0.6px;
+    margin-bottom: 4px;
+  }
+
+  .card-question {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 16px;
+  }
+}
+
+/* LAYAR 2: Pilihan "Anda sebagai siapa?" */
+.who-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .who-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1.8px solid #F1F5F9;
+    background: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    .who-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #E8F5E9;
+      color: #2E7D32;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .who-text {
+      flex: 1;
+
+      h4 {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #111827;
+        margin: 0 0 3px;
+      }
+
+      p {
+        font-size: 12px;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.35;
+      }
+    }
+
+    .who-check {
+      font-size: 22px;
+      color: #1B5E20;
+      flex-shrink: 0;
+    }
+
+    &.active {
+      border-color: #1B5E20;
+      background: #F4FBF7;
+      box-shadow: 0 6px 16px rgba(34, 173, 92, 0.1);
+    }
+  }
+}
+
+/* LAYAR 3 & 4: INPUT FORM */
+.form-group {
+  margin-bottom: 14px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 6px;
+
+    .optional-hint {
+      font-weight: 500;
+      color: #6B7280;
+      font-size: 11.5px;
+    }
+  }
+
+  .input-box {
+    display: flex;
+    align-items: center;
+    background: #EBF5EE;
+    border-radius: 13px;
+    padding: 0 14px;
+    height: 48px;
+    border: 1.5px solid transparent;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+      border-color: #22AD5C;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(34, 173, 92, 0.12);
+    }
+
+    .prefix-icon {
+      font-size: 18px;
+      color: #4B7F52;
+      margin-right: 10px;
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13.5px;
+      color: #1E3A2F;
+      font-weight: 500;
+
+      &::placeholder {
+        color: #6B9078;
+      }
+
+      &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+    }
+
+    .suffix-icon {
+      font-size: 18px;
+      color: #4B7F52;
+      cursor: pointer;
+      padding: 4px;
+    }
+  }
+}
+
+/* Tombol Bawah */
+.bottom-action-area {
+  margin-top: auto;
+}
+
+.btn-lanjut-eco {
+  --background: #22AD5C;
+  --background-activated: #1B8F4B;
+  --border-radius: 14px;
+  --box-shadow: 0 8px 20px rgba(34, 173, 92, 0.28);
+  height: 52px;
+  font-size: 15px;
+  font-weight: 800;
   text-transform: none;
   margin: 0;
 }
 
-.login-text {
+.bottom-login-link {
+  margin-top: 16px;
   text-align: center;
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: auto;
-  padding-top: 24px;
+  font-size: 13px;
+  color: #6B7280;
 
   a {
-    color: #111827;
-    font-weight: 700;
+    color: #1DA1F2;
+    font-weight: 800;
     text-decoration: none;
+    cursor: pointer;
   }
 }

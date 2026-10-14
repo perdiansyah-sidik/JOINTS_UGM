@@ -1,71 +1,336 @@
-<ion-content [fullscreen]="true" class="register-content">
+<ion-content [fullscreen]="true" class="eco-register-bg">
+  <div class="ambient-glow glow-top"></div>
+  <div class="ambient-glow glow-bottom"></div>
+
   <div class="register-container">
 
-    <div class="logo-wrap">
-      <img src="assets/icon/logo.jpeg" alt="Logo EcoApp" />
-    </div>
+    <!-- Bar Atas: Tombol Kembali & Indikator 4 Langkah -->
+    <div class="top-bar">
+      <button type="button" class="back-btn" (click)="tombolKembali()">
+        <ion-icon name="arrow-undo-outline"></ion-icon>
+      </button>
 
-    <h1>Daftar Akun Baru</h1>
-    <p class="subtitle">
-      Pilih kategori penyetor sampah untuk melanjutkan pendaftaran ke EcoApp.
-    </p>
-
-    <div class="cards">
-
-      <!-- Pengguna Pribadi -->
-      <div
-        class="type-card"
-        [class.active]="selected === 'pribadi'"
-        (click)="select('pribadi')">
-        <div class="icon-circle">
-          <ion-icon name="person-outline"></ion-icon>
+      <div class="step-indicator">
+        <span class="step-text">Langkah {{ tahapDaftar }} dari 4</span>
+        <div class="step-bars">
+          <span class="bar" [class.active]="tahapDaftar >= 1"></span>
+          <span class="bar" [class.active]="tahapDaftar >= 2"></span>
+          <span class="bar" [class.active]="tahapDaftar >= 3"></span>
+          <span class="bar" [class.active]="tahapDaftar >= 4"></span>
         </div>
-        <h3>Pengguna Pribadi</h3>
-        <p>
-          Setor sampah rumah tangga, kumpulkan poin, dan tukarkan
-          menjadi rupiah dengan mudah.
-        </p>
-        <ion-icon
-          *ngIf="selected === 'pribadi'"
-          class="check"
-          name="checkmark-circle">
-        </ion-icon>
       </div>
 
-      <!-- Mitra / Komunitas -->
-      <div
-        class="type-card"
-        [class.active]="selected === 'mitra'"
-        (click)="select('mitra')">
-        <div class="icon-circle">
-          <ion-icon name="people-outline"></ion-icon>
-        </div>
-        <h3>Mitra / Komunitas</h3>
-        <p>
-          Kelola pengumpulan sampah untuk komunitas, bank sampah,
-          atau usaha kamu.
-        </p>
-        <ion-icon
-          *ngIf="selected === 'mitra'"
-          class="check"
-          name="checkmark-circle">
-        </ion-icon>
-      </div>
-
+      <div class="spacer"></div>
     </div>
 
-    <ion-button
-      expand="block"
-      class="btn-next"
-      [disabled]="!selected"
-      (click)="next()">
-      Lanjutkan
-      <ion-icon slot="end" name="arrow-forward"></ion-icon>
-    </ion-button>
+    <!-- Header Logo & Sambutan -->
+    <div class="hero-header">
+      <div class="logo-badge-wrap">
+        <div class="mini-eco-logo">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="54" fill="#EAF6F0"/>
+            <path d="M28 66 C23 40, 42 22, 66 24" stroke="#1DA1F2" stroke-width="9" stroke-linecap="round"/>
+            <polygon points="64,13 82,25 62,35" fill="#1DA1F2"/>
+            <path d="M92 54 C97 80, 78 98, 54 96" stroke="#22AD5C" stroke-width="9" stroke-linecap="round"/>
+            <polygon points="56,107 38,95 58,85" fill="#22AD5C"/>
+            <path d="M46 74 C45 55, 58 44, 74 45 C73 61, 63 74, 46 74 Z" fill="#22AD5C"/>
+            <path d="M46 74 C45 55, 58 44, 74 45 C60 54, 53 63, 46 74 Z" fill="#1DA1F2"/>
+          </svg>
+          <div class="leaf-corner-badge">
+            <ion-icon name="leaf"></ion-icon>
+          </div>
+        </div>
+      </div>
 
-    <p class="login-text">
-      Sudah punya akun? <a routerLink="/login">Masuk</a>
-    </p>
+      <h2>Selamat Datang</h2>
+      <p>Pilih jenis akun untuk melanjutkan pendaftaran atau masuk ke layanan EcoApp</p>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- LAYAR 1 (KIRI): PILIH PENGGUNA PRIBADI ATAU MITRA / KOMUNITAS      -->
+    <!-- ================================================================= -->
+    <div *ngIf="tahapDaftar === 1" class="step-wrapper">
+      <div class="role-cards-stack">
+
+        <!-- Kartu Pengguna Pribadi -->
+        <div 
+          class="role-card-modern" 
+          [class.selected]="peranDipilih === 'PRIBADI'" 
+          (click)="pilihKartuPeran('PRIBADI')">
+          
+          <div class="popular-ribbon">Paling Populer</div>
+
+          <div class="card-top-row">
+            <div class="role-icon-box green-box">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div class="role-title-area">
+              <h3>Pengguna Pribadi</h3>
+              <span>Rumah Tangga, UMKM & Pedagang</span>
+            </div>
+            <div class="radio-check">
+              <ion-icon [name]="peranDipilih === 'PRIBADI' ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+            </div>
+          </div>
+
+          <p class="role-desc">
+            Untuk Rumah Tangga, UMKM Kuliner, dan Pedagang Pasar yang ingin menyalurkan sampah anorganik.
+          </p>
+
+          <div class="feature-chips">
+            <div class="chip">
+              <ion-icon name="bicycle-outline"></ion-icon>
+              <span>Antar / Jemput</span>
+            </div>
+            <div class="chip">
+              <ion-icon name="cube-outline"></ion-icon>
+              <span>Plastik, Kardus, Kaca, Logam</span>
+            </div>
+            <div class="chip highlight-chip">
+              <ion-icon name="wallet-outline"></ion-icon>
+              <span>Sistem Poin Jadi Uang Tunai</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kartu Mitra / Komunitas -->
+        <div 
+          class="role-card-modern" 
+          [class.selected]="peranDipilih === 'MITRA'" 
+          (click)="pilihKartuPeran('MITRA')">
+          
+          <div class="card-top-row">
+            <div class="role-icon-box blue-box">
+              <ion-icon name="git-network-outline"></ion-icon>
+            </div>
+            <div class="role-title-area">
+              <h3>Mitra / Komunitas</h3>
+              <span>Kurir Penjemput & Pengolah Sampah</span>
+            </div>
+            <div class="radio-check">
+              <ion-icon [name]="peranDipilih === 'MITRA' ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+            </div>
+          </div>
+
+          <p class="role-desc">
+            Khusus petugas kurir penjemputan dan tim pengolah sampah dari organisasi mitra.
+          </p>
+
+          <div class="feature-chips">
+            <div class="chip">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>Manajemen Tugas</span>
+            </div>
+            <div class="chip">
+              <ion-icon name="scale-outline"></ion-icon>
+              <span>Pencatatan Timbangan</span>
+            </div>
+            <div class="chip blue-chip">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              <span>Akses Khusus Pengelola</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bottom-action-area">
+        <ion-button expand="block" class="btn-lanjut-eco" (click)="lanjutTahapBerikutnya()">
+          <span>Lanjut</span>
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+
+        <div class="bottom-login-link">
+          Sudah punya akun? <a (click)="keHalamanMasuk()">Masuk</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- LAYAR 2 (KEDUA DARI KIRI): "ANDA SEBAGAI SIAPA?"                  -->
+    <!-- ================================================================= -->
+    <div *ngIf="tahapDaftar === 2" class="step-wrapper">
+      <div class="white-box-card">
+        <span class="card-eyebrow">DAFTAR AKUN</span>
+        <h3 class="card-question">Anda sebagai siapa?</h3>
+
+        <div class="who-options-list">
+
+          <!-- Pilihan 1: Rumah tangga -->
+          <div 
+            class="who-item" 
+            [class.active]="formDaftar.jenis_pelanggan === 'RUMAH_TANGGA'"
+            (click)="pilihKategoriPelanggan('RUMAH_TANGGA')">
+            <div class="who-icon-box">
+              <ion-icon name="home-outline"></ion-icon>
+            </div>
+            <div class="who-text">
+              <h4>Rumah tangga</h4>
+              <p>Plastik, kardus, dan botol dari rumah</p>
+            </div>
+            <ion-icon 
+              *ngIf="formDaftar.jenis_pelanggan === 'RUMAH_TANGGA'" 
+              name="checkmark-circle" 
+              class="who-check">
+            </ion-icon>
+          </div>
+
+          <!-- Pilihan 2: UMKM kuliner -->
+          <div 
+            class="who-item" 
+            [class.active]="formDaftar.jenis_pelanggan === 'UMKM'"
+            (click)="pilihKategoriPelanggan('UMKM')">
+            <div class="who-icon-box">
+              <ion-icon name="restaurant-outline"></ion-icon>
+            </div>
+            <div class="who-text">
+              <h4>UMKM kuliner</h4>
+              <p>Kemasan, gelas plastik, dan kaleng</p>
+            </div>
+            <ion-icon 
+              *ngIf="formDaftar.jenis_pelanggan === 'UMKM'" 
+              name="checkmark-circle" 
+              class="who-check">
+            </ion-icon>
+          </div>
+
+          <!-- Pilihan 3: Pedagang pasar -->
+          <div 
+            class="who-item" 
+            [class.active]="formDaftar.jenis_pelanggan === 'PEDAGANG'"
+            (click)="pilihKategoriPelanggan('PEDAGANG')">
+            <div class="who-icon-box">
+              <ion-icon name="storefront-outline"></ion-icon>
+            </div>
+            <div class="who-text">
+              <h4>Pedagang pasar</h4>
+              <p>Setoran kolektif per kios atau blok pasar</p>
+            </div>
+            <ion-icon 
+              *ngIf="formDaftar.jenis_pelanggan === 'PEDAGANG'" 
+              name="checkmark-circle" 
+              class="who-check">
+            </ion-icon>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="bottom-action-area">
+        <ion-button expand="block" class="btn-lanjut-eco" (click)="lanjutTahapBerikutnya()">
+          <span>Lanjut</span>
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- LAYAR 3 (KETIGA DARI KIRI): FORM BIODATA & NAMA USAHA             -->
+    <!-- ================================================================= -->
+    <div *ngIf="tahapDaftar === 3" class="step-wrapper">
+      <div class="white-box-card">
+
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <div class="input-box">
+            <ion-icon name="person-outline" class="prefix-icon"></ion-icon>
+            <input type="text" placeholder="nama lengkap" [(ngModel)]="formDaftar.nama" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Nama Usaha <span class="optional-hint">(kosongkan jika Rumah Tangga)</span></label>
+          <div class="input-box">
+            <ion-icon name="briefcase-outline" class="prefix-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="nama usaha" 
+              [(ngModel)]="formDaftar.nama_usaha" 
+              [disabled]="formDaftar.jenis_pelanggan === 'RUMAH_TANGGA'" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <div class="input-box">
+            <ion-icon name="mail-outline" class="prefix-icon"></ion-icon>
+            <input type="email" placeholder="nama@email.com" [(ngModel)]="formDaftar.email" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Nomor HP</label>
+          <div class="input-box">
+            <ion-icon name="call-outline" class="prefix-icon"></ion-icon>
+            <input type="tel" placeholder="nomor telepon" [(ngModel)]="formDaftar.no_hp" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Alamat Lengkap</label>
+          <div class="input-box">
+            <ion-icon name="location-outline" class="prefix-icon"></ion-icon>
+            <input type="text" placeholder="alamat Lengkap" [(ngModel)]="formDaftar.alamat" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bottom-action-area">
+        <ion-button expand="block" class="btn-lanjut-eco" (click)="lanjutTahapBerikutnya()">
+          <span>Lanjut</span>
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- LAYAR 4 (PALING KANAN): PASSWORD & VERIFIKASI PASSWORD            -->
+    <!-- ================================================================= -->
+    <div *ngIf="tahapDaftar === 4" class="step-wrapper">
+      <div class="white-box-card">
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-box">
+            <ion-icon name="lock-closed-outline" class="prefix-icon"></ion-icon>
+            <input 
+              [type]="tampilkanSandi ? 'text' : 'password'" 
+              placeholder="password" 
+              [(ngModel)]="formDaftar.password" />
+            <ion-icon 
+              [name]="tampilkanSandi ? 'eye-off-outline' : 'eye-outline'" 
+              class="suffix-icon" 
+              (click)="tampilkanSandi = !tampilkanSandi">
+            </ion-icon>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Verifikasi Password</label>
+          <div class="input-box">
+            <ion-icon name="shield-checkmark-outline" class="prefix-icon"></ion-icon>
+            <input 
+              [type]="tampilkanVerifikasiSandi ? 'text' : 'password'" 
+              placeholder="password" 
+              [(ngModel)]="verifikasiPassword" />
+            <ion-icon 
+              [name]="tampilkanVerifikasiSandi ? 'eye-off-outline' : 'eye-outline'" 
+              class="suffix-icon" 
+              (click)="tampilkanVerifikasiSandi = !tampilkanVerifikasiSandi">
+            </ion-icon>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bottom-action-area">
+        <ion-button expand="block" class="btn-lanjut-eco" (click)="simpanPendaftaran()">
+          <span>Daftar Akun</span>
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
 
   </div>
 </ion-content>
