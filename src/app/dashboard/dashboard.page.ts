@@ -11,9 +11,8 @@ export class DashboardPage implements OnInit {
   // 1. Tambahkan 3 variabel penampung yang dicari oleh HTML:
   loading: boolean = false;
   error: string | null = null;
-  data: any = null;
+ 
 
-<<<<<<< Updated upstream
   // Data sesuai struktur yang dipanggil di dashboard.page.html
   data: any = {
     pelanggan: {
@@ -59,12 +58,6 @@ export class DashboardPage implements OnInit {
   };
 
   constructor() {}
-=======
-  // Data pengambilan sampah
-  pickup: any = null;
-
-  constructor() { }
->>>>>>> Stashed changes
 
   ngOnInit() {
     this.setGreeting();
@@ -109,4 +102,3 @@ export class DashboardPage implements OnInit {
     });
   }
   }
-}
