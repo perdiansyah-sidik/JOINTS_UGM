@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -12,6 +13,7 @@ export class DashboardPage implements OnInit {
   error: string | null = null;
   data: any = null;
 
+<<<<<<< Updated upstream
   // Data sesuai struktur yang dipanggil di dashboard.page.html
   data: any = {
     pelanggan: {
@@ -57,6 +59,12 @@ export class DashboardPage implements OnInit {
   };
 
   constructor() {}
+=======
+  // Data pengambilan sampah
+  pickup: any = null;
+
+  constructor() { }
+>>>>>>> Stashed changes
 
   ngOnInit() {
     this.setGreeting();
