@@ -1,0 +1,161 @@
+<ion-content [fullscreen]="true" class="dash-content">
+
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div class="state" *ngIf="error && !data">
+    <p>Data belum bisa dimuat.</p>
+    <ion-button size="small" (click)="load()">Coba lagi</ion-button>
+  </div>
+
+  <div class="dash-container" *ngIf="data">
+
+    <!-- Header -->
+    <div class="top">
+      <div>
+        <div class="location">
+          <ion-icon name="location"></ion-icon>
+          <span>{{ lokasi }}</span>
+          <span class="chip">{{ jenisLabel }}</span>
+        </div>
+        <h1>Selamat {{ greeting }}, {{ data.pelanggan.nama }} 👋</h1>
+      </div>
+
+      <button class="bell">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Kartu saldo -->
+    <section class="balance-card">
+      <div class="balance-head">
+        <div class="label">
+          <ion-icon name="wallet-outline"></ion-icon>
+          Saldo Poin Tersedia
+        </div>
+        <button class="withdraw" [disabled]="!canWithdraw" routerLink="/pencairan">
+          Cairkan dana
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+      </div>
+
+      <div class="points">
+        <strong>{{ fmt(data.poin.tersedia, 0) }}</strong>
+        <span>Poin</span>
+      </div>
+
+      <div class="nominal">
+        <ion-icon name="cash-outline"></ion-icon>
+        Setara nominal Rp {{ fmt(nominal, 0) }}
+      </div>
+
+      <div class="processing">
+        Poin Diproses: {{ fmt(data.poin.dalamPencairan, 0) }} Poin
+        <span *ngIf="!canWithdraw" class="hint">
+          • Minimal pencairan {{ fmt(data.poin.minimalPencairan, 0) }} poin
+        </span>
+      </div>
+    </section>
+
+    <!-- Aksi cepat -->
+    <section class="quick">
+      <button class="quick-item" *ngFor="let a of quickActions" [routerLink]="a.link">
+        <div class="quick-icon">
+          <ion-icon [name]="a.icon"></ion-icon>
+        </div>
+        <span>{{ a.label }}</span>
+      </button>
+    </section>
+
+    <!-- Sampah bulan ini -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Sampah Anda bulan ini</h2>
+          <p>Berdasarkan data timbangan terverifikasi</p>
+        </div>
+        <span class="total-badge">{{ fmt(totalKg) }} kg</span>
+      </div>
+
+      <div class="empty" *ngIf="wastes.length === 0">
+        Belum ada setoran terverifikasi bulan ini.
+      </div>
+
+      <div class="waste" *ngFor="let w of wastes">
+        <div class="waste-row">
+          <div class="waste-name">
+            <span class="dot-color" [style.background]="w.color"></span>
+            {{ w.name }}
+          </div>
+          <div class="waste-val">
+            <strong>{{ fmt(w.kg) }} kg</strong>
+            <span>({{ w.percent }}%)</span>
+          </div>
+        </div>
+        <div class="bar">
+          <div class="bar-fill" [style.width.%]="w.percent" [style.background]="w.color"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jemputan berikutnya -->
+    <section class="card pickup-card">
+      <div class="section-label">JEMPUTAN BERIKUTNYA</div>
+
+      <div class="pickup" *ngIf="pickup">
+        <div class="date-box">
+          <span>{{ pickup.hari }}</span>
+          <strong>{{ pickup.tanggal }}</strong>
+        </div>
+
+        <div class="pickup-info">
+          <h3>Penjemputan Sampah</h3>
+          <p>Kode Label: <b>{{ pickup.kode }}</b></p>
+          <p class="muted">{{ pickup.info }}</p>
+          <p class="muted" *ngIf="pickup.potongan > 0">
+            Potongan jemput {{ pickup.potongan }}% dari poin
+          </p>
+        </div>
+
+        <span class="status" [ngClass]="pickup.cls">{{ pickup.label }}</span>
+      </div>
+
+      <div class="empty" *ngIf="!pickup">
+        Belum ada jadwal jemputan. Kamu juga bisa antar sendiri ke drop point.
+      </div>
+    </section>
+
+    <ion-button expand="block" class="btn-pickup" routerLink="/pesan-jemput">
+      Ajukan Penjemputan Sampah
+      <ion-icon slot="end" name="arrow-forward"></ion-icon>
+    </ion-button>
+
+  </div>
+</ion-content>
+
+<!-- Bottom navigation -->
+<ion-footer class="ion-no-border">
+  <div class="bottom-nav">
+    <button class="nav-item active">
+      <ion-icon name="home"></ion-icon>
+      <span>Beranda</span>
+    </button>
+    <button class="nav-item" routerLink="/riwayat-setor">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>Riwayat</span>
+    </button>
+    <button class="nav-item" routerLink="/pencairan">
+      <ion-icon name="wallet-outline"></ion-icon>
+      <span>Dompet</span>
+    </button>
+    <button class="nav-item" routerLink="/profil">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Profil</span>
+    </button>
+  </div>
+</ion-footer>

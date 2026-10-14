@@ -1,0 +1,90 @@
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-container">
+
+    <div class="logo-wrap">
+      <img src="assets/icon/logo.jpeg" alt="Logo EcoApp" />
+    </div>
+
+    <h1>Selamat Datang Kembali</h1>
+    <p class="subtitle">
+      Masuk untuk melanjutkan akun dan pantau lingkungan
+    </p>
+
+    <!-- Tab tipe pengguna -->
+    <div class="type-tabs">
+      <button
+        [class.active]="userType === 'pribadi'"
+        (click)="setType('pribadi')">
+        <ion-icon name="person-outline"></ion-icon>
+        Pengguna Pribadi
+      </button>
+      <button
+        [class.active]="userType === 'mitra'"
+        (click)="setType('mitra')">
+        <ion-icon name="people-outline"></ion-icon>
+        Mitra / Komunitas
+      </button>
+    </div>
+
+    <!-- Form -->
+    <div class="field">
+      <label>Email atau No. Handphone</label>
+      <div class="input-box">
+        <ion-icon name="mail-outline"></ion-icon>
+        <input
+          type="text"
+          placeholder="nama@gmail.com"
+          [(ngModel)]="email" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Kata Sandi</label>
+      <div class="input-box">
+        <ion-icon name="lock-closed-outline"></ion-icon>
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Masukkan kata sandi"
+          [(ngModel)]="password" />
+        <ion-icon
+          class="eye"
+          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+          (click)="togglePassword()">
+        </ion-icon>
+      </div>
+    </div>
+
+    <div class="row-options">
+      <label class="remember">
+        <input type="checkbox" [(ngModel)]="remember" />
+        <span>Ingat saya</span>
+      </label>
+      <a class="forgot">Lupa Kata Sandi?</a>
+    </div>
+
+    <ion-button expand="block" class="btn-login" routerLink="/dashboard">
+      Masuk ke Akun
+      <ion-icon slot="end" name="arrow-forward"></ion-icon>
+    </ion-button>
+
+    <div class="divider">
+      <span>Atau masuk dengan</span>
+    </div>
+
+    <div class="social-row">
+      <button class="social-btn">
+        <ion-icon name="logo-google"></ion-icon>
+        Google
+      </button>
+      <button class="social-btn">
+        <ion-icon name="logo-apple"></ion-icon>
+        Apple
+      </button>
+    </div>
+
+    <p class="register-text">
+      Belum punya akun? <a routerLink="/register">Daftar Sekarang</a>
+    </p>
+
+  </div>
+</ion-content>

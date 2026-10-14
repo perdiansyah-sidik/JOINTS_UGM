@@ -1,0 +1,98 @@
+.welcome-content {
+  --background: #f1fbf4;
+}
+
+.welcome-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 24px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    strong { font-size: 14px; color: #1f2937; }
+    span { font-size: 10px; color: #6b7280; }
+  }
+
+  .badge-pill {
+    background: #d1fae5;
+    color: #059669;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+}
+
+.logo-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 190px;
+    max-width: 60%;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+.bottom-section {
+  .tag {
+    display: inline-block;
+    background: #fff;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #111827;
+    margin: 0 0 10px;
+
+    .highlight { color: #16a34a; }
+  }
+
+  .desc {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0 0 20px;
+  }
+
+  .btn-start {
+    --background: #22c55e;
+    --border-radius: 12px;
+    --box-shadow: none;
+    font-weight: 700;
+    height: 48px;
+    text-transform: none;
+  }
+
+  .login-text {
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 14px;
+
+    a {
+      color: #111827;
+      font-weight: 700;
+      text-decoration: none;
+    }
+  }
+}

@@ -1,0 +1,71 @@
+<ion-content [fullscreen]="true" class="register-content">
+  <div class="register-container">
+
+    <div class="logo-wrap">
+      <img src="assets/icon/logo.jpeg" alt="Logo EcoApp" />
+    </div>
+
+    <h1>Daftar Akun Baru</h1>
+    <p class="subtitle">
+      Pilih kategori penyetor sampah untuk melanjutkan pendaftaran ke EcoApp.
+    </p>
+
+    <div class="cards">
+
+      <!-- Pengguna Pribadi -->
+      <div
+        class="type-card"
+        [class.active]="selected === 'pribadi'"
+        (click)="select('pribadi')">
+        <div class="icon-circle">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <h3>Pengguna Pribadi</h3>
+        <p>
+          Setor sampah rumah tangga, kumpulkan poin, dan tukarkan
+          menjadi rupiah dengan mudah.
+        </p>
+        <ion-icon
+          *ngIf="selected === 'pribadi'"
+          class="check"
+          name="checkmark-circle">
+        </ion-icon>
+      </div>
+
+      <!-- Mitra / Komunitas -->
+      <div
+        class="type-card"
+        [class.active]="selected === 'mitra'"
+        (click)="select('mitra')">
+        <div class="icon-circle">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <h3>Mitra / Komunitas</h3>
+        <p>
+          Kelola pengumpulan sampah untuk komunitas, bank sampah,
+          atau usaha kamu.
+        </p>
+        <ion-icon
+          *ngIf="selected === 'mitra'"
+          class="check"
+          name="checkmark-circle">
+        </ion-icon>
+      </div>
+
+    </div>
+
+    <ion-button
+      expand="block"
+      class="btn-next"
+      [disabled]="!selected"
+      (click)="next()">
+      Lanjutkan
+      <ion-icon slot="end" name="arrow-forward"></ion-icon>
+    </ion-button>
+
+    <p class="login-text">
+      Sudah punya akun? <a routerLink="/login">Masuk</a>
+    </p>
+
+  </div>
+</ion-content>
