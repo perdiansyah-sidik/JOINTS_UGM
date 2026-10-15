@@ -1,365 +1,511 @@
-.dash-content {
-  --background: #f9fafb;
+.beranda-bg {
+  --background: #F7FAF8;
 }
 
-.dash-container {
-  max-width: 480px;
+.beranda-wrapper {
+  max-width: 450px;
   margin: 0 auto;
-  padding: 16px 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 20px 18px 96px; /* Ruang bawah untuk Bottom Nav */
 }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-/* State loading / error / kosong */
-.state {
+/* 1. HEADER ATAS */
+.top-greeting-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 80px 20px;
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.empty {
-  font-size: 12px;
-  color: #9ca3af;
-  text-align: center;
-  padding: 10px 0;
-}
-
-/* Header */
-.top {
-  display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  margin-bottom: 18px;
 
-  .location {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    color: #6b7280;
-
-    ion-icon { color: #16a34a; font-size: 13px; }
-
-    .chip {
-      margin-left: 6px;
-      background: #dcfce7;
-      color: #15803d;
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 999px;
-    }
-  }
-
-  h1 {
-    margin: 4px 0 0;
-    font-size: 18px;
-    font-weight: 800;
-    color: #111827;
-  }
-
-  .bell {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    ion-icon { font-size: 20px; color: #374151; }
-  }
-}
-
-/* Balance */
-.balance-card {
-  background: linear-gradient(135deg, #16a34a, #15803d);
-  border-radius: 20px;
-  padding: 16px;
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.25);
-
-  .balance-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .label {
+  .greeting-left {
+    .location-line {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       font-size: 12px;
       font-weight: 600;
-      opacity: 0.95;
+      color: #64748B;
+      margin-bottom: 4px;
+
+      ion-icon {
+        color: #16A34A;
+        font-size: 14px;
+      }
     }
 
-    .withdraw {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      border: none;
-      background: #3b82f6;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 999px;
+    .greeting-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0;
+      letter-spacing: -0.3px;
 
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+      .wave-emoji {
+        display: inline-block;
+        font-size: 19px;
       }
     }
   }
 
-  .points {
-    margin: 12px 0 10px;
+  .notif-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
     display: flex;
-    align-items: baseline;
-    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    color: #0F172A;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 
-    strong { font-size: 36px; font-weight: 800; line-height: 1; }
-    span { font-size: 16px; opacity: 0.9; }
+    .notif-dot {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #0284C7;
+      border: 1.5px solid #FFFFFF;
+    }
+  }
+}
+
+/* 2. KARTU HIJAU SALDO POIN TERSEDIA */
+.points-hero-card {
+  position: relative;
+  background: linear-gradient(135deg, #065F31 0%, #0D7A3F 55%, #138A47 100%);
+  border-radius: 22px;
+  padding: 20px 18px 16px;
+  color: #FFFFFF;
+  overflow: hidden;
+  box-shadow: 0 12px 26px rgba(6, 95, 49, 0.22);
+  margin-bottom: 22px;
+
+  .card-circle-decor {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
   }
 
-  .nominal {
+  .circle-1 {
+    width: 150px;
+    height: 150px;
+    right: -35px;
+    bottom: -45px;
+  }
+
+  .circle-2 {
+    width: 90px;
+    height: 90px;
+    right: 10px;
+    top: -25px;
+  }
+
+  .points-top-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+
+    .points-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #A7F3D0;
+
+      ion-icon {
+        font-size: 16px;
+        color: #6EE7B7;
+      }
+    }
+
+    .btn-cairkan {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #0284C7;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+
+      ion-icon {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .points-main-value {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    .big-number {
+      font-size: 36px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .unit-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: #6EE7B7;
+    }
+  }
+
+  .nominal-badge {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.22);
     padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .processing {
-    margin-top: 14px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: 11px;
-    opacity: 0.85;
-
-    .hint {
-      opacity: 0.9;
-      font-weight: 600;
-    }
-  }
-}
-
-/* Quick actions */
-.quick {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-
-  .quick-item {
-    border: none;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    font-size: 10px;
-    font-weight: 600;
-    color: #374151;
-    padding: 0;
-
-    .quick-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      ion-icon { font-size: 24px; color: #16a34a; }
-    }
-  }
-}
-
-/* Cards */
-.card {
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-}
-
-.card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-
-  h2 { margin: 0; font-size: 14px; font-weight: 800; color: #111827; }
-  p { margin: 2px 0 0; font-size: 10px; color: #9ca3af; }
-
-  .total-badge {
-    background: #f3f4f6;
-    color: #111827;
-    font-size: 13px;
-    font-weight: 800;
-    padding: 4px 10px;
     border-radius: 10px;
-  }
-}
-
-.waste {
-  margin-bottom: 12px;
-
-  &:last-child { margin-bottom: 0; }
-
-  .waste-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     font-size: 12px;
-    margin-bottom: 6px;
-  }
-
-  .waste-name {
-    display: flex;
-    align-items: center;
-    gap: 6px;
     font-weight: 600;
-    color: #374151;
+    color: #ECFDF5;
+    margin-bottom: 14px;
 
-    .dot-color {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    ion-icon {
+      color: #34D399;
+      font-size: 15px;
     }
   }
 
-  .waste-val {
-    strong { color: #111827; font-weight: 700; }
-    span { color: #9ca3af; font-size: 11px; margin-left: 3px; }
-  }
-
-  .bar {
-    height: 7px;
-    background: #f3f4f6;
-    border-radius: 999px;
-    overflow: hidden;
-
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
-    }
-  }
-}
-
-/* Pickup */
-.pickup-card {
-  background: #fafafa;
-
-  .section-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #6b7280;
+  .points-divider {
+    position: relative;
+    z-index: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.14);
     margin-bottom: 10px;
   }
 
-  .pickup {
+  .points-footer-text {
+    position: relative;
+    z-index: 1;
+    font-size: 11.5px;
+    color: rgba(236, 253, 245, 0.8);
+    font-weight: 500;
+  }
+}
+
+/* 3. EMPAT MENU CEPAT */
+.quick-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+
+  .menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+
+    .menu-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(34, 173, 92, 0.14);
+      transition: transform 0.2s ease;
+
+      &.box-green-soft {
+        background: #E8F8EE;
+        color: #16A34A;
+      }
+
+      &.box-slate-soft {
+        background: #E2E8F0;
+        color: #1E293B;
+      }
+
+      &.box-mint-soft {
+        background: #E6F7F2;
+        color: #0F766E;
+      }
+    }
+
+    &:active .menu-icon-box {
+      transform: scale(0.95);
+    }
+
+    span {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.3;
+    }
+  }
+}
+
+/* 4. KARTU PUTIH ("SAMPAH ANDA BULAN INI" & "JEMPUTAN BERIKUTNYA") */
+.section-white-card {
+  background: #FFFFFF;
+  border-radius: 22px;
+  padding: 20px 18px;
+  border: 1px solid #EDF2F7;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  margin-bottom: 18px;
+
+  .card-header-flex {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+
+    .title-group {
+      h3 {
+        font-size: 16px;
+        font-weight: 800;
+        color: #0F172A;
+        margin: 0 0 4px;
+      }
+
+      p {
+        font-size: 11.5px;
+        color: #94A3B8;
+        margin: 0;
+      }
+    }
+
+    .total-kg-pill {
+      background: #ECFDF5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+  }
+}
+
+.material-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .material-row {
+    .mat-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+
+      .mat-name {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        .color-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+        }
+
+        .name-text {
+          font-size: 12.5px;
+          font-weight: 700;
+        }
+      }
+
+      .mat-weight {
+        font-size: 12px;
+
+        strong {
+          color: #0F172A;
+          font-weight: 800;
+          margin-right: 3px;
+        }
+
+        span {
+          color: #94A3B8;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #F1F5F9;
+      border-radius: 10px;
+      overflow: hidden;
+
+      .progress-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.4s ease;
+      }
+    }
+  }
+}
+
+/* 5. KARTU JEMPUTAN BERIKUTNYA */
+.pickup-section-card {
+  padding: 18px;
+
+  .section-eyebrow {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #94A3B8;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .pickup-inner-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 14px 12px;
     display: flex;
     align-items: center;
     gap: 12px;
-    background: #fff;
-    border: 1px solid #f0f0f0;
-    border-radius: 14px;
-    padding: 12px;
-  }
 
-  .date-box {
-    width: 44px;
-    height: 52px;
-    border: 1.5px solid #bbf7d0;
-    background: #f0fdf4;
-    border-radius: 10px;
+    .date-badge {
+      width: 46px;
+      height: 52px;
+      background: #FFFFFF;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+
+      .day-text {
+        font-size: 10px;
+        font-weight: 800;
+        color: #0284C7;
+        text-transform: uppercase;
+      }
+
+      .date-num {
+        font-size: 18px;
+        font-weight: 800;
+        color: #0F172A;
+        line-height: 1.1;
+      }
+    }
+
+    .pickup-info {
+      flex: 1;
+      min-width: 0;
+
+      h4 {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0F172A;
+        margin: 0 0 3px;
+      }
+
+      .label-code {
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #1E293B;
+        margin: 0 0 4px;
+      }
+
+      .courier-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
+        font-size: 11px;
+        color: #64748B;
+        font-weight: 500;
+      }
+    }
+
+    .status-scheduled-pill {
+      background: #DCFCE7;
+      color: #15803D;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 11px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+/* 6. TOMBOL UTAMA AJUKAN PENJEMPUTAN SAMPAH */
+.btn-ajukan-jemput {
+  --background: #22AD5C;
+  --background-activated: #1B8F4B;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 20px rgba(34, 173, 92, 0.28);
+  height: 52px;
+  font-size: 14.5px;
+  font-weight: 800;
+  text-transform: none;
+  margin: 6px 0 12px;
+}
+
+/* 7. BOTTOM NAVIGATION BAR */
+.eco-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  background: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  .nav-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 4px;
+    color: #94A3B8;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 0;
 
-    span { font-size: 9px; font-weight: 700; color: #16a34a; }
-    strong { font-size: 18px; color: #111827; line-height: 1.1; }
-  }
-
-  .pickup-info {
-    flex: 1;
-
-    h3 { margin: 0 0 3px; font-size: 13px; font-weight: 800; color: #111827; }
-    p { margin: 0; font-size: 10px; color: #374151; }
-    .muted { color: #9ca3af; margin-top: 2px; }
-  }
-
-  .status {
-    align-self: flex-start;
-    white-space: nowrap;
-    background: #dcfce7;
-    color: #16a34a;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 999px;
-
-    &.amber { background: #fef3c7; color: #b45309; }
-    &.blue  { background: #dbeafe; color: #1d4ed8; }
-    &.green { background: #dcfce7; color: #16a34a; }
-  }
-}
-
-.btn-pickup {
-  --background: #22c55e;
-  --border-radius: 14px;
-  --box-shadow: none;
-  height: 50px;
-  font-weight: 700;
-  text-transform: none;
-  margin: 0;
-}
-
-/* Bottom nav */
-.bottom-nav {
-  max-width: 480px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-around;
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-
-  .nav-item {
-    border: none;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    font-size: 10px;
-    color: #9ca3af;
-
-    ion-icon { font-size: 22px; }
+    ion-icon {
+      font-size: 22px;
+    }
 
     &.active {
-      color: #16a34a;
-      font-weight: 700;
+      color: #16A34A;
+      font-weight: 800;
     }
   }
 }

@@ -1,0 +1,17 @@
+.dp-toolbar { --background: #fff; --color: #143522; }
+.dp-bg { --background: #f8faf9; }
+.dp-container { max-width: 480px; margin: 0 auto; padding: 18px 16px 32px; }
+.dp-state { padding: 70px 16px; text-align: center; color: #62796b; }
+.dp-card { padding: 22px 18px; margin-bottom: 14px; border: 1px solid #e2eae5; border-radius: 18px; background: #fff; text-align: center; }
+.dp-avatar { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 10px; border-radius: 16px; background: #eaf6ee; color: #16813e; font-size: 29px; }
+h1 { margin: 0 0 2px; color: #143522; font-size: 21px; }
+.dp-email { margin: 0 0 12px; color: #63766b; font-size: 13px; }
+.dp-status { display: inline-block; padding: 5px 11px; border-radius: 999px; background: #e5f6e9; color: #147739; font-size: 12px; font-weight: 700; }
+.dp-status.nonaktif { background: #f2f2f2; color: #707b73; }
+.dp-notice { margin: 14px 0 0; color: #8d5c18; font-size: 12px; }
+.dp-details { text-align: left; }
+.dp-details h2 { margin: 0 0 12px; color: #143522; font-size: 15px; }
+.dp-details > div { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-top: 1px solid #edf1ee; font-size: 13px; }
+.dp-details span { color: #6e7e73; }
+.dp-details strong { max-width: 62%; color: #263d2e; text-align: right; overflow-wrap: anywhere; }
+.dp-edit { --background: #16813e; --border-radius: 12px; min-height: 48px; }

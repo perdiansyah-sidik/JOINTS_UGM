@@ -1,0 +1,44 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="dp-toolbar">
+    <ion-buttons slot="start"><ion-back-button defaultHref="/master-pengguna" text=""></ion-back-button></ion-buttons>
+    <ion-title>Detail Pengguna</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="dp-bg">
+  <div class="dp-container">
+    @if (sedangMuat) {
+      <div class="dp-state"><ion-spinner name="crescent"></ion-spinner><p>Memuat akun...</p></div>
+    } @else if (pesanError) {
+      <div class="dp-state"><p>{{ pesanError }}</p><ion-button fill="outline" (click)="kembali()">Kembali</ion-button></div>
+    } @else if (pengguna; as akun) {
+      <section class="dp-card">
+        <div class="dp-avatar"><ion-icon name="person-outline"></ion-icon></div>
+        <h1>{{ akun.nama }}</h1>
+        <p class="dp-email">{{ akun.email }}</p>
+        <span class="dp-status" [class.nonaktif]="!akun.aktif">{{ akun.aktif ? 'Aktif' : 'Nonaktif' }}</span>
+        @if (akun.is_deleted) { <p class="dp-notice">Akun ini dihapus sementara. Pulihkan lewat menu di daftar sebelum mengedit.</p> }
+      </section>
+
+      <section class="dp-card dp-details">
+        <h2>Informasi akun</h2>
+        <div><span>Peran</span><strong>{{ labelPeran[akun.peran] }}</strong></div>
+        <div><span>Nomor HP</span><strong>{{ akun.no_hp || 'Belum diisi' }}</strong></div>
+        @if (akun.peran <= 3) {
+          <div><span>Alamat</span><strong>{{ akun.alamat || 'Belum diisi' }}</strong></div>
+        }
+        @if (akun.peran === 2 || akun.peran === 3) {
+          <div><span>Nama usaha</span><strong>{{ akun.nama_usaha || 'Belum diisi' }}</strong></div>
+        }
+        @if (akun.peran === 5) {
+          <div><span>Organisasi mitra</span><strong>{{ namaMitra || 'Memuat...' }}</strong></div>
+        }
+        <div><span>ID akun</span><strong>#{{ akun.id_pengguna }}</strong></div>
+      </section>
+
+      @if (!akun.is_deleted) {
+        <ion-button expand="block" class="dp-edit" (click)="ubah()">Edit profil akun</ion-button>
+      }
+    }
+  </div>
+</ion-content>

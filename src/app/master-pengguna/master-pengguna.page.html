@@ -1,0 +1,144 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="mp-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Master Pengguna</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="mp-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="muatDaftar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="mp-container">
+
+    <div class="mp-searchbar-wrap">
+      <ion-searchbar
+        placeholder="Cari nama atau email..."
+        [value]="kataKunci"
+        (ionInput)="ubahKataKunci($event.detail.value || '')"
+        inputmode="search"
+        mode="ios">
+      </ion-searchbar>
+    </div>
+
+    <div class="mp-filter-scroll" role="tablist" aria-label="Saring berdasarkan peran">
+      <button type="button" role="tab" [class.active]="filterPeran === 'SEMUA'" [attr.aria-selected]="filterPeran === 'SEMUA'" (click)="ubahFilterPeran('SEMUA')">Semua</button>
+      <button type="button" role="tab" [class.active]="filterPeran === 1" [attr.aria-selected]="filterPeran === 1" (click)="ubahFilterPeran(1)">Rumah Tangga</button>
+      <button type="button" role="tab" [class.active]="filterPeran === 2" [attr.aria-selected]="filterPeran === 2" (click)="ubahFilterPeran(2)">UMKM</button>
+      <button type="button" role="tab" [class.active]="filterPeran === 3" [attr.aria-selected]="filterPeran === 3" (click)="ubahFilterPeran(3)">Pedagang</button>
+      <button type="button" role="tab" [class.active]="filterPeran === 4" [attr.aria-selected]="filterPeran === 4" (click)="ubahFilterPeran(4)">Pengelola</button>
+      <button type="button" role="tab" [class.active]="filterPeran === 5" [attr.aria-selected]="filterPeran === 5" (click)="ubahFilterPeran(5)">Mitra</button>
+    </div>
+
+    @if (sedangMuat) {
+      <div class="mp-state-box">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Memuat daftar akun...</p>
+      </div>
+    } @else if (pesanError) {
+      <div class="mp-state-box">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+        <p>{{ pesanError }}</p>
+        <ion-button fill="outline" size="small" (click)="muatDaftar()">Coba Lagi</ion-button>
+      </div>
+    } @else if (daftarTertampil.length === 0) {
+      <div class="mp-state-box">
+        <ion-icon name="people-outline"></ion-icon>
+        <p>Tidak ada akun yang cocok dengan pencarian/filter ini.</p>
+      </div>
+    } @else {
+      <div class="mp-list">
+        @for (pengguna of daftarTertampil; track pengguna.id_pengguna) {
+          <div class="mp-card" [class.inactive]="!pengguna.aktif" [class.menu-open]="menuAkun === pengguna.id_pengguna" [attr.data-pengguna-id]="pengguna.id_pengguna">
+            <button type="button" class="mp-open" (click)="bukaDetail(pengguna)" [attr.aria-label]="'Lihat detail akun ' + pengguna.nama">
+            <div class="mp-avatar" [class.avatar-mitra]="pengguna.peran === 5" [class.avatar-pengelola]="pengguna.peran === 4">
+              <ion-icon [name]="pengguna.peran === 5 ? 'bicycle-outline' : (pengguna.peran === 4 ? 'shield-checkmark-outline' : 'person-outline')"></ion-icon>
+            </div>
+
+            <div class="mp-info">
+              <div class="mp-top-row">
+                <h3>{{ pengguna.nama }}</h3>
+                @if (!pengguna.aktif) {
+                  <span class="mp-badge badge-nonaktif">Nonaktif</span>
+                }
+              </div>
+              <p class="mp-email">{{ pengguna.email }}</p>
+              <div class="mp-tags">
+                <span class="mp-tag">{{ labelPeran[pengguna.peran] }}</span>
+                @if (pengguna.nama_usaha) {
+                  <span class="mp-tag tag-muted">{{ pengguna.nama_usaha }}</span>
+                }
+              </div>
+            </div>
+            </button>
+
+            <button type="button" role="switch" class="mp-status-switch" [class.on]="pengguna.aktif === 1"
+              [attr.aria-checked]="pengguna.aktif === 1"
+              [attr.aria-label]="(pengguna.aktif ? 'Nonaktifkan akun ' : 'Aktifkan akun ') + pengguna.nama"
+              [disabled]="sedangUbahStatus || sedangHapus" (click)="konfirmasiAksi(pengguna, 'status')"><span></span></button>
+            <button type="button" class="mp-more" [attr.aria-label]="'Aksi untuk ' + pengguna.nama"
+              [attr.aria-expanded]="menuAkun === pengguna.id_pengguna" [attr.aria-controls]="'mp-menu-' + pengguna.id_pengguna"
+              (click)="toggleMenu(pengguna.id_pengguna)">
+              <ion-icon name="ellipsis-horizontal"></ion-icon>
+            </button>
+
+            @if (menuAkun === pengguna.id_pengguna) {
+              <div class="mp-action-menu" [id]="'mp-menu-' + pengguna.id_pengguna" [attr.aria-label]="'Aksi untuk ' + pengguna.nama">
+                <button type="button" (click)="bukaDetail(pengguna)">
+                  <ion-icon name="eye-outline"></ion-icon><span>Detail</span>
+                </button>
+                <button type="button" [disabled]="pengguna.is_deleted === 1" (click)="bukaUbah(pengguna)">
+                  <ion-icon name="create-outline"></ion-icon><span>Edit</span>
+                </button>
+                <button type="button" class="danger" (click)="konfirmasiAksi(pengguna, 'hapus')">
+                  <ion-icon name="trash-outline"></ion-icon><span>Hapus</span>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button class="mp-fab" aria-label="Tambah petugas mitra" (click)="bukaTambahPetugasMitra()">
+      <ion-icon name="person-add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+@if (konfirmasi; as item) {
+  <div class="mp-confirm-backdrop" (click)="batalKonfirmasi()"></div>
+  <section class="mp-confirm" role="alertdialog" aria-modal="true" aria-labelledby="mp-confirm-title" aria-describedby="mp-confirm-message">
+    <div class="mp-confirm-icon" [class.danger]="item.aksi === 'hapus'">
+      <ion-icon [name]="item.aksi === 'hapus' ? 'trash-outline' : (item.pengguna.aktif ? 'pause-circle-outline' : 'checkmark-circle-outline')"></ion-icon>
+    </div>
+    <h2 id="mp-confirm-title">{{ item.aksi === 'hapus' ? 'Hapus akun permanen?' : (item.pengguna.aktif ? 'Nonaktifkan akun?' : 'Aktifkan kembali akun?') }}</h2>
+    <p id="mp-confirm-message">
+      @if (item.aksi === 'hapus') {
+        Akun {{ item.pengguna.nama }} akan hilang permanen. Akun yang sudah punya riwayat transaksi harus ditolak server.
+      } @else if (item.pengguna.aktif) {
+        Akun {{ item.pengguna.nama }} tidak bisa masuk sampai diaktifkan lagi. Riwayat transaksi tetap tersimpan.
+      } @else {
+        Akun {{ item.pengguna.nama }} bisa masuk kembali setelah diaktifkan.
+      }
+    </p>
+    @if (item.aksi === 'hapus') {
+      <label for="mp-delete-confirm">Ketik HAPUS untuk melanjutkan</label>
+      <input id="mp-delete-confirm" type="text" autocomplete="off" [(ngModel)]="teksKonfirmasiHapus" />
+    }
+    <div class="mp-confirm-actions">
+      <button id="mp-dialog-cancel" type="button" (click)="batalKonfirmasi()">Batal</button>
+      <button type="button" class="primary" [class.danger]="item.aksi === 'hapus'"
+        [disabled]="item.aksi === 'hapus' && teksKonfirmasiHapus !== 'HAPUS'"
+        (click)="jalankanKonfirmasi()">
+        {{ item.aksi === 'hapus' ? 'Hapus permanen' : (item.pengguna.aktif ? 'Nonaktifkan' : 'Aktifkan') }}
+      </button>
+    </div>
+  </section>
+}
