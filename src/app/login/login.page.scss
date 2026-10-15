@@ -1,75 +1,117 @@
-.eco-auth-bg {
-  --background: #F4FBF7;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+$hijau: #34B24E;
+$hijau-tua: #2A9A41;
+$biru: #1E9BE0;
+$teks-gelap: #1B2B22;
+$teks-abu: #5F6B65;
+$teks-placeholder: #98A39D;
+$bg-halaman: #F0FBF3;
+$bg-input: #EAF3EC;
+$bg-switcher: #E5EDE8;
+
+:host {
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-.auth-container {
+/* Paksa tampilan terang (desain tidak memakai dark mode) */
+.eco-login-bg {
+  --background: #{$bg-halaman};
+  --color: #{$teks-gelap};
+  color-scheme: light;
+}
+
+.login-container {
+  position: relative;
   min-height: 100%;
-  padding: 28px 20px 24px;
   max-width: 440px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+}
+  
+
+.top-bar {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+
+  .back-btn {
+    border: 0;
+    background: transparent;
+    color: #3B7A57;
+    font-size: 24px;
+    cursor: pointer;
+  }
 }
 
+/* ===== Logo ===== */
 .logo-badge-wrap {
   display: flex;
   justify-content: center;
-  margin-bottom: 14px;
+}
+.logo-badge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
 
   .mini-eco-logo {
     position: relative;
-    width: 72px;
-    height: 72px;
+    width: 76px;
+    height: 76px;
 
     svg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 4px 12px rgba(34, 173, 92, 0.15));
+      display: block;
     }
 
     .leaf-corner-badge {
       position: absolute;
-      bottom: 2px;
-      right: 2px;
-      width: 20px;
-      height: 20px;
+      bottom: 1px;
+      right: 1px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      background: #22AD5C;
+      background: $hijau;
       color: #FFFFFF;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      border: 2px solid #FFFFFF;
+      font-size: 12px;
+      border: 2px solid $bg-halaman;
     }
   }
 }
 
-.header-text {
+.header-text,
+.hero-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+}
+  
 
   h2 {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
-    color: #111827;
-    margin: 0 0 6px;
+    color: $teks-gelap;
+    margin: 0 0 8px;
+    letter-spacing: -0.2px;
   }
 
   p {
-    font-size: 12.5px;
-    color: #6B7280;
+    font-size: 13px;
+    font-weight: 400;
+    color: $teks-abu;
     line-height: 1.5;
     margin: 0 auto;
     max-width: 290px;
   }
-}
 
+
+/* ===== Pilihan peran ===== */
 .role-switcher {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #E8EFEA;
+  background: $bg-switcher;
   padding: 4px;
   border-radius: 14px;
   margin-bottom: 18px;
@@ -77,78 +119,101 @@
   .switch-btn {
     border: none;
     background: transparent;
-    padding: 10px 8px;
+    padding: 11px 6px;
     border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    font-family: inherit;
     font-size: 12.5px;
     font-weight: 700;
-    color: #4B5563;
+    color: #3F4A44;
     transition: all 0.25s ease;
     cursor: pointer;
+    outline: none;
+
+    ion-icon {
+      font-size: 16px;
+    }
+
+    .mitra-icon {
+      width: 16px;
+      height: 16px;
+    }
 
     &.active {
       background: #FFFFFF;
-      color: #22AD5C;
+      color: $hijau;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
   }
 }
 
-.auth-card {
+.auth-card,
+.white-box-card {
   background: #FFFFFF;
   border-radius: 22px;
-  padding: 20px 18px;
-  box-shadow: 0 10px 28px rgba(20, 83, 45, 0.05);
+  padding: 22px 18px 20px;
+}
+  
 
   .form-group {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 
     label {
       display: block;
       font-size: 12.5px;
       font-weight: 700;
-      color: #1F2937;
-      margin-bottom: 6px;
+      color: $teks-gelap;
+      margin-bottom: 8px;
     }
 
     .input-box {
       display: flex;
       align-items: center;
-      background: #EEF2EF;
+      background: $bg-input;
       border-radius: 12px;
-      padding: 0 12px;
-      height: 46px;
+      padding: 0 14px;
+      height: 48px;
       border: 1.5px solid transparent;
-      transition: border 0.2s ease;
+      transition: border 0.2s ease, background 0.2s ease;
 
       &:focus-within {
-        border-color: #22AD5C;
-        background: #F9FDFB;
+        border-color: $hijau;
+        background: #F6FCF8;
       }
 
       .prefix-icon {
         font-size: 18px;
-        color: #6B7280;
+        color: #7A857F;
         margin-right: 10px;
+        flex-shrink: 0;
       }
 
       input {
         flex: 1;
+        min-width: 0;
         border: none;
         background: transparent;
         outline: none;
-        font-size: 13.5px;
-        color: #111827;
+        font-family: inherit;
+        font-size: 13px;
+        color: $teks-gelap;
+        padding: 0;
+
+        &::placeholder {
+          color: $teks-placeholder;
+          opacity: 1;
+        }
       }
 
       .suffix-icon {
         font-size: 18px;
-        color: #6B7280;
+        color: #7A857F;
         cursor: pointer;
         padding: 4px;
+        flex-shrink: 0;
       }
     }
   }
@@ -157,25 +222,41 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 8px 0 18px;
+    margin: 4px 0 18px;
     font-size: 12px;
 
     .remember-me {
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: #4B5563;
+      gap: 9px;
+      color: $teks-abu;
       cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
 
-      ion-checkbox {
-        --size: 16px;
-        --checkbox-background-checked: #22AD5C;
-        --border-color-checked: #22AD5C;
+      .check-box {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        background: #E3ECE6;
+        border: 1.5px solid #D2DED6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        font-size: 14px;
+        transition: all 0.2s ease;
+
+        &.checked {
+          background: $hijau;
+          border-color: $hijau;
+          color: #FFFFFF;
+        }
       }
     }
 
     .forgot-link {
-      color: #1DA1F2;
+      color: $biru;
       font-weight: 700;
       text-decoration: none;
       cursor: pointer;
@@ -183,80 +264,110 @@
   }
 
   .btn-submit-eco {
-    --background: #22AD5C;
-    --background-activated: #1B8F4B;
+    --background: #{$hijau};
+    --background-activated: #{$hijau-tua};
+    --background-hover: #{$hijau-tua};
+    --color: #FFFFFF;
     --border-radius: 14px;
-    --box-shadow: 0 6px 16px rgba(34, 173, 92, 0.28);
+    --box-shadow: 0 6px 16px rgba(52, 178, 78, 0.28);
     height: 48px;
+    font-family: inherit;
     font-size: 14.5px;
     font-weight: 700;
+    letter-spacing: 0;
     text-transform: none;
     margin: 0;
   }
-}
 
+
+/* ===== Pemisah ===== */
 .divider-line {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 18px 0 14px;
-  color: #9CA3AF;
+  margin: 20px 0 16px;
+  color: #8E9A94;
   font-size: 11.5px;
 
   &::before,
   &::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid #D9E5DD;
   }
 
   span {
-    padding: 0 12px;
+    padding: 0 14px;
   }
 }
 
+/* ===== Login sosial ===== */
 .social-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 
   .social-btn {
-    height: 44px;
-    border-radius: 12px;
-    border: 1px solid #E5E7EB;
+    height: 46px;
+    border-radius: 14px;
+    border: none;
     background: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    font-family: inherit;
     font-size: 13px;
     font-weight: 700;
-    color: #1F2937;
+    color: $teks-gelap;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 10px rgba(20, 83, 45, 0.06);
+    outline: none;
 
     .google-icon {
-      color: #EA4335;
-      font-size: 17px;
+      width: 18px;
+      height: 18px;
     }
 
     .apple-icon {
-      color: #111827;
-      font-size: 18px;
+      color: #000000;
+      font-size: 19px;
     }
   }
 }
 
 .bottom-redirect {
+  margin-top: 26px;
+}
+
+.bottom-action-area {
+  margin-top: 24px;
+}
+
+.btn-masuk-eco {
+  --background: #22AD5C;
+  --background-activated: #1B8F4B;
+  --color: #FFFFFF;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 16px rgba(34, 173, 92, 0.28);
+  height: 48px;
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.bottom-register-link {
   margin-top: 20px;
   text-align: center;
-  font-size: 13px;
-  color: #6B7280;
+  font-size: 12.5px;
+  color: $teks-abu;
+}
+  
 
   a {
-    color: #1DA1F2;
+    color: $biru;
     font-weight: 800;
     text-decoration: none;
     cursor: pointer;
   }
-}
