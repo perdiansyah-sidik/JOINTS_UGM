@@ -27,16 +27,7 @@ $bg-switcher: #E5EDE8;
   max-width: 440px;
   margin: 0 auto;
 }
-  min-height: 100%;
-  max-width: 440px;
-  margin: 0 auto;
-  padding: 32px 24px 28px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-sizing: border-box;
-  color: $teks-gelap;
-}
+  
 
 .top-bar {
   position: absolute;
@@ -96,8 +87,7 @@ $bg-switcher: #E5EDE8;
   text-align: center;
   margin-bottom: 22px;
 }
-  text-align: center;
-  margin-bottom: 22px;
+  
 
   h2 {
     font-size: 24px;
@@ -115,7 +105,7 @@ $bg-switcher: #E5EDE8;
     margin: 0 auto;
     max-width: 290px;
   }
-}
+
 
 /* ===== Pilihan peran ===== */
 .role-switcher {
@@ -166,10 +156,7 @@ $bg-switcher: #E5EDE8;
   border-radius: 22px;
   padding: 22px 18px 20px;
 }
-  background: #FFFFFF;
-  border-radius: 22px;
-  padding: 22px 18px 20px;
-  box-shadow: 0 10px 28px rgba(20, 83, 45, 0.06);
+  
 
   .form-group {
     margin-bottom: 16px;
@@ -291,7 +278,7 @@ $bg-switcher: #E5EDE8;
     text-transform: none;
     margin: 0;
   }
-}
+
 
 /* ===== Pemisah ===== */
 .divider-line {
@@ -376,9 +363,7 @@ $bg-switcher: #E5EDE8;
   font-size: 12.5px;
   color: $teks-abu;
 }
-  text-align: center;
-  font-size: 12.5px;
-  color: $teks-abu;
+  
 
   a {
     color: $biru;
@@ -386,4 +371,3 @@ $bg-switcher: #E5EDE8;
     text-decoration: none;
     cursor: pointer;
   }
-}

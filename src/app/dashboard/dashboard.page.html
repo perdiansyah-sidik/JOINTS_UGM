@@ -1,183 +1,338 @@
-<ion-content [fullscreen]="true" class="beranda-bg">
+<ion-content [fullscreen]="true" class="pilahin-bg">
   <ion-refresher slot="fixed" (ionRefresh)="load($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="beranda-wrapper">
+  <div class="pilahin-wrapper">
 
-    <!-- 1. HEADER ATAS: LOKASI, SAPAAN & LONCENG NOTIFIKASI -->
-    <div class="top-greeting-row">
-      <div class="greeting-left">
-        <div class="location-line">
-          <ion-icon name="location-outline"></ion-icon>
-          <span>{{ alamatUser }}</span>
+    <!-- 1. HEADER ATAS: PILL LOKASI, SAPAAN & TOMBOL NOTIFIKASI -->
+    <div class="top-header-row">
+      <div class="greeting-col">
+        <div class="location-pill">
+          <span class="orange-dot"></span>
+          <span class="loc-text">{{ lokasiHeader }}</span>
         </div>
-        <h1 class="greeting-title">{{ sapaanWaktu }}, {{ namaUser }} <span class="wave-emoji">👋</span></h1>
+        <h1 class="greeting-name">
+          {{ sapaanWaktu }}, {{ namaUser }} <span class="leaf-emoji">🌿</span>
+        </h1>
       </div>
 
-      <button type="button" class="notif-btn" (click)="klikFitur('Notifikasi')">
+      <button type="button" class="bell-circle-btn" (click)="klikFitur('Notifikasi')">
         <ion-icon name="notifications-outline"></ion-icon>
-        <span class="notif-dot"></span>
+        <span class="bell-badge-dot"></span>
       </button>
     </div>
 
-    <!-- 2. KARTU HIJAU SALDO POIN TERSEDIA -->
-    <div class="points-hero-card">
-      <div class="card-circle-decor circle-1"></div>
-      <div class="card-circle-decor circle-2"></div>
+    <!-- 2. KARTU HIJAU TUA "POIN PILAHIN" -->
+    <div class="poin-pilahin-card">
+      <div class="card-glow-right"></div>
 
-      <div class="points-top-row">
-        <div class="points-label">
-          <ion-icon name="wallet-outline"></ion-icon>
-          <span>Saldo Poin Tersedia</span>
+      <div class="poin-card-top">
+        <div class="brand-poin-label">
+          <div class="leaf-icon-box">
+            <ion-icon name="leaf-outline"></ion-icon>
+          </div>
+          <span>POIN EcoApp</span>
+        </div>
+      </div>
+
+      <div class="poin-value-row">
+        <span class="poin-big-num">{{ formatTitikRibuan(saldoPoin) }}</span>
+        <span class="poin-unit">poin</span>
+      </div>
+
+      <div class="saldo-equivalent">
+        <span>Setara nilai saldo:</span>
+        <strong>Rp {{ formatTitikRibuan(nominalRupiah) }}</strong>
+      </div>
+
+      <div class="tier-progress-section">
+        <div class="tier-progress-labels">
+          <span class="target-name">{{ namaTargetTier }}</span>
+          <span class="target-remaining">
+            @if (sisaPoinTarget > 0) {
+              {{ formatTitikRibuan(sisaPoinTarget) }} poin lagi ({{ persenTarget }}%)
+            } @else {
+              Target tercapai (100%)
+            }
+          </span>
+        </div>
+        <div class="tier-bar-track">
+          <div class="tier-bar-fill" [style.width.%]="persenTarget"></div>
+        </div>
+      </div>
+
+      <div class="poin-card-actions">
+        <button type="button" class="btn-tukar-poin" (click)="klikFitur('Tukar Poin')">
+          <ion-icon name="gift-outline"></ion-icon>
+          <span>Tukar Poin</span>
+        </button>
+
+        <button type="button" class="btn-riwayat-poin" (click)="klikFitur('Riwayat Setor & Poin')">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>Riwayat</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. EMPAT TOMBOL AKSI CEPAT (SETOR, JEMPUT, DROP POINT, EDUKASI) -->
+    <div class="quick-actions-row">
+      <div class="action-item" (click)="klikFitur('Setor Sampah')">
+        <span class="floating-pill pill-orange">Cepat</span>
+        <div class="action-box icon-orange">
+          <ion-icon name="add-circle-outline"></ion-icon>
+        </div>
+        <span class="action-label">Setor</span>
+      </div>
+
+      <div class="action-item" (click)="klikFitur('Pesan Jemput')">
+        <div class="action-box icon-darkgreen">
+          <ion-icon name="car-outline"></ion-icon>
+        </div>
+        <span class="action-label">Jemput</span>
+      </div>
+
+      <div class="action-item" (click)="klikFitur('Drop Point')">
+        <span class="floating-pill pill-green">{{ jumlahDropPoint }} Dekat</span>
+        <div class="action-box icon-green">
+          <ion-icon name="location-outline"></ion-icon>
+        </div>
+        <span class="action-label">Drop Point</span>
+      </div>
+
+      <div class="action-item" (click)="klikFitur('Edukasi Pilahan')">
+        <div class="action-box icon-orange">
+          <ion-icon name="school-outline"></ion-icon>
+        </div>
+        <span class="action-label">Edukasi</span>
+      </div>
+    </div>
+
+    <!-- 4. KARTU "DATA TIMBANGAN TERVERIFIKASI - SAMPAH ANDA BULAN INI" -->
+    <div class="white-section-card">
+      <div class="verified-header">
+        <div class="verified-titles">
+          <span class="eyebrow-green">DATA TIMBANGAN TERVERIFIKASI</span>
+          <h3>Sampah Anda Bulan Ini</h3>
+        </div>
+        <div class="month-pill">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Bulan {{ namaBulanIni }}</span>
+        </div>
+      </div>
+
+      <div class="chart-and-grid">
+        <!-- SVG Donut Chart Dinamis -->
+        <div class="donut-chart-wrap">
+          <svg viewBox="0 0 100 100" class="donut-svg">
+            <circle cx="50" cy="50" r="38" class="donut-ring-bg"></circle>
+            @for (item of daftarMaterial; track item.kode) {
+              @if (item.beratKg > 0) {
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  class="donut-segment"
+                  [attr.stroke]="item.warna"
+                  [attr.stroke-dasharray]="item.dashArray"
+                  [attr.stroke-dashoffset]="item.dashOffset">
+                </circle>
+              }
+            }
+          </svg>
+          <div class="donut-center-text">
+            <span class="donut-total-num">{{ totalBeratBulanIni }}</span>
+            <span class="donut-total-unit">KG TOTAL</span>
+          </div>
         </div>
 
-        <button type="button" class="btn-cairkan" (click)="klikFitur('Cairkan Dana')">
-          <span>Cairkan dana</span>
-          <ion-icon name="chevron-forward-outline"></ion-icon>
+        <!-- Grid 2x2 Rincian 4 Material -->
+        <div class="material-2x2-grid">
+          @for (item of daftarMaterial; track item.kode) {
+          <div
+            class="mat-mini-card"
+            [style.background]="item.bgCard"
+            [style.border-color]="item.borderCard">
+            <div class="mat-mini-top">
+              <span class="mat-dot-name" [style.color]="item.warna">
+                <i class="mini-dot" [style.background]="item.warna"></i>
+                {{ item.nama }}
+              </span>
+              <span class="mat-pct" [style.color]="item.warna">{{ item.persen }}%</span>
+            </div>
+            <div class="mat-mini-kg">{{ item.beratKg }} kg</div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="co2-footer-row">
+        <div class="co2-left">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Reduksi emisi setara: <strong>{{ reduksiEmisiKg }} kg CO₂e</strong></span>
+        </div>
+        <button type="button" class="co2-detail-link" (click)="klikFitur('Detail Reduksi Emisi')">
+          Detail ›
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. KARTU "JEMPUTAN TERJADWAL" (MURNI DARI DATABASE) -->
+    <div class="white-section-card scheduled-card">
+      <div class="scheduled-top-bar">
+        <div class="scheduled-title-left">
+          <span class="green-live-dot"></span>
+          <span>JEMPUTAN TERJADWAL</span>
+        </div>
+        @if (jemputanBerikutnya) {
+          <span class="eta-pill">{{ jemputanBerikutnya.labelWaktu }}</span>
+        } @else {
+          <span class="eta-pill eta-empty">Belum Ada</span>
+        }
+      </div>
+
+      @if (jemputanBerikutnya) {
+      <div class="scheduled-box">
+        <div class="cal-date-box">
+          <span class="cal-day">{{ jemputanBerikutnya.hariSingkat }}</span>
+          <span class="cal-num">{{ jemputanBerikutnya.tanggal }}</span>
+        </div>
+
+        <div class="scheduled-info">
+          <h4>{{ jemputanBerikutnya.judul }}</h4>
+          <p>
+            Kurir: <strong>{{ jemputanBerikutnya.namaKurir }}</strong>
+            <span class="sep-dot">•</span>
+            {{ jemputanBerikutnya.jamSlot }}
+          </p>
+        </div>
+
+        <button type="button" class="call-courier-btn" (click)="hubungiKurir(jemputanBerikutnya.noHpKurir)">
+          <ion-icon name="call-outline"></ion-icon>
+        </button>
+      </div>
+      } @else {
+      <div class="scheduled-empty-state">
+        <div class="cal-date-box empty-cal">
+          <ion-icon name="calendar-clear-outline"></ion-icon>
+        </div>
+        <div class="scheduled-info">
+          <h4>Belum Ada Penjemputan Aktif</h4>
+          <p>Pilih menu Jemput untuk menjadwalkan pengambilan sampah Anda.</p>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- 6. KARTU "KUSTOMISASI PROFIL - ANDA SEBAGAI SIAPA?" -->
+    <div class="white-section-card profile-custom-card">
+      <div class="custom-card-header">
+        <div>
+          <span class="eyebrow-green">KUSTOMISASI PROFIL</span>
+          <h3>Anda sebagai siapa?</h3>
+          <p>Kategori & tarif otomatis disesuaikan profil Anda.</p>
+        </div>
+        <button type="button" class="filter-icon-btn" (click)="klikFitur('Pengaturan Kategori')">
+          <ion-icon name="options-outline"></ion-icon>
         </button>
       </div>
 
-      <div class="points-main-value">
-        <span class="big-number">{{ formatTitikRibuan(saldoPoin) }}</span>
-        <span class="unit-text">Poin</span>
-      </div>
-
-      <div class="nominal-badge">
-        <ion-icon name="cash-outline"></ion-icon>
-        <span>Setara nominal Rp {{ formatTitikRibuan(nominalRupiah) }}</span>
-      </div>
-
-      <div class="points-divider"></div>
-
-      <div class="points-footer-text">
-        Poin Diproses: {{ formatTitikRibuan(poinDiproses) }} Poin
-      </div>
-    </div>
-
-    <!-- 3. EMPAT MENU CEPAT (RIWAYAT SETOR, PESAN JEMPUT, DROP POINT, PANDUAN) -->
-    <div class="quick-menu-grid">
-      <div class="menu-item" (click)="klikFitur('Riwayat Setor')">
-        <div class="menu-icon-box box-green-soft">
-          <ion-icon name="receipt-outline"></ion-icon>
-        </div>
-        <span>Riwayat<br>Setor</span>
-      </div>
-
-      <div class="menu-item" (click)="klikFitur('Pesan Jemput')">
-        <div class="menu-icon-box box-slate-soft">
-          <ion-icon name="calendar-clear-outline"></ion-icon>
-        </div>
-        <span>Pesan<br>Jemput</span>
-      </div>
-
-      <div class="menu-item" (click)="klikFitur('Drop Point')">
-        <div class="menu-icon-box box-mint-soft">
-          <ion-icon name="location-outline"></ion-icon>
-        </div>
-        <span>Drop Point</span>
-      </div>
-
-      <div class="menu-item" (click)="klikFitur('Panduan')">
-        <div class="menu-icon-box box-green-soft">
-          <ion-icon name="book-outline"></ion-icon>
-        </div>
-        <span>Panduan</span>
-      </div>
-    </div>
-
-    <!-- 4. KARTU "SAMPAH ANDA BULAN INI" (MENGGUNAKAN @for BEBAS GARIS MERAH) -->
-    <div class="section-white-card">
-      <div class="card-header-flex">
-        <div class="title-group">
-          <h3>Sampah Anda bulan ini</h3>
-          <p>Berdasarkan data timbangan terverifikasi</p>
-        </div>
-        <div class="total-kg-pill">
-          {{ totalBeratBulanIni }} kg
-        </div>
-      </div>
-
-      <div class="material-bars-list">
-        @for (item of daftarMaterial; track item.nama) {
-        <div class="material-row">
-          <div class="mat-label-row">
-            <div class="mat-name">
-              <span class="color-dot" [style.background]="item.warnaDot"></span>
-              <span class="name-text" [style.color]="item.warnaTeks">{{ item.nama }}</span>
-            </div>
-            <div class="mat-weight">
-              <strong>{{ item.beratKg }} kg</strong>
-              <span>({{ item.persen }}%)</span>
-            </div>
+      <div class="role-selector-stack">
+        <!-- Opsi 1: Rumah Tangga -->
+        <div
+          class="role-option-item"
+          [class.selected]="kategoriAktif === 'RUMAH_TANGGA'"
+          (click)="pilihKategoriProfil('RUMAH_TANGGA')">
+          <div class="role-opt-icon icon-green-tint">
+            <ion-icon name="home-outline"></ion-icon>
           </div>
-
-          <div class="progress-track">
-            <div 
-              class="progress-fill" 
-              [style.width.%]="item.persen" 
-              [style.background]="item.warnaBar">
-            </div>
+          <div class="role-opt-text">
+            <h4>Rumah Tangga</h4>
+            <p>Plastik, kardus, dan botol kemasan harian</p>
           </div>
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- 5. KARTU "JEMPUTAN BERIKUTNYA" -->
-    <div class="section-white-card pickup-section-card">
-      <span class="section-eyebrow">JEMPUTAN BERIKUTNYA</span>
-
-      <div class="pickup-inner-box">
-        <div class="date-badge">
-          <span class="day-text">{{ jemputanBerikutnya.hariSingkat }}</span>
-          <span class="date-num">{{ jemputanBerikutnya.tanggal }}</span>
+          @if (kategoriAktif === 'RUMAH_TANGGA') {
+            <ion-icon name="checkmark-circle-outline" class="role-check-icon"></ion-icon>
+          }
         </div>
 
-        <div class="pickup-info">
-          <h4>{{ jemputanBerikutnya.judul }}</h4>
-          <p class="label-code">Kode Label: {{ jemputanBerikutnya.kodeLabel }}</p>
-          <div class="courier-meta">
-            <span>{{ jemputanBerikutnya.namaKurir }}</span>
-            <span class="dot-sep">•</span>
-            <span>{{ jemputanBerikutnya.jamSlot }}</span>
+        <!-- Opsi 2: UMKM Kuliner -->
+        <div
+          class="role-option-item"
+          [class.selected]="kategoriAktif === 'UMKM_KULINER'"
+          (click)="pilihKategoriProfil('UMKM_KULINER')">
+          <div class="role-opt-icon icon-amber-tint">
+            <ion-icon name="restaurant-outline"></ion-icon>
           </div>
+          <div class="role-opt-text">
+            <h4>UMKM Kuliner</h4>
+            <p>Cup plastik, jerigen minyak, & kardus bahan</p>
+          </div>
+          @if (kategoriAktif === 'UMKM_KULINER') {
+            <ion-icon name="checkmark-circle-outline" class="role-check-icon"></ion-icon>
+          }
         </div>
 
-        <div class="status-scheduled-pill">
-          {{ jemputanBerikutnya.statusLabel }}
+        <!-- Opsi 3: Pedagang Pasar -->
+        <div
+          class="role-option-item"
+          [class.selected]="kategoriAktif === 'PEDAGANG_PASAR'"
+          (click)="pilihKategoriProfil('PEDAGANG_PASAR')">
+          <div class="role-opt-icon icon-orange-tint">
+            <ion-icon name="storefront-outline"></ion-icon>
+          </div>
+          <div class="role-opt-text">
+            <h4>Pedagang Pasar</h4>
+            <p>Setoran volume besar terpadu per blok kios</p>
+          </div>
+          @if (kategoriAktif === 'PEDAGANG_PASAR') {
+            <ion-icon name="checkmark-circle-outline" class="role-check-icon"></ion-icon>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- 6. TOMBOL UTAMA AJUKAN PENJEMPUTAN SAMPAH -->
-    <ion-button expand="block" class="btn-ajukan-jemput" (click)="klikFitur('Ajukan Penjemputan Sampah')">
-      <span>Ajukan Penjemputan Sampah</span>
-      <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-    </ion-button>
+      <button type="button" class="btn-lanjutkan-setor" (click)="klikFitur('Lanjutkan Setor Sampah')">
+        <span>Lanjutkan Setor Sampah</span>
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </button>
+    </div>
 
   </div>
 </ion-content>
 
-<!-- 7. BOTTOM NAVIGATION BAR -->
-<div class="eco-bottom-nav">
+<!-- 7. BOTTOM NAVIGATION BAR (5 MENU: BERANDA, SETOR, PETA, DOMPET, PROFIL) -->
+<div class="pilahin-bottom-nav">
   <button type="button" class="nav-tab" [class.active]="tabAktif === 'beranda'" (click)="pilihTab('beranda')">
-    <ion-icon [name]="tabAktif === 'beranda' ? 'home' : 'home-outline'"></ion-icon>
+    <div class="tab-icon-wrap">
+      <ion-icon [name]="tabAktif === 'beranda' ? 'home' : 'home-outline'"></ion-icon>
+    </div>
     <span>Beranda</span>
   </button>
 
-  <button type="button" class="nav-tab" [class.active]="tabAktif === 'riwayat'" (click)="pilihTab('riwayat')">
-    <ion-icon name="compass-outline"></ion-icon>
-    <span>Riwayat</span>
+  <button type="button" class="nav-tab" [class.active]="tabAktif === 'setor'" (click)="pilihTab('setor')">
+    <div class="tab-icon-wrap">
+      <ion-icon name="add-circle-outline"></ion-icon>
+    </div>
+    <span>Setor</span>
+  </button>
+
+  <button type="button" class="nav-tab" [class.active]="tabAktif === 'peta'" (click)="pilihTab('peta')">
+    <div class="tab-icon-wrap">
+      <ion-icon name="map-outline"></ion-icon>
+    </div>
+    <span>Peta</span>
   </button>
 
   <button type="button" class="nav-tab" [class.active]="tabAktif === 'dompet'" (click)="pilihTab('dompet')">
-    <ion-icon name="wallet-outline"></ion-icon>
+    <div class="tab-icon-wrap">
+      <ion-icon name="wallet-outline"></ion-icon>
+    </div>
     <span>Dompet</span>
   </button>
 
   <button type="button" class="nav-tab" [class.active]="tabAktif === 'profil'" (click)="pilihTab('profil')">
-    <ion-icon name="person-outline"></ion-icon>
+    <div class="tab-icon-wrap">
+      <ion-icon name="person-outline"></ion-icon>
+    </div>
     <span>Profil</span>
   </button>
 </div>

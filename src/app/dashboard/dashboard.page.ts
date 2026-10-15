@@ -3,12 +3,25 @@ import { NavController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 
 interface MaterialStat {
+  kode: 'plastik' | 'kardus' | 'kaca' | 'logam';
   nama: string;
   beratKg: number;
   persen: number;
-  warnaDot: string;
-  warnaTeks: string;
-  warnaBar: string;
+  warna: string;
+  bgCard: string;
+  borderCard: string;
+  dashArray: string;
+  dashOffset: number;
+}
+
+interface JadwalJemputView {
+  hariSingkat: string;
+  tanggal: string;
+  judul: string;
+  namaKurir: string;
+  noHpKurir: string;
+  jamSlot: string;
+  labelWaktu: string;
 }
 
 @Component({
@@ -24,54 +37,56 @@ export class DashboardPage implements OnInit {
 
   loading = false;
   error = false;
-  data: any = null;
+  tabAktif: 'beranda' | 'setor' | 'peta' | 'dompet' | 'profil' = 'beranda';
 
-  tabAktif: 'beranda' | 'riwayat' | 'dompet' | 'profil' = 'beranda';
-
-  // Data pengguna & sapaan (otomatis menyesuaikan dengan user yang login, fallback ke tampilan Figma)
-  idPengguna: number = 2;
-  namaUser: string = 'Bu Sari';
-  alamatUser: string = 'Pasar Blok A, Kios 14';
+  // 1. Identitas Asli Pengguna dari Database (Tanpa Nama/Alamat Palsu)
+  idPengguna: number = 0;
+  namaUser: string = '';
+  lokasiHeader: string = '';
   sapaanWaktu: string = 'Selamat pagi';
+  kategoriAktif: 'RUMAH_TANGGA' | 'UMKM_KULINER' | 'PEDAGANG_PASAR' = 'RUMAH_TANGGA';
 
-  // Data Kartu Poin Hijau
-  saldoPoin: number = 4320;
-  nominalRupiah: number = 43200;
+  // 2. Data Poin Pilahin & Target Tier (Murni dari Database, Awal = 0)
+  saldoPoin: number = 0;
+  nominalRupiah: number = 0;
   poinDiproses: number = 0;
+  tierSekarang: string = 'Perunggu';
+  namaTargetTier: string = 'Target Perak';
+  sisaPoinTarget: number = 3000;
+  persenTarget: number = 0;
 
-  // Data Sampah Bulan Ini (4 Material sesuai Figma & Dokumen Pilahin)
-  totalBeratBulanIni: number = 25;
+  // 3. Info Drop Point Aktif dari Database
+  jumlahDropPoint: number = 0;
+
+  // 4. Data Timbangan Terverifikasi Bulan Ini & Donut Chart (Awal = 0)
+  namaBulanIni: string = '';
+  totalBeratBulanIni: number = 0;
+  reduksiEmisiKg: number = 0;
+  readonly kelilingLingkaran = 2 * Math.PI * 38; // r = 38 untuk SVG Donut Chart
+
   daftarMaterial: MaterialStat[] = [
-    { nama: 'Plastik', beratKg: 12, persen: 48, warnaDot: '#2563EB', warnaTeks: '#2563EB', warnaBar: '#2563EB' },
-    { nama: 'Kardus',  beratKg: 8,  persen: 32, warnaDot: '#F59E0B', warnaTeks: '#F59E0B', warnaBar: '#F59E0B' },
-    { nama: 'Kaca',    beratKg: 3,  persen: 12, warnaDot: '#0D9488', warnaTeks: '#0D9488', warnaBar: '#0D9488' },
-    { nama: 'Logam',   beratKg: 2,  persen: 8,  warnaDot: '#64748B', warnaTeks: '#64748B', warnaBar: '#64748B' }
+    { kode: 'plastik', nama: 'Plastik', beratKg: 0, persen: 0, warna: '#2563EB', bgCard: '#EFF6FF', borderCard: '#DBEAFE', dashArray: '0 239', dashOffset: 0 },
+    { kode: 'kardus',  nama: 'Kardus',  beratKg: 0, persen: 0, warna: '#D97706', bgCard: '#FFFBEB', borderCard: '#FEF3C7', dashArray: '0 239', dashOffset: 0 },
+    { kode: 'kaca',    nama: 'Kaca',    beratKg: 0, persen: 0, warna: '#0D9488', bgCard: '#ECFDF5', borderCard: '#D1FAE5', dashArray: '0 239', dashOffset: 0 },
+    { kode: 'logam',   nama: 'Logam',   beratKg: 0, persen: 0, warna: '#64748B', bgCard: '#F8FAFC', borderCard: '#E2E8F0', dashArray: '0 239', dashOffset: 0 }
   ];
 
-  // Data Jemputan Berikutnya
-  jemputanBerikutnya = {
-    hariSingkat: 'SEL',
-    tanggal: '14',
-    judul: 'Penjemputan Sampah',
-    kodeLabel: 'STR-000123',
-    namaKurir: "Kurir 'Pak Joko'",
-    jamSlot: '08.00 - 10.00',
-    statusLabel: 'Terjadwal'
-  };
+  // 5. Jadwal Penjemputan Terjadwal (Bernilai null jika belum ada di Database)
+  jemputanBerikutnya: JadwalJemputView | null = null;
 
   ngOnInit() {
-    this.aturSapaanWaktu();
+    this.aturWaktuDanBulan();
     this.muatSesiPengguna();
-    this.ambilDataDashboard();
   }
 
   ionViewWillEnter() {
+    this.aturWaktuDanBulan();
     this.muatSesiPengguna();
-    this.ambilDataDashboard();
   }
 
-  aturSapaanWaktu() {
-    const jam = new Date().getHours();
+  aturWaktuDanBulan() {
+    const sekarang = new Date();
+    const jam = sekarang.getHours();
     if (jam >= 4 && jam < 11) {
       this.sapaanWaktu = 'Selamat pagi';
     } else if (jam >= 11 && jam < 15) {
@@ -81,55 +96,242 @@ export class DashboardPage implements OnInit {
     } else {
       this.sapaanWaktu = 'Selamat malam';
     }
+
+    const daftarBulan = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    this.namaBulanIni = daftarBulan[sekarang.getMonth()];
   }
 
   muatSesiPengguna() {
     const tersimpan = localStorage.getItem('ecoapp_user');
-    if (tersimpan) {
-      try {
-        const user = JSON.parse(tersimpan);
-        if (user.id_pengguna) this.idPengguna = Number(user.id_pengguna);
-        if (user.nama) this.namaUser = user.nama;
-        if (user.alamat) {
-          this.alamatUser = user.nama_usaha ? `${user.nama_usaha}, ${user.alamat}` : user.alamat;
-        }
-      } catch (e) {
-        console.error('Gagal membaca sesi user:', e);
+    if (!tersimpan) {
+      this.navCtrl.navigateRoot('/login');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(tersimpan);
+      this.idPengguna = Number(user.id_pengguna || 0);
+      this.namaUser = user.nama || 'Pengguna';
+      this.aturLokasiHeader(user.nama_usaha, user.alamat);
+      this.tetapkanKategoriDariProfil(user.jenis_pelanggan, user.peran);
+
+      if (this.idPengguna > 0) {
+        this.ambilDataDashboard();
       }
+    } catch (e) {
+      this.navCtrl.navigateRoot('/login');
+    }
+  }
+
+  aturLokasiHeader(namaUsaha?: string, alamat?: string) {
+    if (namaUsaha && alamat) {
+      this.lokasiHeader = `${namaUsaha} • ${alamat}`;
+    } else if (alamat) {
+      this.lokasiHeader = alamat;
+    } else {
+      this.lokasiHeader = 'Lokasi belum diatur';
+    }
+  }
+
+  tetapkanKategoriDariProfil(jenisPelanggan?: string, peran?: any) {
+    if (jenisPelanggan === 'UMKM_KULINER' || jenisPelanggan === 'UMKM' || Number(peran) === 2) {
+      this.kategoriAktif = 'UMKM_KULINER';
+    } else if (jenisPelanggan === 'PEDAGANG_PASAR' || jenisPelanggan === 'PEDAGANG' || Number(peran) === 3) {
+      this.kategoriAktif = 'PEDAGANG_PASAR';
+    } else {
+      this.kategoriAktif = 'RUMAH_TANGGA';
     }
   }
 
   ambilDataDashboard(event?: any) {
     this.loading = true;
+    this.error = false;
+
     this.api.getDashboardPelanggan(this.idPengguna).subscribe({
       next: (res) => {
         this.loading = false;
         if (res && res.data) {
-          this.data = res.data;
+          const d = res.data;
 
-          if (res.data.profil) {
-            this.namaUser = res.data.profil.nama || this.namaUser;
-            this.alamatUser = res.data.profil.alamat || this.alamatUser;
+          // 1. Update Profil Real dari Database
+          if (d.profil) {
+            this.namaUser = d.profil.nama || this.namaUser;
+            this.aturLokasiHeader(d.profil.nama_usaha, d.profil.alamat);
+            this.tetapkanKategoriDariProfil(d.profil.jenis_pelanggan, d.profil.peran);
+
+            // Sinkronkan kembali ke localStorage
+            localStorage.setItem('ecoapp_user', JSON.stringify(d.profil));
           }
 
-          // Jika user sudah memiliki transaksi riil di database, tampilkan angkanya
-          if (res.data.saldo_poin_aktif > 0 || res.data.total_berat_kg > 0) {
-            this.saldoPoin = res.data.saldo_poin_aktif;
-            this.nominalRupiah = res.data.nominal_rupiah || (this.saldoPoin * 10);
-            this.poinDiproses = res.data.poin_diproses || 0;
-            this.totalBeratBulanIni = res.data.total_berat_kg;
+          // 2. Update Saldo Poin & Kalkulasi Target Tier
+          this.saldoPoin = Number(d.saldo_poin_aktif || 0);
+          this.nominalRupiah = Number(d.nominal_rupiah || 0);
+          this.poinDiproses = Number(d.poin_diproses || 0);
+          this.hitungLevelPoin(this.saldoPoin);
+
+          // 3. Update Jumlah Drop Point Aktif
+          this.jumlahDropPoint = Number(d.jumlah_drop_point || 0);
+
+          // 4. Update Berat Timbangan Terverifikasi, Donut Chart, & Emisi CO2e
+          const plastik = Number(d.material_kg?.plastik || 0);
+          const kardus = Number(d.material_kg?.kardus || 0);
+          const kaca = Number(d.material_kg?.kaca || 0);
+          const logam = Number(d.material_kg?.logam || 0);
+          const totalKg = Number(d.total_berat_kg || (plastik + kardus + kaca + logam));
+
+          this.totalBeratBulanIni = Number(totalKg.toFixed(2));
+          // Faktor reduksi emisi daur ulang anorganik rata-rata: 1.248 kg CO2e per kg sampah
+          this.reduksiEmisiKg = Number((totalKg * 1.248).toFixed(1));
+
+          this.hitungDonutMaterial(plastik, kardus, kaca, logam, totalKg);
+
+          // 5. Update Jadwal Penjemputan Terjadwal dari Database
+          if (d.jemputan_berikutnya) {
+            this.jemputanBerikutnya = this.formatJadwalJemput(d.jemputan_berikutnya);
+          } else {
+            this.jemputanBerikutnya = null;
           }
         }
         if (event && event.target) event.target.complete();
       },
       error: () => {
         this.loading = false;
+        this.error = true;
         if (event && event.target) event.target.complete();
       }
     });
   }
 
-  // Fungsi ion-refresher apabila ditarik ke bawah
+  hitungLevelPoin(poin: number) {
+    if (poin < 3000) {
+      this.tierSekarang = 'Perunggu';
+      this.namaTargetTier = 'Target Perak';
+      const target = 3000;
+      this.sisaPoinTarget = Math.max(0, target - poin);
+      this.persenTarget = Math.min(100, Math.round((poin / target) * 100));
+    } else if (poin < 10000) {
+      this.tierSekarang = 'Perak';
+      this.namaTargetTier = 'Target Emas';
+      const target = 10000;
+      this.sisaPoinTarget = Math.max(0, target - poin);
+      this.persenTarget = Math.min(100, Math.round((poin / target) * 100));
+    } else {
+      this.tierSekarang = 'Emas';
+      this.namaTargetTier = 'Level Maksimal';
+      this.sisaPoinTarget = 0;
+      this.persenTarget = 100;
+    }
+  }
+
+  hitungDonutMaterial(plastik: number, kardus: number, kaca: number, logam: number, totalKg: number) {
+    const nilai = [
+      { kode: 'plastik' as const, nama: 'Plastik', beratKg: plastik, warna: '#2563EB', bgCard: '#EFF6FF', borderCard: '#DBEAFE' },
+      { kode: 'kardus' as const,  nama: 'Kardus',  beratKg: kardus,  warna: '#D97706', bgCard: '#FFFBEB', borderCard: '#FEF3C7' },
+      { kode: 'kaca' as const,    nama: 'Kaca',    beratKg: kaca,    warna: '#0D9488', bgCard: '#ECFDF5', borderCard: '#D1FAE5' },
+      { kode: 'logam' as const,   nama: 'Logam',   beratKg: logam,   warna: '#64748B', bgCard: '#F8FAFC', borderCard: '#E2E8F0' }
+    ];
+
+    let akumulasiPanjang = 0;
+    this.daftarMaterial = nilai.map((item) => {
+      const rasio = totalKg > 0 ? item.beratKg / totalKg : 0;
+      const persen = totalKg > 0 ? Math.round(rasio * 100) : 0;
+      const panjangBusur = rasio * this.kelilingLingkaran;
+      const dashArray = `${panjangBusur} ${this.kelilingLingkaran}`;
+      const dashOffset = -akumulasiPanjang;
+      akumulasiPanjang += panjangBusur;
+
+      return {
+        ...item,
+        beratKg: Number(item.beratKg.toFixed(1)),
+        persen,
+        dashArray,
+        dashOffset
+      };
+    });
+  }
+
+  formatJadwalJemput(raw: any): JadwalJemputView {
+    const namaHari = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+    const mulai = raw.mulai_pada ? new Date(raw.mulai_pada) : new Date();
+    const selesai = raw.selesai_pada ? new Date(raw.selesai_pada) : new Date();
+
+    const formatJam = (dt: Date) => {
+      const jam = dt.getHours().toString().padStart(2, '0');
+      const menit = dt.getMinutes().toString().padStart(2, '0');
+      return `${jam}.${menit}`;
+    };
+
+    // Hitung selisih waktu menuju jadwal jemput secara real-time
+    const selisihMs = mulai.getTime() - new Date().getTime();
+    const selisihJam = Math.ceil(selisihMs / (1000 * 60 * 60));
+    let labelWaktu = 'Terjadwal';
+    if (raw.status === 'DALAM_PERJALANAN') {
+      labelWaktu = 'Dalam Perjalanan';
+    } else if (raw.status === 'DIAJUKAN') {
+      labelWaktu = 'Menunggu Petugas';
+    } else if (selisihJam > 0 && selisihJam <= 24) {
+      labelWaktu = `Dalam ${selisihJam} Jam`;
+    }
+
+    let judulJemput = 'Penjemputan Rumah Tangga';
+    if (this.kategoriAktif === 'UMKM_KULINER') judulJemput = 'Penjemputan UMKM Kuliner';
+    if (this.kategoriAktif === 'PEDAGANG_PASAR') judulJemput = 'Penjemputan Kolektif Pasar';
+
+    return {
+      hariSingkat: namaHari[mulai.getDay()],
+      tanggal: String(mulai.getDate()).padStart(2, '0'),
+      judul: judulJemput,
+      namaKurir: raw.nama_kurir || 'Menunggu Penugasan',
+      noHpKurir: raw.no_hp_kurir || '',
+      jamSlot: `${formatJam(mulai)} - ${formatJam(selesai)} WIB`,
+      labelWaktu
+    };
+  }
+
+  pilihKategoriProfil(kategori: 'RUMAH_TANGGA' | 'UMKM_KULINER' | 'PEDAGANG_PASAR') {
+    if (this.kategoriAktif === kategori) return;
+    this.kategoriAktif = kategori;
+
+    if (this.idPengguna > 0) {
+      this.api.updateKategoriPelanggan(this.idPengguna, kategori).subscribe({
+        next: async () => {
+          const tersimpan = localStorage.getItem('ecoapp_user');
+          if (tersimpan) {
+            const user = JSON.parse(tersimpan);
+            user.jenis_pelanggan = kategori;
+            localStorage.setItem('ecoapp_user', JSON.stringify(user));
+          }
+          await this.tampilPesan('Kategori profil berhasil disesuaikan!', 'success');
+          this.ambilDataDashboard();
+        },
+        error: async () => {
+          await this.tampilPesan('Kategori tampilan diubah.', 'medium');
+        }
+      });
+    }
+  }
+
+  async tampilPesan(pesan: string, warna: string = 'medium') {
+    const toast = await this.toastCtrl.create({
+      message: pesan,
+      duration: 2000,
+      color: warna,
+      position: 'top'
+    });
+    await toast.present();
+  }
+
+  hubungiKurir(noHp: string) {
+    if (!noHp) {
+      this.tampilPesan('Nomor telepon kurir belum tersedia.', 'warning');
+      return;
+    }
+    window.open(`tel:${noHp}`, '_system');
+  }
+
   load(event: any) {
     this.ambilDataDashboard(event);
   }
@@ -140,7 +342,7 @@ export class DashboardPage implements OnInit {
 
   async klikFitur(namaFitur: string) {
     const toast = await this.toastCtrl.create({
-      message: `Membuka menu ${namaFitur}...`,
+      message: `Membuka ${namaFitur}...`,
       duration: 1500,
       color: 'success',
       position: 'top'
@@ -148,7 +350,7 @@ export class DashboardPage implements OnInit {
     await toast.present();
   }
 
-  pilihTab(tab: 'beranda' | 'riwayat' | 'dompet' | 'profil') {
+  pilihTab(tab: 'beranda' | 'setor' | 'peta' | 'dompet' | 'profil') {
     this.tabAktif = tab;
     if (tab !== 'beranda') {
       this.klikFitur(tab.charAt(0).toUpperCase() + tab.slice(1));

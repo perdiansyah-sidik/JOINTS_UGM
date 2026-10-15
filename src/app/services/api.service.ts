@@ -77,4 +77,10 @@ export class ApiService {
   verifikasiPencairan(idPencairan: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/pencairan/verifikasi/${idPencairan}`, data);
   }
+
+  updateKategoriPelanggan(idPengguna: number, jenisPelanggan: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/pengguna/${idPengguna}/kategori`, {
+      jenis_pelanggan: jenisPelanggan
+    });
+  }
 }
