@@ -36,7 +36,8 @@ export class DashboardPage implements OnInit {
     { label: 'Riwayat Setor', icon: 'receipt-outline', link: '/riwayat' },
     { label: 'Pesan Jemput', icon: 'calendar-outline', link: '/pesan-jemput' },
     { label: 'Drop Point', icon: 'location-outline', link: '/drop-point' },
-    { label: 'Panduan', icon: 'book-outline', link: '/panduan' }
+    { label: 'Panduan', icon: 'book-outline', link: '/panduan' },
+    { label: 'Edukasi', icon: 'book-outline', link: '/jenis-sampah' }
   ];
 
   totalKg: number = 25;

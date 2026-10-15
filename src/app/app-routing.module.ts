@@ -26,6 +26,10 @@ const routes: Routes = [
     path: 'onboarding',
     loadChildren: () => import('./onboarding/onboarding.module').then( m => m.OnboardingPageModule)
   },
+  {
+    path: 'jenis-sampah',
+    loadChildren: () => import('./jenis-sampah/jenis-sampah.module').then( m => m.JenisSampahPageModule)
+  },
 
 ];
 
