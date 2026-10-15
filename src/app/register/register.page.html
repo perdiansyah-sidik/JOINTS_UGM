@@ -179,8 +179,8 @@
           <!-- Pilihan 2: UMKM kuliner -->
           <div 
             class="who-item" 
-            [class.active]="formDaftar.jenis_pelanggan === 'UMKM'"
-            (click)="pilihKategoriPelanggan('UMKM')">
+            [class.active]="formDaftar.jenis_pelanggan === 'UMKM_KULINER'"
+            (click)="pilihKategoriPelanggan('UMKM_KULINER')">
             <div class="who-icon-box">
               <ion-icon name="restaurant-outline"></ion-icon>
             </div>
@@ -188,7 +188,7 @@
               <h4>UMKM kuliner</h4>
               <p>Kemasan, gelas plastik, dan kaleng</p>
             </div>
-            @if (formDaftar.jenis_pelanggan === 'UMKM') {
+            @if (formDaftar.jenis_pelanggan === 'UMKM_KULINER') {
               <ion-icon name="checkmark-circle" class="who-check"></ion-icon>
             }
           </div>
@@ -196,8 +196,8 @@
           <!-- Pilihan 3: Pedagang pasar -->
           <div 
             class="who-item" 
-            [class.active]="formDaftar.jenis_pelanggan === 'PEDAGANG'"
-            (click)="pilihKategoriPelanggan('PEDAGANG')">
+            [class.active]="formDaftar.jenis_pelanggan === 'PEDAGANG_PASAR'"
+            (click)="pilihKategoriPelanggan('PEDAGANG_PASAR')">
             <div class="who-icon-box">
               <ion-icon name="storefront-outline"></ion-icon>
             </div>
@@ -205,7 +205,7 @@
               <h4>Pedagang pasar</h4>
               <p>Setoran kolektif per kios atau blok pasar</p>
             </div>
-            @if (formDaftar.jenis_pelanggan === 'PEDAGANG') {
+            @if (formDaftar.jenis_pelanggan === 'PEDAGANG_PASAR') {
               <ion-icon name="checkmark-circle" class="who-check"></ion-icon>
             }
           </div>

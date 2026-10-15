@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { NavController, ToastController, LoadingController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { timeout, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -14,58 +15,60 @@ export class LoginPage {
   private toastCtrl = inject(ToastController);
   private loadingCtrl = inject(LoadingController);
 
-  // Tab Peran: 'PRIBADI' atau 'MITRA'
-  jenisAkun: 'PRIBADI' | 'MITRA' = 'PRIBADI';
+  email = '';
+  password = '';
   tampilkanSandi = false;
-  ingatSaya = false;
 
-  formLogin = {
-    email: '',
-    password: ''
-  };
-
-  pilihJenisAkun(jenis: 'PRIBADI' | 'MITRA') {
-    this.jenisAkun = jenis;
-  }
-
-  toggleLihatSandi() {
-    this.tampilkanSandi = !this.tampilkanSandi;
-  }
-
-  async prosesMasuk() {
-    if (!this.formLogin.email || !this.formLogin.password) {
-      this.tampilPesan('Harap isi Email/No. HP dan Kata Sandi!', 'warning');
+  async prosesLogin() {
+    if (!this.email.trim() || !this.password) {
+      this.tampilPesan('Masukkan email dan password Anda!', 'warning');
       return;
     }
 
     const loading = await this.loadingCtrl.create({
-      message: 'Memverifikasi akun EcoApp...',
+      message: 'Memverifikasi akun...',
       spinner: 'crescent'
     });
     await loading.present();
 
-    this.api.login(this.formLogin).subscribe({
-      next: async (res) => {
-        await loading.dismiss();
-        // Simpan sesi pengguna ke penyimpanan lokal HP/Browser
-        localStorage.setItem('ecoapp_user', JSON.stringify(res.data));
-        await this.tampilPesan(`Selamat datang kembali, ${res.data.nama}! 🌱`, 'success');
-        this.navCtrl.navigateRoot('/home', { animated: true, animationDirection: 'forward' });
-      },
-      error: async (err) => {
-        await loading.dismiss();
-        const pesanError = err.error?.message || 'Email atau kata sandi salah!';
-        this.tampilPesan(pesanError, 'danger');
-      }
-    });
+    this.api.login({ email: this.email.trim().toLowerCase(), password: this.password })
+      .pipe(
+        timeout(10000),
+        finalize(() => {
+          loading.dismiss();
+        })
+      )
+      .subscribe({
+        next: async (res) => {
+          if (res && res.data) {
+            localStorage.setItem('ecoapp_user', JSON.stringify(res.data));
+          }
+          await this.tampilPesan(`Selamat datang, ${res.data?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
+          // Langsung masuk ke halaman Dashboard Pengguna
+          this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
+        },
+        error: async (err) => {
+          const msg = err.error?.message || 'Email atau password salah!';
+          this.tampilPesan(msg, 'danger');
+        }
+      });
   }
 
-  async loginSosial(provider: string) {
-    this.tampilPesan(`Login cepat via ${provider} segera hadir! Gunakan email terdaftar.`, 'primary');
+  // Fungsi cadangan bila tombol di HTML lama memanggil login() atau masuk()
+  login() {
+    this.prosesLogin();
+  }
+
+  masuk() {
+    this.prosesLogin();
   }
 
   keHalamanDaftar() {
-    this.navCtrl.navigateForward('/register', { animated: true, animationDirection: 'forward' });
+    this.navCtrl.navigateForward('/register', { animated: true });
+  }
+
+  tombolKembali() {
+    this.navCtrl.navigateBack('/onboarding', { animated: true });
   }
 
   async tampilPesan(pesan: string, warna: string) {

@@ -1,5 +1,15 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { NavController, ToastController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
 
-import { Component, OnInit } from '@angular/core';
+interface MaterialStat {
+  nama: string;
+  beratKg: number;
+  persen: number;
+  warnaDot: string;
+  warnaTeks: string;
+  warnaBar: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -8,97 +18,140 @@ import { Component, OnInit } from '@angular/core';
   standalone: false,
 })
 export class DashboardPage implements OnInit {
-  // 1. Tambahkan 3 variabel penampung yang dicari oleh HTML:
-  loading: boolean = false;
-  error: string | null = null;
- 
+  private api = inject(ApiService);
+  private navCtrl = inject(NavController);
+  private toastCtrl = inject(ToastController);
 
-  // Data sesuai struktur yang dipanggil di dashboard.page.html
-  data: any = {
-    pelanggan: {
-      nama: 'Bu Sari',
-      jenis_pelanggan: 'PEDAGANG_PASAR',
-      alamat: 'Pasar Blok A, Kios 14'
-    },
-    poin: {
-      tersedia: 4320,
-      dalamPencairan: 0,
-      minimalPencairan: 1000,
-      nilaiPerPoin: 10
-    }
-  };
+  loading = false;
+  error = false;
+  data: any = null;
 
-  lokasi: string = 'Pasar Blok A, Kios 14';
-  jenisLabel: string = 'Pedagang Pasar';
-  greeting: string = 'pagi';
+  tabAktif: 'beranda' | 'riwayat' | 'dompet' | 'profil' = 'beranda';
 
-  quickActions = [
-    { label: 'Riwayat Setor', icon: 'receipt-outline', link: '/riwayat' },
-    { label: 'Pesan Jemput', icon: 'calendar-outline', link: '/pesan-jemput' },
-    { label: 'Drop Point', icon: 'location-outline', link: '/drop-point' },
-    { label: 'Panduan', icon: 'book-outline', link: '/panduan' }
+  // Data pengguna & sapaan (otomatis menyesuaikan dengan user yang login, fallback ke tampilan Figma)
+  idPengguna: number = 2;
+  namaUser: string = 'Bu Sari';
+  alamatUser: string = 'Pasar Blok A, Kios 14';
+  sapaanWaktu: string = 'Selamat pagi';
+
+  // Data Kartu Poin Hijau
+  saldoPoin: number = 4320;
+  nominalRupiah: number = 43200;
+  poinDiproses: number = 0;
+
+  // Data Sampah Bulan Ini (4 Material sesuai Figma & Dokumen Pilahin)
+  totalBeratBulanIni: number = 25;
+  daftarMaterial: MaterialStat[] = [
+    { nama: 'Plastik', beratKg: 12, persen: 48, warnaDot: '#2563EB', warnaTeks: '#2563EB', warnaBar: '#2563EB' },
+    { nama: 'Kardus',  beratKg: 8,  persen: 32, warnaDot: '#F59E0B', warnaTeks: '#F59E0B', warnaBar: '#F59E0B' },
+    { nama: 'Kaca',    beratKg: 3,  persen: 12, warnaDot: '#0D9488', warnaTeks: '#0D9488', warnaBar: '#0D9488' },
+    { nama: 'Logam',   beratKg: 2,  persen: 8,  warnaDot: '#64748B', warnaTeks: '#64748B', warnaBar: '#64748B' }
   ];
 
-  totalKg: number = 25;
-  wastes = [
-    { name: 'Plastik', kg: 12, percent: 48, color: '#2563eb' },
-    { name: 'Kardus', kg: 8, percent: 32, color: '#f59e0b' },
-    { name: 'Kaca', kg: 3, percent: 12, color: '#0d9488' },
-    { name: 'Logam', kg: 2, percent: 8, color: '#475569' }
-  ];
-
-  pickup: any = {
-    hari: 'SEL',
+  // Data Jemputan Berikutnya
+  jemputanBerikutnya = {
+    hariSingkat: 'SEL',
     tanggal: '14',
-    kode: 'STR-000123',
-    info: "Kurir 'Pak Joko' • 08.00 - 10.00",
-    potongan: 10,
-    cls: 'terjadwal',
-    label: 'Terjadwal'
+    judul: 'Penjemputan Sampah',
+    kodeLabel: 'STR-000123',
+    namaKurir: "Kurir 'Pak Joko'",
+    jamSlot: '08.00 - 10.00',
+    statusLabel: 'Terjadwal'
   };
-
-  constructor() {}
 
   ngOnInit() {
-    this.setGreeting();
-    this.load();
+    this.aturSapaanWaktu();
+    this.muatSesiPengguna();
+    this.ambilDataDashboard();
   }
 
-  setGreeting() {
-    const hour = new Date().getHours();
-    if (hour < 11) this.greeting = 'pagi';
-    else if (hour < 15) this.greeting = 'siang';
-    else if (hour < 19) this.greeting = 'sore';
-    else this.greeting = 'malam';
+  ionViewWillEnter() {
+    this.muatSesiPengguna();
+    this.ambilDataDashboard();
   }
 
-  get canWithdraw(): boolean {
-    if (!this.data?.poin) return false;
-    return this.data.poin.tersedia >= this.data.poin.minimalPencairan;
+  aturSapaanWaktu() {
+    const jam = new Date().getHours();
+    if (jam >= 4 && jam < 11) {
+      this.sapaanWaktu = 'Selamat pagi';
+    } else if (jam >= 11 && jam < 15) {
+      this.sapaanWaktu = 'Selamat siang';
+    } else if (jam >= 15 && jam < 18) {
+      this.sapaanWaktu = 'Selamat sore';
+    } else {
+      this.sapaanWaktu = 'Selamat malam';
+    }
   }
 
-  get nominal(): number {
-    if (!this.data?.poin) return 0;
-    return this.data.poin.tersedia * (this.data.poin.nilaiPerPoin || 10);
-  }
-
-  load(event?: any) {
-    this.loading = true;
-    this.error = null;
-
-    setTimeout(() => {
-      this.loading = false;
-      if (event && event.target) {
-        event.target.complete();
+  muatSesiPengguna() {
+    const tersimpan = localStorage.getItem('ecoapp_user');
+    if (tersimpan) {
+      try {
+        const user = JSON.parse(tersimpan);
+        if (user.id_pengguna) this.idPengguna = Number(user.id_pengguna);
+        if (user.nama) this.namaUser = user.nama;
+        if (user.alamat) {
+          this.alamatUser = user.nama_usaha ? `${user.nama_usaha}, ${user.alamat}` : user.alamat;
+        }
+      } catch (e) {
+        console.error('Gagal membaca sesi user:', e);
       }
-    }, 300);
+    }
   }
 
-  fmt(val: number | undefined | null, decimals: number = 0): string {
-    if (val === null || val === undefined) return '0';
-    return Number(val).toLocaleString('id-ID', {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
+  ambilDataDashboard(event?: any) {
+    this.loading = true;
+    this.api.getDashboardPelanggan(this.idPengguna).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res && res.data) {
+          this.data = res.data;
+
+          if (res.data.profil) {
+            this.namaUser = res.data.profil.nama || this.namaUser;
+            this.alamatUser = res.data.profil.alamat || this.alamatUser;
+          }
+
+          // Jika user sudah memiliki transaksi riil di database, tampilkan angkanya
+          if (res.data.saldo_poin_aktif > 0 || res.data.total_berat_kg > 0) {
+            this.saldoPoin = res.data.saldo_poin_aktif;
+            this.nominalRupiah = res.data.nominal_rupiah || (this.saldoPoin * 10);
+            this.poinDiproses = res.data.poin_diproses || 0;
+            this.totalBeratBulanIni = res.data.total_berat_kg;
+          }
+        }
+        if (event && event.target) event.target.complete();
+      },
+      error: () => {
+        this.loading = false;
+        if (event && event.target) event.target.complete();
+      }
     });
   }
+
+  // Fungsi ion-refresher apabila ditarik ke bawah
+  load(event: any) {
+    this.ambilDataDashboard(event);
   }
+
+  formatTitikRibuan(angka: number): string {
+    return (angka || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  async klikFitur(namaFitur: string) {
+    const toast = await this.toastCtrl.create({
+      message: `Membuka menu ${namaFitur}...`,
+      duration: 1500,
+      color: 'success',
+      position: 'top'
+    });
+    await toast.present();
+  }
+
+  pilihTab(tab: 'beranda' | 'riwayat' | 'dompet' | 'profil') {
+    this.tabAktif = tab;
+    if (tab !== 'beranda') {
+      this.klikFitur(tab.charAt(0).toUpperCase() + tab.slice(1));
+    }
+  }
+}
