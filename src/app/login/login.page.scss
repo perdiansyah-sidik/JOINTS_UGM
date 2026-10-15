@@ -1,8 +1,9 @@
-.eco-auth-bg {
+.eco-login-bg {
   --background: #F4FBF7;
 }
 
-.auth-container {
+.login-container {
+  position: relative;
   min-height: 100%;
   padding: 28px 20px 24px;
   max-width: 440px;
@@ -10,6 +11,20 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.top-bar {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+
+  .back-btn {
+    border: 0;
+    background: transparent;
+    color: #3B7A57;
+    font-size: 24px;
+    cursor: pointer;
+  }
 }
 
 .logo-badge-wrap {
@@ -46,7 +61,7 @@
   }
 }
 
-.header-text {
+.hero-header {
   text-align: center;
   margin-bottom: 20px;
 
@@ -97,7 +112,7 @@
   }
 }
 
-.auth-card {
+.white-box-card {
   background: #FFFFFF;
   border-radius: 22px;
   padding: 20px 18px;
@@ -247,7 +262,24 @@
   }
 }
 
-.bottom-redirect {
+.bottom-action-area {
+  margin-top: 24px;
+}
+
+.btn-masuk-eco {
+  --background: #22AD5C;
+  --background-activated: #1B8F4B;
+  --color: #FFFFFF;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 16px rgba(34, 173, 92, 0.28);
+  height: 48px;
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.bottom-register-link {
   margin-top: 20px;
   text-align: center;
   font-size: 13px;
