@@ -1,0 +1,142 @@
+<ion-content color="light">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="location-badge">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{ pengelola.lokasi }} &bull; Pengelola</span>
+    </div>
+    
+    <div class="greeting-row">
+      <h2>Selamat pagi, <strong>{{ pengelola.nama }}</strong> 👋</h2>
+      <ion-button fill="clear" color="dark" class="bell-btn">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Main Balance Card -->
+  <div class="balance-card">
+    <div class="card-top">
+      <div class="title-with-shield">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Cadangan Poin Tersedia</span>
+      </div>
+      <ion-button size="small" class="btn-lihat-kas" color="light">Lihat kas &rsaquo;</ion-button>
+    </div>
+    <!-- Format angka sudah diperbaiki di sini -->
+    <h1 class="balance-amount">Rp {{ kas.tersedia | number }}</h1>
+    <div class="reserved-badge">
+      <ion-icon name="wallet-outline"></ion-icon>
+      <!-- Format angka sudah diperbaiki di sini -->
+      <span>Dipesan pencairan Rp {{ kas.dipesan | number }}</span>
+    </div>
+    <p class="fund-split">Pembagian dana: Cadangan 40% &bull; Komunitas 10% &bull; Operasional 50%</p>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="quick-actions">
+    <div class="action-item">
+      <div class="icon-box">
+        <ion-badge color="danger" class="floating-badge">5</ion-badge>
+        <ion-icon name="scale-outline" color="success"></ion-icon>
+      </div>
+      <span>Timbang & Verifikasi</span>
+    </div>
+    <div class="action-item">
+      <div class="icon-box">
+        <ion-icon name="calendar-outline" color="success"></ion-icon>
+      </div>
+      <span>Slot Jemput</span>
+    </div>
+    <div class="action-item">
+      <div class="icon-box">
+        <ion-badge color="danger" class="floating-badge">1</ion-badge>
+        <ion-icon name="cube-outline" color="success"></ion-icon>
+      </div>
+      <span>Terima di Titik</span>
+    </div>
+    <div class="action-item">
+      <div class="icon-box">
+        <ion-icon name="cart-outline" color="success"></ion-icon>
+      </div>
+      <span>Penjualan</span>
+    </div>
+  </div>
+
+  <!-- Perlu Tindakan Hari Ini -->
+  <div class="section-title">PERLU TINDAKAN HARI INI</div>
+  <ion-list lines="none" class="action-list">
+    <ion-item *ngFor="let item of tindakanHariIni" detail="true" class="action-list-item">
+      <div slot="start" class="list-icon-box">
+        <ion-icon [name]="item.icon" [color]="item.color"></ion-icon>
+      </div>
+      <ion-label>
+        <h3><strong>{{ item.title }}</strong></h3>
+        <p>{{ item.subtitle }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="item.color" mode="ios">{{ item.count }}</ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <!-- Stok di Drop Point -->
+  <div class="stok-card">
+    <div class="stok-header">
+      <h2><strong>Stok di Drop Point</strong></h2>
+      <ion-badge color="light" class="stok-total">{{ stok.total }} kg</ion-badge>
+    </div>
+    <p class="stok-subtitle">Setoran FINAL & DITERIMA di titik, setelah penjualan</p>
+    
+    <div class="stok-item" *ngFor="let item of stok.items">
+      <div class="stok-item-header">
+        <span class="stok-name"><span class="dot" [class]="'bg-' + item.color"></span> {{ item.nama }}</span>
+        <span class="stok-weight">{{ item.berat }} kg ({{ item.persentase }}%)</span>
+      </div>
+      <ion-progress-bar [value]="item.value" [color]="item.color"></ion-progress-bar>
+    </div>
+  </div>
+
+  <!-- Penjemputan Berikutnya -->
+  <div class="section-title">PENJEMPUTAN BERIKUTNYA</div>
+  <div class="schedule-card">
+    <div class="date-box">
+      <span class="day">SEL</span>
+      <span class="date">14</span>
+    </div>
+    <div class="schedule-info">
+      <h3><strong>Slot 08.00 - 10.00</strong></h3>
+      <p>Terpakai 4 dari 5 kuota &bull; 1 belum ditugaskan</p>
+    </div>
+    <ion-badge color="success" mode="ios" class="status-badge">Terjadwal</ion-badge>
+  </div>
+
+  <!-- Kelola Master Data -->
+  <div class="section-title">KELOLA MASTER DATA</div>
+  <div class="master-data-grid">
+    <div class="md-item">
+      <div class="md-icon-box"><ion-icon name="people-outline"></ion-icon></div>
+      <span>Pengguna</span>
+    </div>
+    <div class="md-item">
+      <div class="md-icon-box"><ion-icon name="business-outline"></ion-icon></div>
+      <span>Mitra</span>
+    </div>
+    
+    <div class="md-item" (click)="goToDropPoint()" style="cursor: pointer;">
+      <div class="md-icon-box"><ion-icon name="location-outline"></ion-icon></div>
+      <span>Drop Point</span>
+    </div>
+    
+    <div class="md-item">
+      <div class="md-icon-box"><ion-icon name="extension-puzzle-outline"></ion-icon></div>
+      <span>Jenis Sampah</span>
+    </div>
+  </div>
+  <p class="md-subtitle text-center">Tambah &bull; Lihat &bull; Ubah &bull; Nonaktifkan</p>
+
+  <!-- Bottom Button -->
+  <div class="bottom-action">
+    <ion-button expand="block" color="success" class="btn-buka-slot">
+      Buka Slot Jemput Baru <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content>

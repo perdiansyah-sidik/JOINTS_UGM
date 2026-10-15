@@ -22,10 +22,20 @@ const routes: Routes = [
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
-  },  {
+  },
+  {
     path: 'onboarding',
     loadChildren: () => import('./onboarding/onboarding.module').then( m => m.OnboardingPageModule)
+  },  {
+    path: 'dashboard-pengelola',
+    loadChildren: () => import('./dashboard-pengelola/dashboard-pengelola.module').then( m => m.DashboardPengelolaPageModule)
   },
+  {
+    path: 'master-drop-point',
+    loadChildren: () => import('./master-drop-point/master-drop-point.module').then( m => m.MasterDropPointPageModule)
+  },
+
+  
 
 ];
 

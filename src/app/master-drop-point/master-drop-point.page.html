@@ -1,0 +1,75 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="success">
+    <ion-buttons slot="start">
+      <!-- Ubah bagian ini -->
+      <ion-button (click)="kembaliKeDashboard()" style="color: white; font-weight: bold;">
+        <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+        Back
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Master Drop Point</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="light">
+  <div class="page-header">
+    <h2>Daftar Drop Point</h2>
+    <p>Kelola lokasi penampungan dan operasional</p>
+  </div>
+
+  <!-- Daftar Data Drop Point -->
+  <div class="list-container">
+    <!-- Teks loading saat menunggu data API -->
+    <div *ngIf="isLoading" class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Memuat data lokasi...</p>
+    </div>
+
+    <!-- Tampilkan data jika sudah ada -->
+    <ng-container *ngIf="!isLoading">
+      <ion-card class="dp-card" *ngFor="let item of dropPoints">
+        <ion-card-header class="dp-header">
+          <ion-card-title>
+            <ion-icon name="location" color="success"></ion-icon>
+            <!-- Diubah ke nama_drop_point -->
+            {{ item.nama_drop_point }} 
+          </ion-card-title>
+          <!-- Diubah logikanya ke nilai integer 1 atau 0 dari database -->
+          <ion-badge [color]="item.aktif === 1 ? 'success' : 'medium'" mode="ios">
+            {{ item.aktif === 1 ? 'Aktif' : 'Nonaktif' }}
+          </ion-badge>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="info-row">
+            <ion-icon name="map-outline"></ion-icon>
+            <span>{{ item.alamat }}</span>
+          </div>
+          <div class="info-row">
+            <ion-icon name="time-outline"></ion-icon>
+            <!-- Diubah ke jam_operasional -->
+            <span>{{ item.jam_operasional }}</span> 
+          </div>
+          
+          <div class="action-buttons">
+            <ion-button fill="outline" color="primary" size="small" (click)="editData(item.id_drop_point)">
+              <ion-icon name="create-outline" slot="start"></ion-icon> Edit
+            </ion-button>
+            
+            <ion-button [fill]="item.aktif === 1 ? 'outline' : 'solid'" [color]="item.aktif === 1 ? 'danger' : 'success'" size="small" (click)="toggleStatus(item)">
+              <ion-icon [name]="item.aktif === 1 ? 'trash-outline' : 'checkmark-circle-outline'" slot="start"></ion-icon> 
+              {{ item.aktif === 1 ? 'Nonaktifkan' : 'Aktifkan' }}
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+  </div>
+
+  <!-- Tombol Melayang (FAB) untuk Tambah Data Baru -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="success" (click)="tambahData()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
