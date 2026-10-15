@@ -49,7 +49,8 @@
     <!-- ================================================================= -->
     <!-- LAYAR 1 (KIRI): PILIH PENGGUNA PRIBADI ATAU MITRA / KOMUNITAS      -->
     <!-- ================================================================= -->
-    <div *ngIf="tahapDaftar === 1" class="step-wrapper">
+    @if (tahapDaftar === 1) {
+    <div class="step-wrapper">
       <div class="role-cards-stack">
 
         <!-- Kartu Pengguna Pribadi -->
@@ -145,11 +146,13 @@
         </div>
       </div>
     </div>
+    }
 
     <!-- ================================================================= -->
     <!-- LAYAR 2 (KEDUA DARI KIRI): "ANDA SEBAGAI SIAPA?"                  -->
     <!-- ================================================================= -->
-    <div *ngIf="tahapDaftar === 2" class="step-wrapper">
+    @if (tahapDaftar === 2) {
+    <div class="step-wrapper">
       <div class="white-box-card">
         <span class="card-eyebrow">DAFTAR AKUN</span>
         <h3 class="card-question">Anda sebagai siapa?</h3>
@@ -168,11 +171,9 @@
               <h4>Rumah tangga</h4>
               <p>Plastik, kardus, dan botol dari rumah</p>
             </div>
-            <ion-icon 
-              *ngIf="formDaftar.jenis_pelanggan === 'RUMAH_TANGGA'" 
-              name="checkmark-circle" 
-              class="who-check">
-            </ion-icon>
+            @if (formDaftar.jenis_pelanggan === 'RUMAH_TANGGA') {
+              <ion-icon name="checkmark-circle" class="who-check"></ion-icon>
+            }
           </div>
 
           <!-- Pilihan 2: UMKM kuliner -->
@@ -187,11 +188,9 @@
               <h4>UMKM kuliner</h4>
               <p>Kemasan, gelas plastik, dan kaleng</p>
             </div>
-            <ion-icon 
-              *ngIf="formDaftar.jenis_pelanggan === 'UMKM'" 
-              name="checkmark-circle" 
-              class="who-check">
-            </ion-icon>
+            @if (formDaftar.jenis_pelanggan === 'UMKM') {
+              <ion-icon name="checkmark-circle" class="who-check"></ion-icon>
+            }
           </div>
 
           <!-- Pilihan 3: Pedagang pasar -->
@@ -206,11 +205,9 @@
               <h4>Pedagang pasar</h4>
               <p>Setoran kolektif per kios atau blok pasar</p>
             </div>
-            <ion-icon 
-              *ngIf="formDaftar.jenis_pelanggan === 'PEDAGANG'" 
-              name="checkmark-circle" 
-              class="who-check">
-            </ion-icon>
+            @if (formDaftar.jenis_pelanggan === 'PEDAGANG') {
+              <ion-icon name="checkmark-circle" class="who-check"></ion-icon>
+            }
           </div>
 
         </div>
@@ -223,11 +220,13 @@
         </ion-button>
       </div>
     </div>
+    }
 
     <!-- ================================================================= -->
     <!-- LAYAR 3 (KETIGA DARI KIRI): FORM BIODATA & NAMA USAHA             -->
     <!-- ================================================================= -->
-    <div *ngIf="tahapDaftar === 3" class="step-wrapper">
+    @if (tahapDaftar === 3) {
+    <div class="step-wrapper">
       <div class="white-box-card">
 
         <div class="form-group">
@@ -283,11 +282,13 @@
         </ion-button>
       </div>
     </div>
+    }
 
     <!-- ================================================================= -->
     <!-- LAYAR 4 (PALING KANAN): PASSWORD & VERIFIKASI PASSWORD            -->
     <!-- ================================================================= -->
-    <div *ngIf="tahapDaftar === 4" class="step-wrapper">
+    @if (tahapDaftar === 4) {
+    <div class="step-wrapper">
       <div class="white-box-card">
 
         <div class="form-group">
@@ -331,6 +332,7 @@
         </ion-button>
       </div>
     </div>
+    }
 
   </div>
 </ion-content>
