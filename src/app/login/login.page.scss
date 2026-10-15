@@ -22,6 +22,11 @@ $bg-switcher: #E5EDE8;
 }
 
 .login-container {
+  position: relative;
+  min-height: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
   min-height: 100%;
   max-width: 440px;
   margin: 0 auto;
@@ -33,7 +38,25 @@ $bg-switcher: #E5EDE8;
   color: $teks-gelap;
 }
 
+.top-bar {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+
+  .back-btn {
+    border: 0;
+    background: transparent;
+    color: #3B7A57;
+    font-size: 24px;
+    cursor: pointer;
+  }
+}
+
 /* ===== Logo ===== */
+.logo-badge-wrap {
+  display: flex;
+  justify-content: center;
+}
 .logo-badge-wrap {
   display: flex;
   justify-content: center;
@@ -68,8 +91,11 @@ $bg-switcher: #E5EDE8;
   }
 }
 
-/* ===== Judul ===== */
-.header-text {
+.header-text,
+.hero-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
   text-align: center;
   margin-bottom: 22px;
 
@@ -134,8 +160,12 @@ $bg-switcher: #E5EDE8;
   }
 }
 
-/* ===== Kartu form ===== */
-.auth-card {
+.auth-card,
+.white-box-card {
+  background: #FFFFFF;
+  border-radius: 22px;
+  padding: 22px 18px 20px;
+}
   background: #FFFFFF;
   border-radius: 22px;
   padding: 22px 18px 20px;
@@ -319,9 +349,33 @@ $bg-switcher: #E5EDE8;
   }
 }
 
-/* ===== Link daftar ===== */
 .bottom-redirect {
   margin-top: 26px;
+}
+
+.bottom-action-area {
+  margin-top: 24px;
+}
+
+.btn-masuk-eco {
+  --background: #22AD5C;
+  --background-activated: #1B8F4B;
+  --color: #FFFFFF;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 16px rgba(34, 173, 92, 0.28);
+  height: 48px;
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.bottom-register-link {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12.5px;
+  color: $teks-abu;
+}
   text-align: center;
   font-size: 12.5px;
   color: $teks-abu;

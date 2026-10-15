@@ -1,0 +1,191 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="fp-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/master-pengguna" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isTambah ? 'Tambah Petugas Mitra' : 'Ubah Akun' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="fp-bg">
+  <div class="fp-container">
+    @if (butuhPilihMitra) {
+      @if (sedangMuatMitra) { <p role="status">Memuat organisasi...</p> }
+      @else if (errorMitra) {
+        <p role="alert">{{ errorMitra }}</p>
+        <ion-button fill="outline" (click)="muatDaftarMitra()">Coba lagi</ion-button>
+      } @else if (daftarMitra.length === 0 && (isTambah || !kuncOrganisasiDanPeran)) {
+        <p role="status">Belum ada organisasi yang dapat dipilih. Hubungi pengelola mitra.</p>
+      }
+    }
+
+    @if (sedangMuat) {
+      <div class="fp-state-box">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Memuat data akun...</p>
+      </div>
+    } @else if (pesanError) {
+      <div class="fp-state-box">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <p>{{ pesanError }}</p>
+        <ion-button fill="outline" size="small" (click)="batal()">Kembali</ion-button>
+      </div>
+    } @else {
+
+      <!-- ============== MODE TAMBAH PETUGAS MITRA ============== -->
+      @if (isTambah) {
+        <div class="fp-card">
+          <p class="fp-hint">Akun ini otomatis berperan <strong>Mitra (Petugas)</strong> dan terikat pada satu organisasi mitra.</p>
+
+          <div class="fp-group">
+            <label for="formTambah-nama">Nama Lengkap</label>
+            <div class="fp-input">
+              <ion-icon name="person-outline"></ion-icon>
+              <input maxlength="100" id="formTambah-nama" name="nama" (blur)="sentuh('nama')" [attr.aria-invalid]="!!errorKolom('nama')" aria-describedby="formTambah-nama-error" type="text" placeholder="nama petugas" [(ngModel)]="formTambah.nama" [disabled]="sedangSimpan" />
+            </div>
+<p id="formTambah-nama-error" class="fp-error" aria-live="polite">{{ errorKolom('nama') }}</p>
+</div>
+
+          <div class="fp-group">
+            <label for="formTambah-email">Email</label>
+            <div class="fp-input">
+              <ion-icon name="mail-outline"></ion-icon>
+              <input autocomplete="email" autocapitalize="none" maxlength="150" id="formTambah-email" name="email" (blur)="sentuh('email')" [attr.aria-invalid]="!!errorKolom('email')" aria-describedby="formTambah-email-error" type="email" placeholder="nama@email.com" [(ngModel)]="formTambah.email" [disabled]="sedangSimpan" />
+            </div>
+<p id="formTambah-email-error" class="fp-error" aria-live="polite">{{ errorKolom('email') }}</p>
+</div>
+
+          <div class="fp-group">
+            <label for="formTambah-no_hp">Nomor HP <span class="fp-optional">(opsional)</span></label>
+            <div class="fp-input">
+              <ion-icon name="call-outline"></ion-icon>
+              <input autocomplete="tel" maxlength="20" id="formTambah-no_hp" name="no_hp" (blur)="sentuh('no_hp')" [attr.aria-invalid]="!!errorKolom('no_hp')" aria-describedby="formTambah-no_hp-error" type="tel" placeholder="08xxxxxxxxxx" [(ngModel)]="formTambah.no_hp" [disabled]="sedangSimpan" />
+            </div>
+<p id="formTambah-no_hp-error" class="fp-error" aria-live="polite">{{ errorKolom('no_hp') }}</p>
+</div>
+
+          <div class="fp-group">
+            <label for="formTambah-id_mitra">Organisasi Mitra</label>
+            <div class="fp-input fp-select">
+              <ion-icon name="git-network-outline"></ion-icon>
+              <select id="formTambah-id_mitra" name="id_mitra" (blur)="sentuh('id_mitra')" [attr.aria-invalid]="!!errorKolom('id_mitra')" aria-describedby="formTambah-id_mitra-error" [(ngModel)]="formTambah.id_mitra" [disabled]="sedangSimpan">
+                <option [ngValue]="null" disabled>Pilih organisasi...</option>
+                @for (mitra of daftarMitra; track mitra.id_mitra) {
+                  <option [ngValue]="mitra.id_mitra">{{ mitra.nama_mitra }}</option>
+                }
+              </select>
+            </div>
+<p id="formTambah-id_mitra-error" class="fp-error" aria-live="polite">{{ errorKolom('id_mitra') }}</p>
+</div>
+
+          <div class="fp-group">
+            <label for="formTambah-password">Password Awal</label>
+            <div class="fp-input">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              <input autocomplete="new-password" maxlength="128" id="formTambah-password" name="password" (blur)="sentuh('password')" [attr.aria-invalid]="!!errorKolom('password')" aria-describedby="formTambah-password-error" [type]="tampilkanSandi ? 'text' : 'password'" placeholder="8–128 karakter"
+                [(ngModel)]="formTambah.password" [disabled]="sedangSimpan" />
+              <button type="button" class="fp-eye" [attr.aria-label]="tampilkanSandi ? 'Sembunyikan password' : 'Tampilkan password'" [attr.aria-pressed]="tampilkanSandi" (click)="tampilkanSandi = !tampilkanSandi"><ion-icon class="fp-suffix" [name]="tampilkanSandi ? 'eye-off-outline' : 'eye-outline'"
+                ></ion-icon></button>
+            </div>
+<p id="formTambah-password-error" class="fp-error" aria-live="polite">{{ errorKolom('password') }}</p>
+</div>
+
+          <ion-button expand="block" class="fp-btn-submit" [disabled]="blokSimpan" (click)="simpanTambah()">
+            @if (sedangSimpan) {
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>&nbsp;Menyimpan...</span>
+            } @else {
+              <span>Buat Akun Petugas</span>
+            }
+          </ion-button>
+        </div>
+      }
+
+      <!-- ============== MODE UBAH AKUN ============== -->
+      @if (!isTambah && penggunaAsli) {
+        <div class="fp-card">
+          <div class="fp-readonly-row">
+            <div>
+              <label>Email</label>
+              <p class="fp-readonly-value">{{ penggunaAsli.email }}</p>
+            </div>
+            <span class="fp-role-badge">{{ labelPeran[penggunaAsli.peran] }}</span>
+          </div>
+
+          @if (butuhPilihMitra && kuncOrganisasiDanPeran) {
+            <p class="fp-warning">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              Organisasi hanya bisa diubah jika server memastikan akun belum dirujuk transaksi. Peran tidak diubah dari menu ini.
+            </p>
+          }
+
+          <div class="fp-group">
+            <label for="formUbah-nama">Nama Lengkap</label>
+            <div class="fp-input">
+              <ion-icon name="person-outline"></ion-icon>
+              <input maxlength="100" id="formUbah-nama" name="nama" (blur)="sentuh('nama')" [attr.aria-invalid]="!!errorKolom('nama')" aria-describedby="formUbah-nama-error" type="text" [(ngModel)]="formUbah.nama" [disabled]="sedangSimpan" />
+            </div>
+<p id="formUbah-nama-error" class="fp-error" aria-live="polite">{{ errorKolom('nama') }}</p>
+</div>
+
+          <div class="fp-group">
+            <label for="formUbah-no_hp">Nomor HP</label>
+            <div class="fp-input">
+              <ion-icon name="call-outline"></ion-icon>
+              <input autocomplete="tel" maxlength="20" id="formUbah-no_hp" name="no_hp" (blur)="sentuh('no_hp')" [attr.aria-invalid]="!!errorKolom('no_hp')" aria-describedby="formUbah-no_hp-error" type="tel" placeholder="08xxxxxxxxxx" [(ngModel)]="formUbah.no_hp" [disabled]="sedangSimpan" />
+            </div>
+<p id="formUbah-no_hp-error" class="fp-error" aria-live="polite">{{ errorKolom('no_hp') }}</p>
+</div>
+
+          @if (penggunaAsli.peran !== 5) {
+            <div class="fp-group">
+              <label for="formUbah-alamat">Alamat {{ penggunaAsli.peran <= 3 ? '(wajib)' : '(opsional)' }}</label>
+              <div class="fp-input">
+                <ion-icon name="location-outline"></ion-icon>
+                <input maxlength="255" id="formUbah-alamat" name="alamat" (blur)="sentuh('alamat')" [attr.aria-invalid]="!!errorKolom('alamat')" aria-describedby="formUbah-alamat-error" type="text" [(ngModel)]="formUbah.alamat" [disabled]="sedangSimpan" />
+              </div>
+<p id="formUbah-alamat-error" class="fp-error" aria-live="polite">{{ errorKolom('alamat') }}</p>
+</div>
+
+            @if (penggunaAsli.peran === 2 || penggunaAsli.peran === 3) {
+<div class="fp-group"><label for="formUbah-nama_usaha">Nama Usaha <span class="fp-optional">(opsional)</span></label>
+              <div class="fp-input">
+                <ion-icon name="briefcase-outline"></ion-icon>
+                <input maxlength="150" id="formUbah-nama_usaha" name="nama_usaha" (blur)="sentuh('nama_usaha')" [attr.aria-invalid]="!!errorKolom('nama_usaha')" aria-describedby="formUbah-nama_usaha-error" type="text" [(ngModel)]="formUbah.nama_usaha" [disabled]="sedangSimpan" />
+              </div>
+<p id="formUbah-nama_usaha-error" class="fp-error" aria-live="polite">{{ errorKolom('nama_usaha') }}</p>
+</div>
+}
+          }
+
+          @if (butuhPilihMitra) {
+            <div class="fp-group">
+              <label for="formUbah-id_mitra">Organisasi Mitra</label>
+              <div class="fp-input fp-select">
+                <ion-icon name="git-network-outline"></ion-icon>
+                <select id="formUbah-id_mitra" name="id_mitra" (blur)="sentuh('id_mitra')" [attr.aria-invalid]="!!errorKolom('id_mitra')" aria-describedby="formUbah-id_mitra-error" [(ngModel)]="formUbah.id_mitra" [disabled]="sedangSimpan || kuncOrganisasiDanPeran">
+                  <option [ngValue]="null" disabled>Pilih organisasi...</option>
+                  @for (mitra of daftarMitra; track mitra.id_mitra) {
+                    <option [ngValue]="mitra.id_mitra">{{ mitra.nama_mitra }}</option>
+                  }
+                </select>
+              </div>
+<p id="formUbah-id_mitra-error" class="fp-error" aria-live="polite">{{ errorKolom('id_mitra') }}</p>
+</div>
+          }
+
+          <ion-button expand="block" class="fp-btn-submit" [disabled]="blokSimpan" (click)="simpanUbah()">
+            @if (sedangSimpan) {
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>&nbsp;Menyimpan...</span>
+            } @else {
+              <span>Simpan Perubahan</span>
+            }
+          </ion-button>
+
+        </div>
+      }
+
+    }
+  </div>
+</ion-content>

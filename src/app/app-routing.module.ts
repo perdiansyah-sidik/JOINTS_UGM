@@ -3,6 +3,10 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: 'master-pengguna',
+    loadChildren: () => import('./master-pengguna/master-pengguna.module').then(m => m.MasterPenggunaPageModule)
+  },
+  {
     path: '',
     redirectTo: 'welcome', // <-- OTOMATIS BUKA HALAMAN WELCOME SAAT PERTAMA KALI DIJALANKAN
     pathMatch: 'full'
