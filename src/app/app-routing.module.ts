@@ -4,12 +4,21 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'onboarding',
+    redirectTo: 'welcome', // <-- OTOMATIS BUKA HALAMAN WELCOME SAAT PERTAMA KALI DIJALANKAN
     pathMatch: 'full'
+  },
+  {
+    path: 'welcome',
+    loadChildren: () => import('./welcome/welcome.module').then(m => m.WelcomePageModule)
   },
   {
     path: 'onboarding',
     loadChildren: () => import('./onboarding/onboarding.module').then(m => m.OnboardingPageModule)
+  },
+  {
+    path: 'home',
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
   },
   {
     path: 'login',

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-welcome',
@@ -6,11 +7,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./welcome.page.scss'],
   standalone: false,
 })
-export class WelcomePage implements OnInit {
+export class WelcomePage {
+  private navCtrl = inject(NavController);
 
-  constructor() { }
-
-  ngOnInit() {
+  // Fungsi saat tombol "Mulai Sekarang" diklik
+  mulaiSekarang() {
+    this.navCtrl.navigateForward('/register', { animated: true });
   }
 
+  // Fungsi saat teks "Masuk" diklik
+  keLogin() {
+    this.navCtrl.navigateForward('/login', { animated: true });
+  }
 }
