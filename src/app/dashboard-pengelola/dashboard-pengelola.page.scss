@@ -1,0 +1,232 @@
+/* Paksa warna dasar halaman agar selalu terang */
+ion-content {
+  --background: #f8f9fa !important;
+  --color: #333333 !important;
+  padding: 16px;
+}
+
+/* Kunci semua teks agar tidak terpengaruh dark mode */
+h1, h2, h3, p, span, div {
+  color: #333333;
+}
+
+.header-section {
+  padding: 16px 16px 0;
+  
+  .location-badge {
+    display: flex;
+    align-items: center;
+    color: #1fa048 !important; /* Warna hijau khas Pilahin */
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    ion-icon { margin-right: 4px; }
+    span { color: #777777 !important; }
+  }
+
+  .greeting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    h2 { margin: 0; font-size: 22px; color: #333333 !important; }
+    .bell-btn {
+      --padding-start: 8px; --padding-end: 8px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      color: #333333 !important;
+      --background: #ffffff !important;
+    }
+  }
+}
+
+.balance-card {
+  background: linear-gradient(135deg, #1fa048, #0e7a32) !important;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 16px;
+  color: #ffffff !important;
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .title-with-shield {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      opacity: 0.9;
+      color: #ffffff !important;
+      ion-icon { margin-right: 6px; }
+    }
+    .btn-lihat-kas {
+      --border-radius: 20px;
+      --color: #1fa048 !important;
+      --background: #ffffff !important;
+      font-weight: bold;
+      font-size: 12px;
+      margin: 0;
+    }
+  }
+
+  .balance-amount {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 16px 0;
+    color: #ffffff !important;
+  }
+
+  .reserved-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2) !important;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 12px;
+    color: #ffffff !important;
+    ion-icon { margin-right: 6px; }
+  }
+
+  .fund-split {
+    margin: 0;
+    font-size: 11px;
+    opacity: 0.8;
+    color: #ffffff !important;
+  }
+}
+
+.quick-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-bottom: 24px;
+
+  .action-item {
+    text-align: center;
+    width: 22%;
+    .icon-box {
+      background: #ffffff !important;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: relative;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      ion-icon { font-size: 24px; color: #1fa048 !important; }
+      .floating-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        border-radius: 50%;
+        width: 20px; height: 20px;
+        display: flex; align-items: center; justify-content: center;
+        color: #ffffff !important;
+      }
+    }
+    span { font-size: 11px; font-weight: 500; color: #555555 !important; }
+  }
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #888888 !important;
+  margin: 24px 16px 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.action-list {
+  background: transparent !important;
+  padding: 0 16px;
+  .action-list-item {
+    --background: #ffffff !important;
+    --border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    
+    .list-icon-box {
+      background: #f4f5f8 !important;
+      padding: 10px;
+      border-radius: 10px;
+      margin-right: 12px;
+      display: flex; align-items: center; justify-content: center;
+      ion-icon { font-size: 20px; }
+    }
+    h3 { font-size: 14px; margin-bottom: 4px; color: #333333 !important; }
+    p { font-size: 12px; color: #777777 !important; }
+    ion-badge { padding: 6px 8px; border-radius: 8px; opacity: 0.8; color: #ffffff !important; }
+  }
+}
+
+.stok-card, .schedule-card {
+  background: #ffffff !important;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 0 16px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.stok-card {
+  .stok-header {
+    display: flex; justify-content: space-between; align-items: center;
+    h2 { margin: 0; font-size: 16px; color: #333333 !important; }
+    .stok-total { font-size: 14px; color: #333333 !important; --background: #f4f5f8; padding: 6px 10px;}
+  }
+  .stok-subtitle { font-size: 12px; color: #888888 !important; margin-bottom: 16px; }
+  
+  .stok-item {
+    margin-bottom: 12px;
+    .stok-item-header {
+      display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;
+      .stok-name { display: flex; align-items: center; font-weight: 500; color: #333333 !important;}
+      .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+      .bg-primary { background: #3880ff !important; }
+      .bg-warning { background: #ffc409 !important; }
+      .bg-success { background: #2dd36f !important; }
+      .bg-medium { background: #92949c !important; }
+      .stok-weight { color: #555555 !important; }
+    }
+    ion-progress-bar { height: 6px; border-radius: 4px; }
+  }
+}
+
+.schedule-card {
+  display: flex; align-items: center;
+  .date-box {
+    background: #f4f5f8 !important; padding: 10px; border-radius: 12px;
+    text-align: center; margin-right: 12px; width: 50px;
+    .day { display: block; font-size: 10px; font-weight: bold; color: #2dd36f !important; }
+    .date { display: block; font-size: 18px; font-weight: bold; color: #333333 !important; }
+  }
+  .schedule-info {
+    flex: 1;
+    h3 { margin: 0 0 4px; font-size: 14px; color: #333333 !important; }
+    p { margin: 0; font-size: 11px; color: #777777 !important; }
+  }
+  .status-badge { --background: #e6f6ec !important; color: #2dd36f !important; font-weight: normal; }
+}
+
+.master-data-grid {
+  display: flex; justify-content: space-around; padding: 0 16px; margin-bottom: 8px;
+  .md-item {
+    text-align: center;
+    .md-icon-box {
+      background: #ebf6ee !important; color: #1fa048 !important; width: 48px; height: 48px;
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px;
+      ion-icon { font-size: 24px; }
+    }
+    span { font-size: 11px; font-weight: 500; color: #333333 !important; }
+  }
+}
+
+.md-subtitle { font-size: 11px; color: #888888 !important; margin-bottom: 24px; }
+.text-center { text-align: center; }
+
+.bottom-action {
+  padding: 0 16px 24px;
+  .btn-buka-slot { --border-radius: 12px; height: 48px; font-weight: bold; color: #ffffff !important;}
+}

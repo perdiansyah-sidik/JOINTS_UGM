@@ -1,0 +1,84 @@
+ion-toolbar {
+  --background: #1fa048;
+  --color: #ffffff;
+}
+
+ion-content {
+  --background: #f8f9fa;
+}
+
+.page-header {
+  padding: 20px 16px 10px;
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #333333;
+  }
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #777777;
+  }
+}
+
+.list-container {
+  padding: 0 8px 80px; /* Memberi ruang di bawah agar tidak tertutup tombol FAB */
+}
+
+.dp-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+
+  .dp-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+
+    ion-card-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #333333;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
+
+  ion-card-content {
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: #555555;
+      font-size: 13px;
+
+      ion-icon {
+        margin-top: 2px;
+        font-size: 16px;
+        color: #888888;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 12px;
+
+      ion-button {
+        margin: 0;
+        text-transform: none;
+        font-weight: 700;
+        --border-radius: 8px;
+      }
+    }
+  }
+}
