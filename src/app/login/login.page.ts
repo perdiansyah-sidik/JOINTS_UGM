@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NavController, ToastController, LoadingController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { timeout, finalize } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { timeout, finalize } from 'rxjs/operators';
   styleUrls: ['./login.page.scss'],
   standalone: false,
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   private api = inject(ApiService);
   private navCtrl = inject(NavController);
   private toastCtrl = inject(ToastController);
@@ -18,6 +18,21 @@ export class LoginPage {
   email = '';
   password = '';
   tampilkanSandi = false;
+  ingatSaya = false;
+  peran: 'pribadi' | 'mitra' = 'pribadi';
+
+  ngOnInit() {
+    // Isi otomatis email bila sebelumnya memilih "Ingat saya"
+    const emailTersimpan = localStorage.getItem('ecoapp_remember_email');
+    if (emailTersimpan) {
+      this.email = emailTersimpan;
+      this.ingatSaya = true;
+    }
+  }
+
+  pilihPeran(peran: 'pribadi' | 'mitra') {
+    this.peran = peran;
+  }
 
   async prosesLogin() {
     if (!this.email.trim() || !this.password) {
@@ -43,6 +58,13 @@ export class LoginPage {
           if (res && res.data) {
             localStorage.setItem('ecoapp_user', JSON.stringify(res.data));
           }
+
+          if (this.ingatSaya) {
+            localStorage.setItem('ecoapp_remember_email', this.email.trim());
+          } else {
+            localStorage.removeItem('ecoapp_remember_email');
+          }
+
           await this.tampilPesan(`Selamat datang, ${res.data?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
           // Langsung masuk ke halaman Dashboard Pengguna
           this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
@@ -61,6 +83,14 @@ export class LoginPage {
 
   masuk() {
     this.prosesLogin();
+  }
+
+  lupaSandi() {
+    this.tampilPesan('Fitur lupa kata sandi segera hadir.', 'medium');
+  }
+
+  loginSosial(penyedia: string) {
+    this.tampilPesan(`Masuk dengan ${penyedia} segera hadir.`, 'medium');
   }
 
   keHalamanDaftar() {
