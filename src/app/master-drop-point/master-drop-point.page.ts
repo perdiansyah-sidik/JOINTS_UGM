@@ -1,6 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // 1. Tambahkan ChangeDetectorRef
+import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-master-drop-point',
@@ -8,62 +7,83 @@ import { Router } from '@angular/router';
   styleUrls: ['./master-drop-point.page.scss'],
   standalone: false
 })
-export class MasterDropPointPage implements OnInit {
-  dropPoints: any[] = [];
-  apiUrl = 'https://7n947wwl-3000.asse.devtunnels.ms/api/drop-points';
-  isLoading = true;
+export class MasterDropPointPage {
+  listDropPoint: any[] = [];
+  daftarDropPointTampil: any[] = [];
+  loading: boolean = true;
+  
+  kataKunci: string = '';
+  filterStatus: string = 'SEMUA'; // SEMUA, AKTIF, NONAKTIF
+  
+  apiUrl: string = 'https://7n947wwl-3000.asse.devtunnels.ms/api';
 
-  // 2. Suntikkan private cdr: ChangeDetectorRef ke dalam constructor
-  constructor(
-    private http: HttpClient, 
-    private router: Router,
-    private cdr: ChangeDetectorRef 
-  ) { }
+  constructor(private http: HttpClient) { }
 
-  ngOnInit() {
-    this.loadDataDropPoint();
+  ionViewWillEnter() {
+    this.muatData();
   }
 
-  loadDataDropPoint() {
-    this.isLoading = true;
-    this.http.get<any>(this.apiUrl).subscribe({
-      next: (response) => {
-        if (response && response.status === 'success' && response.data) {
-          this.dropPoints = response.data;
-        } else {
-          this.dropPoints = [];
+  muatData() {
+    this.loading = true;
+    this.http.get(`${this.apiUrl}/drop-points`).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          this.listDropPoint = res.data;
+          this.terapkanFilter();
         }
-        this.isLoading = false;
-        
-        // 3. Tambahkan baris ini untuk memaksa UI langsung me-refresh tampilan
-        this.cdr.detectChanges(); 
+        this.loading = false;
       },
-      error: (error) => {
-        console.error('Terjadi kesalahan saat menarik data API:', error);
-        this.isLoading = false;
-        
-        // Tambahkan juga di bagian error
-        this.cdr.detectChanges(); 
+      error: (err) => {
+        console.error('Gagal memuat drop point:', err);
+        this.loading = false;
       }
     });
   }
 
-  kembaliKeDashboard() {
-    this.router.navigate(['/dashboard-pengelola']);
+  // MENGHITUNG STATISTIK BANNER
+  get totalDP() { return this.listDropPoint.length; }
+  get totalDPAktif() { return this.listDropPoint.filter(dp => dp.aktif === 1).length; }
+  get totalDPNonaktif() { return this.listDropPoint.filter(dp => dp.aktif === 0).length; }
+
+  pilihFilterStatus(status: string) {
+    this.filterStatus = status;
+    this.terapkanFilter();
   }
 
-  tambahData() {
-    // Tombol ini belum pindah halaman karena kita belum membuat halaman 'tambah-drop-point'
-    console.log('Buka halaman form tambah');
+  terapkanFilter() {
+    let filtered = this.listDropPoint;
+
+    // 1. Filter Status
+    if (this.filterStatus === 'AKTIF') {
+      filtered = filtered.filter(dp => dp.aktif === 1);
+    } else if (this.filterStatus === 'NONAKTIF') {
+      filtered = filtered.filter(dp => dp.aktif === 0);
+    }
+
+    // 2. Filter Teks Pencarian
+    if (this.kataKunci && this.kataKunci.trim() !== '') {
+      const key = this.kataKunci.toLowerCase();
+      filtered = filtered.filter(dp => 
+        (dp.nama_drop_point && dp.nama_drop_point.toLowerCase().includes(key)) ||
+        (dp.alamat && dp.alamat.toLowerCase().includes(key))
+      );
+    }
+
+    this.daftarDropPointTampil = filtered;
   }
 
-  editData(id: number) {
-    // Sama seperti tambah, butuh halaman khusus untuk form edit
-    console.log('Buka form edit untuk ID:', id);
+  konfirmasiToggleStatus(dp: any) {
+    const aksi = dp.aktif === 1 ? 'menonaktifkan' : 'mengaktifkan';
+    if (confirm(`Apakah Anda yakin ingin ${aksi} drop point ini?`)) {
+      console.log('API Toggle Status untuk ID:', dp.id_drop_point);
+      alert('Akan dihubungkan ke API (PATCH) untuk mengubah status.');
+    }
   }
 
-  toggleStatus(item: any) {
-    item.aktif = item.aktif === 1 ? 0 : 1; 
-    console.log('Status diubah:', item.nama_drop_point, item.aktif);
+  konfirmasiSoftDelete(dp: any) {
+    if (confirm('Apakah Anda yakin ingin menghapus (soft-delete) drop point ini?')) {
+      console.log('API Soft Delete untuk ID:', dp.id_drop_point);
+      alert('Akan dihubungkan ke API (DELETE).');
+    }
   }
 }

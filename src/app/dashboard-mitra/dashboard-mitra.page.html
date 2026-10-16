@@ -1,0 +1,307 @@
+<ion-content [fullscreen]="true" class="mitra-dash-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="ambilDataDashboardMitra($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="mitra-dash-wrapper">
+
+    <!-- 1. TOP BRAND BAR -->
+    <div class="top-brand-bar">
+      <div class="brand-left">
+        <div class="brand-logo-box">
+          <ion-icon name="sync-circle-outline"></ion-icon>
+        </div>
+        <div>
+          <div class="brand-title-row">
+            <h1>Pilahin Mitra</h1>
+            <span class="active-dot-pill">
+              <i class="dot"></i> {{ statusAktif ? 'Aktif' : 'Nonaktif' }}
+            </span>
+          </div>
+          <p>Sentral Operasional Mitra Pengangkut & Pengolah</p>
+        </div>
+      </div>
+
+      <div class="brand-right">
+        <button type="button" class="icon-circle-btn" (click)="tampilInfo('Notifikasi Operasional Mitra')">
+          <ion-icon name="notifications-outline"></ion-icon>
+          @if (jumlahTugasAktif > 0) {
+            <span class="red-dot"></span>
+          }
+        </button>
+        <button type="button" class="icon-circle-btn logout-btn" (click)="keluarAkun()" title="Keluar">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. IDENTITAS ORGANISASI MITRA (DARI TABEL MITRA) -->
+    <div class="org-profile-strip">
+      <div class="org-avatar">
+        <ion-icon name="business-outline"></ion-icon>
+        <span class="verified-check">
+          <ion-icon name="checkmark"></ion-icon>
+        </span>
+      </div>
+
+      <div class="org-meta">
+        <h2>{{ namaMitra }}</h2>
+        <p>
+          <ion-icon name="location-outline"></ion-icon>
+          <span>{{ alamatFasilitas }} &bull; PJ: <strong>{{ penanggungJawab }}</strong></span>
+        </p>
+      </div>
+
+      <div class="operational-badge">
+        <i class="pulse-dot"></i>
+        <span>Buka Setoran & Jemput</span>
+      </div>
+    </div>
+
+    <!-- 3. HERO CARD RINGKASAN PEMBELIAN & LOGISTIK MITRA -->
+    <div class="hero-mitra-card">
+      <div class="hero-bg-ring"></div>
+
+      <div class="hero-top">
+        <div>
+          <span class="hero-caption">Total Pembelian Material dari Drop Point</span>
+          <h3 class="hero-big-rp">Rp {{ formatRibuan(totalPembelianRp) }}</h3>
+          <span class="hero-period">Periode Berjalan ({{ bulanBerjalan }})</span>
+        </div>
+        <span class="id-mitra-pill">ID Mitra #{{ idMitra }}</span>
+      </div>
+
+      <!-- Bar Akses Cepat Kurir Lapangan -->
+      <div class="courier-dispatch-box">
+        <div class="dispatch-info">
+          <span class="dispatch-lbl">Operasional Kurir Lapangan</span>
+          <strong>{{ jumlahTugasAktif }} Tugas Penjemputan Aktif</strong>
+        </div>
+        <button type="button" class="btn-buka-kurir" (click)="bukaHalamanKurir()">
+          <ion-icon name="bicycle-outline"></ion-icon>
+          <span>Buka Halaman Kurir</span>
+        </button>
+      </div>
+
+      <!-- 2 Statistik Bawah -->
+      <div class="hero-stats-grid">
+        <div class="h-stat-item">
+          <div class="h-stat-icon">
+            <ion-icon name="scale-outline"></ion-icon>
+          </div>
+          <div>
+            <span class="lbl">Material Terkumpul</span>
+            <strong>{{ formatRibuan(totalBeratKg) }} kg</strong>
+          </div>
+        </div>
+
+        <div class="h-stat-item">
+          <div class="h-stat-icon">
+            <ion-icon name="receipt-outline"></ion-icon>
+          </div>
+          <div>
+            <span class="lbl">Transaksi Selesai</span>
+            <strong>{{ totalTiketTransaksi }} Tiket</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. AKSI CEPAT MITRA (SESUAI PROSES BISNIS) -->
+    <div class="section-title-row">
+      <h3>Aksi Cepat Mitra</h3>
+      <span>Alat Kerja Operasional</span>
+    </div>
+
+    <div class="quick-actions-4">
+      <div class="q-item" (click)="bukaHalamanKurir()">
+        <span class="q-floating-badge badge-blue">Lapangan</span>
+        <div class="q-icon-box box-blue">
+          <ion-icon name="scale-outline"></ion-icon>
+        </div>
+        <span>Timbang &<br>Kurir</span>
+      </div>
+
+      <div class="q-item" (click)="bukaHalamanKurir()">
+        @if (jumlahTugasAktif > 0) {
+          <span class="q-floating-badge badge-green">{{ jumlahTugasAktif }} Antre</span>
+        }
+        <div class="q-icon-box box-green">
+          <ion-icon name="car-outline"></ion-icon>
+        </div>
+        <span>Tugas<br>Jemput</span>
+      </div>
+
+      <div class="q-item" (click)="tampilInfo('Membuka Riwayat Pembelian & Retur Material Drop Point')">
+        <div class="q-icon-box box-teal">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+        </div>
+        <span>Pembelian<br>& Retur</span>
+      </div>
+
+      <div class="q-item" (click)="tampilInfo('Membuka Laporan Pengiriman Material ke Fasilitas Mitra')">
+        <div class="q-icon-box box-emerald">
+          <ion-icon name="document-text-outline"></ion-icon>
+        </div>
+        <span>Serah Terima<br>Drop Point</span>
+      </div>
+    </div>
+
+    <!-- 5. MONITORING LOGISTIK & GUDANG FASILITAS MITRA -->
+    <div class="white-card">
+      <div class="card-head-row">
+        <div class="head-left">
+          <div class="head-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <div>
+            <h4>Monitoring Logistik & Fasilitas</h4>
+            <p>Berdasarkan timbangan terverifikasi di database</p>
+          </div>
+        </div>
+        <span class="cap-pill">Terisi {{ persenKapasitas }}%</span>
+      </div>
+
+      <div class="capacity-meta-row">
+        <span>Kapasitas Penerimaan Terisi</span>
+        <strong>{{ totalBeratKg }} / {{ formatRibuan(kapasitasTargetKg) }} kg <small>(Sisa {{ formatRibuan(sisaKapasitasKg) }} kg)</small></strong>
+      </div>
+
+      <!-- Multi-Segment Progress Bar -->
+      <div class="multi-progress-bar">
+        @for (m of rincianMaterial; track m.nama) {
+          @if (m.persen > 0) {
+            <div class="seg-fill" [style.width.%]="m.persen" [style.background]="m.warna"></div>
+          }
+        }
+      </div>
+
+      <div class="material-legend-row">
+        @for (m of rincianMaterial; track m.nama) {
+        <div class="legend-chip">
+          <i class="dot" [style.background]="m.warna"></i>
+          <span>{{ m.nama }}: <strong>{{ m.beratKg }} kg</strong> ({{ m.persen }}%)</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- 6. ANTREAN PENJEMPUTAN & TIMBANGAN AKTIF -->
+    <div class="section-title-row">
+      <div class="title-with-count">
+        <h3>Antrean Penjemputan & Timbangan</h3>
+        <span class="count-circle">{{ tugasJemputAktif.length }}</span>
+      </div>
+      <button type="button" class="link-btn" (click)="bukaHalamanKurir()">
+        Halaman Kurir &rsaquo;
+      </button>
+    </div>
+
+    @if (tugasJemputAktif.length === 0) {
+      <div class="white-card empty-queue-card">
+        <div class="empty-ic">
+          <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+        </div>
+        <h4>Belum Ada Antrean Penjemputan Aktif</h4>
+        <p>Penjemputan yang dijadwalkan oleh pelanggan atau ditugaskan Pengelola akan otomatis muncul di sini.</p>
+        <button type="button" class="btn-outline-green" (click)="bukaHalamanKurir()">
+          Lihat Halaman Kurir Lapangan
+        </button>
+      </div>
+    } @else {
+      <div class="queue-stack">
+        @for (item of tugasJemputAktif; track item.id_penjemputan) {
+        <div class="white-card queue-card">
+          <div class="q-card-top">
+            <div class="q-cust-info">
+              <div class="q-avatar">
+                <ion-icon name="storefront-outline"></ion-icon>
+              </div>
+              <div>
+                <h4>{{ item.nama_pelanggan }} {{ item.nama_usaha ? '(' + item.nama_usaha + ')' : '' }}</h4>
+                <p>{{ item.alamat_jemput }}</p>
+              </div>
+            </div>
+            <span class="q-status-badge">{{ item.status }}</span>
+          </div>
+
+          <div class="q-meta-pills">
+            <span class="meta-pill">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              STR-{{ item.id_setoran }}
+            </span>
+            <span class="meta-pill">
+              <ion-icon name="person-outline"></ion-icon>
+              Kurir: {{ item.nama_kurir || 'Siap Ditugaskan' }}
+            </span>
+          </div>
+
+          <div class="q-card-actions">
+            <button type="button" class="btn-q-primary" (click)="bukaHalamanKurir()">
+              <ion-icon name="scale-outline"></ion-icon>
+              <span>Buka di Halaman Kurir & Timbang</span>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    }
+
+    <!-- 7. KATALOG JENIS SAMPAH & TARIF ACUAN (DARI TABEL JENIS_SAMPAH) -->
+    <div class="section-title-row">
+      <h3>Katalog Material & Poin Acuan</h3>
+      <span class="live-pill">Data Master M04</span>
+    </div>
+
+    <div class="white-card catalog-card">
+      @if (daftarJenisSampah.length === 0) {
+        <p class="empty-text">Data master jenis sampah belum tersedia di database.</p>
+      } @else {
+        @for (js of daftarJenisSampah; track js.id_jenis_sampah) {
+        <div class="catalog-row">
+          <div class="cat-icon">
+            <ion-icon name="leaf-outline"></ion-icon>
+          </div>
+          <div class="cat-info">
+            <h4>{{ js.nama_jenis }}</h4>
+            <p>Kategori Resmi Pilahin &bull; Kode #{{ js.id_jenis_sampah }}</p>
+          </div>
+          <div class="cat-price">
+            <strong>{{ formatRibuan(js.poin_per_kg) }} Poin/kg</strong>
+            <span>Setara Rp {{ formatRibuan((js.poin_per_kg || 0) * 10) }}/kg</span>
+          </div>
+        </div>
+        }
+      }
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- 8. BOTTOM NAVIGATION MITRA -->
+<div class="mitra-bottom-nav">
+  <button type="button" class="nav-item" [class.active]="tabAktif === 'beranda'" (click)="pilihTab('beranda')">
+    <ion-icon name="grid-outline"></ion-icon>
+    <span>Beranda</span>
+  </button>
+
+  <button type="button" class="nav-item" [class.active]="tabAktif === 'timbangan'" (click)="bukaHalamanKurir()">
+    <ion-icon name="scale-outline"></ion-icon>
+    <span>Timbangan</span>
+  </button>
+
+  <button type="button" class="nav-item" [class.active]="tabAktif === 'armada'" (click)="bukaHalamanKurir()">
+    <ion-icon name="bicycle-outline"></ion-icon>
+    <span>Kurir</span>
+  </button>
+
+  <button type="button" class="nav-item" [class.active]="tabAktif === 'gudang'" (click)="pilihTab('gudang')">
+    <ion-icon name="cube-outline"></ion-icon>
+    <span>Fasilitas</span>
+  </button>
+
+  <button type="button" class="nav-item" [class.active]="tabAktif === 'profil'" (click)="pilihTab('profil')">
+    <ion-icon name="business-outline"></ion-icon>
+    <span>Profil</span>
+  </button>
+</div>

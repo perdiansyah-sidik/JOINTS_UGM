@@ -1,0 +1,50 @@
+.eco-bg {
+  --background: #F0FBF3;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .eco-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1B2B22;
+    margin-left: 4px;
+  }
+
+  .eco-input-item {
+    --background: #FFFFFF;
+    --border-radius: 12px;
+    --padding-start: 14px;
+    border: 1px solid #EAF3EC;
+    box-shadow: 0 2px 8px rgba(20, 83, 45, 0.03);
+    
+    ion-input, ion-textarea, ion-select {
+      font-size: 14px;
+      --color: #1B2B22;
+      --placeholder-color: #98A39D;
+    }
+  }
+}
+
+.btn-submit-eco {
+  --background: #34B24E;
+  --background-activated: #2A9A41;
+  --color: #FFFFFF;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 16px rgba(52, 178, 78, 0.28);
+  height: 48px;
+  font-weight: 700;
+  text-transform: none;
+  font-size: 15px;
+  margin: 0;
+}

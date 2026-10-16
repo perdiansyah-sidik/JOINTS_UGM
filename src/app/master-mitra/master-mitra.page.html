@@ -1,0 +1,391 @@
+<ion-content [fullscreen]="true" class="mitra-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="muatDataMitra($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="mitra-container">
+
+    <!-- 1. TOP BAR NAVIGASI -->
+    <div class="top-nav-bar">
+      <button type="button" class="back-btn" (click)="kembaliKeDashboard()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+
+      <div class="top-title-group">
+        <span class="eyebrow-badge">MASTER DATA &bull; M02</span>
+        <h1>Kelola Organisasi Mitra</h1>
+      </div>
+
+      <button type="button" class="add-top-btn" (click)="bukaModalTambah()">
+        <ion-icon name="add-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- 2. HERO BANNER RINGKASAN MITRA -->
+    <div class="mitra-hero-card">
+      <div class="hero-decor"></div>
+
+      <div class="hero-top-row">
+        <div>
+          <span class="hero-label">ORGANISASI PENGANGKUT & PENGOLAH</span>
+          <h2>Mitra Operasional Pilahin</h2>
+          <p>Identitas organisasi terpisah dari akun petugas kurir.</p>
+        </div>
+        <div class="mvp-pill">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>MVP 1 Mitra Aktif</span>
+        </div>
+      </div>
+
+      <div class="stats-mini-grid">
+        <div class="stat-box">
+          <span class="stat-num">{{ totalMitra }}</span>
+          <span class="stat-lbl">Total Mitra</span>
+        </div>
+        <div class="stat-box active-stat">
+          <span class="stat-num">{{ totalMitraAktif }}</span>
+          <span class="stat-lbl">Mitra Aktif</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num">{{ totalMitraNonaktif }}</span>
+          <span class="stat-lbl">Nonaktif</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num">{{ totalPetugasTerhubung }}</span>
+          <span class="stat-lbl">Akun Petugas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PENCARIAN & FILTER STATUS -->
+    <div class="search-filter-card">
+      <div class="search-input-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          placeholder="Cari nama organisasi, penanggung jawab, atau alamat..."
+          [(ngModel)]="kataKunci"
+          (input)="terapkanFilter()" />
+        @if (kataKunci) {
+          <ion-icon name="close-circle" class="clear-btn" (click)="kataKunci = ''; terapkanFilter()"></ion-icon>
+        }
+      </div>
+
+      <div class="filter-tabs">
+        <button
+          type="button"
+          class="filter-tab"
+          [class.active]="filterStatus === 'SEMUA'"
+          (click)="pilihFilterStatus('SEMUA')">
+          Semua ({{ totalMitra }})
+        </button>
+        <button
+          type="button"
+          class="filter-tab"
+          [class.active]="filterStatus === 'AKTIF'"
+          (click)="pilihFilterStatus('AKTIF')">
+          Aktif ({{ totalMitraAktif }})
+        </button>
+        <button
+          type="button"
+          class="filter-tab"
+          [class.active]="filterStatus === 'NONAKTIF'"
+          (click)="pilihFilterStatus('NONAKTIF')">
+          Nonaktif ({{ totalMitraNonaktif }})
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. DAFTAR ORGANISASI MITRA -->
+    <div class="list-header-row">
+      <span>DAFTAR ORGANISASI ({{ daftarMitraTampil.length }})</span>
+      <button type="button" class="btn-tambah-inline" (click)="bukaModalTambah()">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <span>Tambah Mitra</span>
+      </button>
+    </div>
+
+    @if (loading) {
+      <div class="state-card">
+        <ion-spinner name="crescent" color="success"></ion-spinner>
+        <p>Memuat data organisasi mitra dari database...</p>
+      </div>
+    } @else if (daftarMitraTampil.length === 0) {
+      <div class="state-card empty-state">
+        <div class="empty-icon-box">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+        <h3>Belum Ada Data Mitra</h3>
+        <p>Tambahkan organisasi mitra pengangkut dan pengolah material daur ulang untuk mulai menugaskan kurir.</p>
+        <button type="button" class="btn-primary-pilahin" (click)="bukaModalTambah()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Tambah Organisasi Mitra Pertama</span>
+        </button>
+      </div>
+    } @else {
+      <div class="mitra-cards-stack">
+        @for (mitra of daftarMitraTampil; track mitra.id_mitra) {
+        <div class="mitra-item-card" [class.nonaktif-card]="mitra.aktif === 0">
+
+          <div class="card-top-bar">
+            <div class="org-identity">
+              <div class="org-icon" [class.inactive-icon]="mitra.aktif === 0">
+                <ion-icon name="business-outline"></ion-icon>
+              </div>
+              <div>
+                <div class="id-and-tag">
+                  <span class="id-code">ID #{{ mitra.id_mitra }}</span>
+                  @if (mitra.aktif === 1) {
+                    <span class="status-pill pill-active">
+                      <i class="dot"></i> Aktif Operasional
+                    </span>
+                  } @else {
+                    <span class="status-pill pill-inactive">
+                      <i class="dot"></i> Nonaktif
+                    </span>
+                  }
+                </div>
+                <h3 class="org-name">{{ mitra.nama_mitra }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-row">
+              <ion-icon name="person-circle-outline"></ion-icon>
+              <div>
+                <span class="lbl">Penanggung Jawab (Kontak Organisasi)</span>
+                <p>{{ mitra.nama_penanggung_jawab || 'Belum dicantumkan' }}</p>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <ion-icon name="call-outline"></ion-icon>
+              <div>
+                <span class="lbl">Nomor Telepon / WhatsApp</span>
+                <p>{{ mitra.no_hp || 'Belum dicantumkan' }}</p>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <div>
+                <span class="lbl">Alamat Fasilitas Mitra</span>
+                <p>{{ mitra.alamat_mitra }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="affiliation-banner">
+            <div class="aff-left">
+              <ion-icon name="people-outline"></ion-icon>
+              <span><strong>{{ mitra.jumlah_petugas || 0 }} Akun Petugas</strong> berafiliasi</span>
+            </div>
+            <button type="button" class="link-detail-btn" (click)="bukaDetailMitra(mitra)">
+              Lihat Detail &rsaquo;
+            </button>
+          </div>
+
+          <!-- Tombol Aksi CRUD -->
+          <div class="crud-actions-row">
+            <button type="button" class="btn-crud btn-edit" (click)="bukaModalEdit(mitra)">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Ubah Data</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn-crud"
+              [class.btn-nonaktif]="mitra.aktif === 1"
+              [class.btn-aktifkan]="mitra.aktif === 0"
+              (click)="konfirmasiToggleStatus(mitra)">
+              <ion-icon [name]="mitra.aktif === 1 ? 'pause-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+              <span>{{ mitra.aktif === 1 ? 'Nonaktifkan' : 'Aktifkan' }}</span>
+            </button>
+
+            <button type="button" class="btn-crud btn-delete" (click)="konfirmasiSoftDelete(mitra)" title="Soft Delete">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+
+        </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- MODAL 1: FORM TAMBAH / UBAH ORGANISASI MITRA                      -->
+  <!-- ================================================================= -->
+  @if (tampilModalForm) {
+  <div class="custom-modal-backdrop" (click)="tutupModalForm()">
+    <div class="custom-modal-sheet" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow">{{ modeEdit ? 'PERBARUI MASTER M02' : 'TAMBAH MASTER M02' }}</span>
+          <h3>{{ modeEdit ? 'Ubah Data Organisasi Mitra' : 'Tambah Organisasi Mitra Baru' }}</h3>
+        </div>
+        <button type="button" class="close-modal-btn" (click)="tutupModalForm()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-field">
+          <label>Nama Organisasi Mitra <span class="req">*</span></label>
+          <div class="input-wrap">
+            <ion-icon name="business-outline"></ion-icon>
+            <input
+              type="text"
+              maxlength="150"
+              placeholder="Contoh: PT Hijau Lestari Daur Ulang"
+              [(ngModel)]="formMitra.nama_mitra" />
+          </div>
+          <small class="field-hint">Unik pada MVP (Maks. 150 karakter).</small>
+        </div>
+
+        <div class="form-field">
+          <label>Nama Penanggung Jawab <span class="opt">(Opsional)</span></label>
+          <div class="input-wrap">
+            <ion-icon name="person-outline"></ion-icon>
+            <input
+              type="text"
+              maxlength="100"
+              placeholder="Nama kontak penanggung jawab organisasi"
+              [(ngModel)]="formMitra.nama_penanggung_jawab" />
+          </div>
+          <small class="field-hint">Kontak organisasi, terpisah dari akun login petugas.</small>
+        </div>
+
+        <div class="form-field">
+          <label>Nomor HP / Telepon <span class="opt">(Opsional)</span></label>
+          <div class="input-wrap">
+            <ion-icon name="call-outline"></ion-icon>
+            <input
+              type="tel"
+              maxlength="20"
+              placeholder="Contoh: 081234567890"
+              [(ngModel)]="formMitra.no_hp" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Alamat Fasilitas Mitra <span class="req">*</span></label>
+          <div class="input-wrap textarea-wrap">
+            <ion-icon name="location-outline"></ion-icon>
+            <textarea
+              rows="3"
+              maxlength="255"
+              placeholder="Alamat lengkap gudang/fasilitas pengolahan mitra..."
+              [(ngModel)]="formMitra.alamat_mitra"></textarea>
+          </div>
+          <small class="field-hint">Wajib diisi (Maks. 255 karakter).</small>
+        </div>
+
+        @if (modeEdit) {
+        <div class="status-toggle-box">
+          <div>
+            <h4>Status Operasional Mitra</h4>
+            <p>Mitra nonaktif tidak dapat menerima penugasan atau penjualan baru.</p>
+          </div>
+          <ion-toggle
+            color="success"
+            [checked]="formMitra.aktif === 1"
+            (ionChange)="formMitra.aktif = $event.detail.checked ? 1 : 0">
+          </ion-toggle>
+        </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-batal" (click)="tutupModalForm()">Batal</button>
+        <button type="button" class="btn-simpan" (click)="simpanMitra()">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>{{ modeEdit ? 'Simpan Perubahan' : 'Simpan Mitra' }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+  }
+
+  <!-- ================================================================= -->
+  <!-- MODAL 2: DETAIL ORGANISASI MITRA & DAFTAR PETUGAS                 -->
+  <!-- ================================================================= -->
+  @if (tampilModalDetail && mitraDetailTerpilih) {
+  <div class="custom-modal-backdrop" (click)="tutupModalDetail()">
+    <div class="custom-modal-sheet" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow">DETAIL ORGANISASI &bull; ID #{{ mitraDetailTerpilih.id_mitra }}</span>
+          <h3>{{ mitraDetailTerpilih.nama_mitra }}</h3>
+        </div>
+        <button type="button" class="close-modal-btn" (click)="tutupModalDetail()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-summary-box">
+          <div class="detail-line">
+            <span>Status Organisasi</span>
+            <strong>{{ mitraDetailTerpilih.aktif === 1 ? 'Aktif Operasional' : 'Nonaktif' }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Penanggung Jawab</span>
+            <strong>{{ mitraDetailTerpilih.nama_penanggung_jawab || '-' }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Kontak Telepon</span>
+            <strong>{{ mitraDetailTerpilih.no_hp || '-' }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Alamat Fasilitas</span>
+            <strong>{{ mitraDetailTerpilih.alamat_mitra }}</strong>
+          </div>
+        </div>
+
+        <h4 class="sub-list-title">
+          Akun Petugas Terhubung ({{ mitraDetailTerpilih.daftar_petugas?.length || 0 }})
+        </h4>
+
+        @if (!mitraDetailTerpilih.daftar_petugas || mitraDetailTerpilih.daftar_petugas.length === 0) {
+          <div class="empty-petugas-note">
+            Belum ada akun petugas kurir yang dihubungkan ke organisasi mitra ini.
+          </div>
+        } @else {
+          <div class="petugas-list">
+            @for (p of mitraDetailTerpilih.daftar_petugas; track p.id_pengguna) {
+            <div class="petugas-item">
+              <div class="p-avatar">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+              <div class="p-info">
+                <h5>{{ p.nama }}</h5>
+                <p>{{ p.email }} &bull; {{ p.no_hp || 'Tanpa No. HP' }}</p>
+              </div>
+              <span class="p-badge" [class.aktif]="p.aktif === 1">
+                {{ p.aktif === 1 ? 'Aktif' : 'Nonaktif' }}
+              </span>
+            </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-batal" (click)="tutupModalDetail()">Tutup</button>
+        <button type="button" class="btn-simpan" (click)="tutupModalDetail(); bukaModalEdit(mitraDetailTerpilih)">
+          <ion-icon name="create-outline"></ion-icon>
+          <span>Ubah Data Mitra</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+  }
+
+</ion-content>

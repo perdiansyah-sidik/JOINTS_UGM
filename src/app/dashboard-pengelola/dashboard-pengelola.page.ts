@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
 import { KasService, MutasiKas, PosDana, MetodeBayar, PenjualanSiapLunas } from '../services/kas.service';
 import { PenimbanganService } from '../services/penimbangan.service';
 
@@ -12,6 +13,7 @@ import { PenimbanganService } from '../services/penimbangan.service';
 })
 export class DashboardPengelolaPage implements OnInit {
   private router = inject(Router);
+  private api = inject(ApiService);
   private kasSvc = inject(KasService);
   private penimbanganSvc = inject(PenimbanganService);
   private alertCtrl = inject(AlertController);
@@ -55,36 +57,40 @@ export class DashboardPengelolaPage implements OnInit {
     bukti: '',
   };
 
+  jumlahMitraAktif = 1;
+
   tindakanHariIni = [
-    { icon: 'clipboard-outline', title: 'Setoran menunggu verifikasi', subtitle: 'Hasil timbang petugas mitra', count: 5, color: 'success' },
-    { icon: 'bus-outline', title: 'Jemputan belum ditugaskan', subtitle: 'Pilih petugas mitra', count: 3, color: 'warning' },
-    { icon: 'cash-outline', title: 'Pengajuan pencairan poin', subtitle: 'Transfer manual & bukti', count: 2, color: 'tertiary' },
-    { icon: 'cube-outline', title: 'Selisih kedatangan material', subtitle: 'Belum masuk stok', count: 1, color: 'danger' }
+    { icon: 'clipboard-outline', title: 'Setoran menunggu verifikasi', subtitle: 'Hasil timbang petugas mitra', count: 5, badgeClass: 'badge-green', iconClass: 'box-green', route: '/penimbangan-verifikasi' },
+    { icon: 'bus-outline', title: 'Jemputan belum ditugaskan', subtitle: 'Pilih petugas mitra', count: 3, badgeClass: 'badge-amber', iconClass: 'box-amber', route: '/penugasan-jemput' },
+    { icon: 'cash-outline', title: 'Pengajuan pencairan poin', subtitle: 'Transfer manual & bukti', count: 2, badgeClass: 'badge-purple', iconClass: 'box-purple', route: '/pencairan-poin' },
+    { icon: 'cube-outline', title: 'Selisih kedatangan material', subtitle: 'Belum masuk stok', count: 1, badgeClass: 'badge-red', iconClass: 'box-red', route: '/terima-di-titik' }
   ];
 
   stok = {
     total: 300,
     items: [
-      { nama: 'Plastik', berat: 142, persentase: 47, color: 'primary', value: 0.47 },
-      { nama: 'Kardus', berat: 96, persentase: 32, color: 'warning', value: 0.32 },
-      { nama: 'Kaca', berat: 38, persentase: 13, color: 'success', value: 0.13 },
-      { nama: 'Logam', berat: 24, persentase: 8, color: 'medium', value: 0.08 }
+      { nama: 'Plastik', berat: 142, persentase: 47, warna: '#2563EB' },
+      { nama: 'Kardus',  berat: 96,  persentase: 32, warna: '#D97706' },
+      { nama: 'Kaca',    berat: 38,  persentase: 13, warna: '#16A34A' },
+      { nama: 'Logam',   berat: 24,  persentase: 8,  warna: '#64748B' }
     ]
   };
 
   ngOnInit() {
-    this.cekSesiPengguna();
+    this.muatSesiPengelola();
+    this.sinkronDataPengelola();
     this.muatRingkasanKas();
     this.muatAntreanTimbang();
   }
 
   ionViewWillEnter() {
-    this.cekSesiPengguna();
+    this.muatSesiPengelola();
+    this.sinkronDataPengelola();
     this.muatRingkasanKas();
     this.muatAntreanTimbang();
   }
 
-  cekSesiPengguna() {
+  muatSesiPengelola() {
     try {
       const raw = localStorage.getItem('ecoapp_user') || localStorage.getItem('pengguna');
       const u = JSON.parse(raw || 'null');
@@ -93,6 +99,20 @@ export class DashboardPengelolaPage implements OnInit {
     } catch {
       this.idPenggunaAktif = 1;
     }
+  }
+
+  sinkronDataPengelola(event?: any) {
+    this.api.getMitraList().subscribe({
+      next: (res) => {
+        if (res && Array.isArray(res.data)) {
+          this.jumlahMitraAktif = res.data.filter((m: any) => Number(m.aktif) === 1).length;
+        }
+        if (event?.target) event.target.complete();
+      },
+      error: () => {
+        if (event?.target) event.target.complete();
+      }
+    });
   }
 
   muatRingkasanKas() {
@@ -123,17 +143,55 @@ export class DashboardPengelolaPage implements OnInit {
     });
   }
 
-  // Navigasi ke Modul Lain
-  goToTimbang() {
-    this.router.navigate(['/penimbangan-verifikasi']);
+  // Navigasi ke Halaman CRUD Master Mitra (M02)
+  goToMitra() {
+    this.router.navigate(['/master-mitra']);
   }
 
+  // Navigasi ke Halaman CRUD Master Drop Point (M03)
   goToDropPoint() {
     this.router.navigate(['/master-drop-point']);
   }
 
+  // Navigasi ke Modul Master Jenis Sampah (M04)
   goToJenisSampah() {
     this.router.navigate(['/jenis-sampah']);
+  }
+
+  // Navigasi ke Penimbangan & Verifikasi (T02)
+  goToTimbang() {
+    this.router.navigate(['/penimbangan-verifikasi']);
+  }
+
+  async bukaMenu(namaFitur: string) {
+    if (namaFitur === 'Timbang & Verifikasi' || namaFitur === 'Setoran menunggu verifikasi') {
+      this.goToTimbang();
+      return;
+    }
+    if (namaFitur === 'Master Jenis Sampah') {
+      this.goToJenisSampah();
+      return;
+    }
+    if (namaFitur === 'Master Mitra') {
+      this.goToMitra();
+      return;
+    }
+    if (namaFitur === 'Master Drop Point') {
+      this.goToDropPoint();
+      return;
+    }
+    if (namaFitur === 'Mutasi Kas & Alokasi') {
+      this.bukaModalKas();
+      return;
+    }
+
+    const toast = await this.toastCtrl.create({
+      message: `Membuka modul ${namaFitur}...`,
+      duration: 1500,
+      color: 'success',
+      position: 'top'
+    });
+    await toast.present();
   }
 
   // --- LOGIKA BUKU KAS (T08) ---

@@ -1,0 +1,86 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/master-drop-point" color="success"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">
+      <strong>{{ isEdit ? 'Edit Drop Point' : 'Tambah Drop Point' }}</strong>
+    </ion-title>
+    <!-- Spacer untuk menyeimbangkan posisi judul di tengah -->
+    <ion-buttons slot="end">
+      <div style="width: 48px;"></div> 
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding eco-bg">
+  <div class="form-container">
+    
+    <div class="input-group">
+      <ion-label class="eco-label">Nama Drop Point</ion-label>
+      <ion-item lines="none" class="eco-input-item">
+        <ion-input type="text" [(ngModel)]="formData.nama" placeholder="Contoh: Bank Sampah Berseri"></ion-input>
+      </ion-item>
+    </div>
+
+    <div class="input-group">
+      <ion-label class="eco-label">Alamat Lengkap</ion-label>
+      <ion-item lines="none" class="eco-input-item">
+        <ion-textarea [(ngModel)]="formData.alamat" rows="3" placeholder="Masukkan alamat detail..."></ion-textarea>
+        
+        <!-- Tombol untuk melacak alamat ke peta -->
+        <ion-button fill="clear" slot="end" color="success" (click)="cariAlamatKePeta()">
+          <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+        </ion-button>
+
+      </ion-item>
+    </div>
+
+    <!-- KOTAK PETA DITARUH DI SINI -->
+    <div class="input-group">
+      <ion-label class="eco-label">Tentukan Titik Lokasi Peta</ion-label>
+      
+      <!-- Bungkus peta dengan div relative agar tombol bisa mengambang di dalamnya -->
+      <div style="position: relative; margin-top: 4px;">
+        
+        <div id="mapId" style="height: 300px; width: 100%; border-radius: 12px; z-index: 1;"></div>
+        
+        <!-- Tombol Lokasi Terkini -->
+        <ion-fab vertical="bottom" horizontal="end" style="position: absolute; bottom: 10px; right: 10px; z-index: 999;">
+          <ion-fab-button size="small" color="light" (click)="dapatkanLokasiTerkini()">
+            <ion-icon name="locate-outline" color="success"></ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+
+      </div>
+      
+      <ion-text color="medium" style="font-size: 12px; margin-top: 5px;" *ngIf="formData.latitude">
+        Koordinat terpilih: {{ formData.latitude }}, {{ formData.longitude }}
+      </ion-text>
+    </div>
+
+    <div class="input-group">
+      <ion-label class="eco-label">Jam Operasional</ion-label>
+      <ion-item lines="none" class="eco-input-item">
+        <ion-input type="text" [(ngModel)]="formData.jamOperasional" placeholder="Contoh: 08:00 - 15:00"></ion-input>
+      </ion-item>
+    </div>
+
+    <div class="input-group">
+      <ion-label class="eco-label">Status</ion-label>
+      <ion-item lines="none" class="eco-input-item">
+        <ion-select [(ngModel)]="formData.status" placeholder="Pilih Status" interface="popover">
+          <ion-select-option value="aktif">Aktif</ion-select-option>
+          <ion-select-option value="nonaktif">Nonaktif</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border ion-padding">
+  <ion-button expand="block" class="btn-submit-eco" (click)="simpanData()">
+    {{ isEdit ? 'Simpan Perubahan' : 'Tambah Drop Point' }}
+  </ion-button>
+</ion-footer>
