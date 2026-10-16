@@ -30,7 +30,7 @@ export class DashboardPengelolaPage implements OnInit {
     { icon: 'clipboard-outline', title: 'Setoran menunggu verifikasi', subtitle: 'Hasil timbang petugas mitra', count: 5, badgeClass: 'badge-green', iconClass: 'box-green', route: '/timbang-verifikasi' },
     { icon: 'bus-outline', title: 'Jemputan belum ditugaskan', subtitle: 'Pilih petugas mitra', count: 3, badgeClass: 'badge-amber', iconClass: 'box-amber', route: '/penugasan-jemput' },
     { icon: 'cash-outline', title: 'Pengajuan pencairan poin', subtitle: 'Transfer manual & bukti', count: 2, badgeClass: 'badge-purple', iconClass: 'box-purple', route: '/pencairan-poin' },
-    { icon: 'cube-outline', title: 'Selisih kedatangan material', subtitle: 'Belum masuk stok', count: 1, badgeClass: 'badge-red', iconClass: 'box-red', route: '/penerimaan-drop-point' }
+    { icon: 'cube-outline', title: 'Selisih kedatangan material', subtitle: 'Belum masuk stok', count: 1, badgeClass: 'badge-red', iconClass: 'box-red', route: '/terima-di-titik' }
   ];
 
   stok = {
@@ -71,6 +71,45 @@ export class DashboardPengelolaPage implements OnInit {
         if (res && Array.isArray(res.data)) {
           this.jumlahMitraAktif = res.data.filter((m: any) => Number(m.aktif) === 1).length;
         }
+      },
+      error: () => {}
+    });
+
+    this.api.getRingkasanPengelola().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          if (res.data.lokasi_drop_point) this.pengelola.lokasi = res.data.lokasi_drop_point;
+          this.tindakanHariIni[0].count = Number(res.data.menunggu_verifikasi ?? this.tindakanHariIni[0].count);
+          this.tindakanHariIni[1].count = Number(res.data.belum_ditugaskan ?? this.tindakanHariIni[1].count);
+          this.tindakanHariIni[2].count = Number(res.data.pengajuan_pencairan ?? this.tindakanHariIni[2].count);
+          this.tindakanHariIni[3].count = Number(res.data.selisih_kedatangan ?? this.tindakanHariIni[3].count);
+        }
+      },
+      error: () => {}
+    });
+
+    this.api.getLaporanStokPenjualan().subscribe({
+      next: (res) => {
+        if (res && res.status === 'success' && Array.isArray(res.data)) {
+          const totalStok = Number(res.ringkasan?.total_stok_tersedia_kg || 0);
+          const warnaMap: Record<string, string> = {
+            Plastik: '#2563EB',
+            Kardus: '#D97706',
+            Kaca: '#16A34A',
+            Logam: '#64748B'
+          };
+          this.stok.total = totalStok;
+          this.stok.items = res.data.map((m: any) => {
+            const brt = Number(m.stok_tersedia_kg || 0);
+            const pct = totalStok > 0 ? Math.round((brt / totalStok) * 100) : 0;
+            return {
+              nama: m.nama_jenis,
+              berat: brt,
+              persentase: pct,
+              warna: warnaMap[m.nama_jenis] || '#15803D'
+            };
+          });
+        }
         if (event?.target) event.target.complete();
       },
       error: () => {
@@ -87,6 +126,14 @@ export class DashboardPengelolaPage implements OnInit {
   // Navigasi ke Halaman CRUD Master Drop Point (M03)
   goToDropPoint() {
     this.router.navigate(['/master-drop-point']);
+  }
+
+  bukaTindakan(item: any) {
+    if (item.route === '/terima-di-titik') {
+      this.router.navigate(['/terima-di-titik']);
+      return;
+    }
+    this.bukaMenu(item.title);
   }
 
   async bukaMenu(namaFitur: string) {

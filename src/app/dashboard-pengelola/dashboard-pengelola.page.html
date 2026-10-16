@@ -100,7 +100,7 @@
 
     <div class="tindakan-stack">
       @for (item of tindakanHariIni; track item.title) {
-      <div class="tindakan-card" (click)="bukaMenu(item.title)">
+      <div class="tindakan-card" (click)="bukaTindakan(item)">
         <div class="tindakan-icon" [ngClass]="item.iconClass">
           <ion-icon [name]="item.icon"></ion-icon>
         </div>
@@ -117,11 +117,11 @@
     </div>
 
     <!-- 5. STOK FISIK DI DROP POINT -->
-    <div class="white-panel-card stok-panel">
+    <div class="white-panel-card stok-panel" routerLink="/penjualan-material" [queryParams]="{ tab: 'laporan' }" style="cursor: pointer;">
       <div class="panel-top-row">
         <div>
-          <h3>Stok di Drop Point</h3>
-          <p>Setoran FINAL & DITERIMA di titik, setelah penjualan</p>
+          <h3>Stok di Drop Point &amp; Laporan</h3>
+          <p>Setoran FINAL &amp; DITERIMA di titik, setelah penjualan (Klik untuk Laporan)</p>
         </div>
         <div class="total-stok-badge">
           {{ stok.total }} kg
