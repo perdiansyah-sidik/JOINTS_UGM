@@ -16,6 +16,8 @@
   justify-content: space-between;
   margin-bottom: 18px;
 
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+
   .header-left {
     .location-pill {
       display: inline-flex;

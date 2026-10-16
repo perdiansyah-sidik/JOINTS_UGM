@@ -2,6 +2,8 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { PenimbanganService, SetoranTimbang, DetailSetoranInput } from '../services/penimbangan.service';
 import { JenisSampahService, JenisSampah } from '../services/jenis-sampah.service';
+import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 interface BarisMaterial {
   id_jenis_sampah: number;
@@ -19,6 +21,7 @@ interface BarisMaterial {
   standalone: false,
 })
 export class PenimbanganVerifikasiPage implements OnInit {
+  private router = inject(Router);
   private penimbanganSvc = inject(PenimbanganService);
   private jenisSampahSvc = inject(JenisSampahService);
   private alertCtrl = inject(AlertController);
@@ -47,11 +50,13 @@ export class PenimbanganVerifikasiPage implements OnInit {
   memprosesVerifikasi = false;
 
   ngOnInit() {
+    if (!environment.demoMode) { this.router.navigateByUrl('/setoran', { replaceUrl: true }); return; }
     this.cekSesiPengguna();
     this.muatMasterDanSetoran();
   }
 
   ionViewWillEnter() {
+    if (!environment.demoMode) return;
     this.cekSesiPengguna();
     this.muatMasterDanSetoran();
   }

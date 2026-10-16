@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { environment } from '../../environments/environment';
 
 export interface DropPointModel {
   id_drop_point: number;
@@ -76,6 +77,7 @@ export class MasterDropPointPage implements OnInit {
   }
 
   private getDefaultDropPoints(): DropPointModel[] {
+    if (!environment.demoMode) return [];
     const cached = localStorage.getItem(this.STORAGE_KEY);
     if (cached) {
       try {
@@ -104,6 +106,7 @@ export class MasterDropPointPage implements OnInit {
   }
 
   private simpanCacheLokal(data: DropPointModel[]) {
+    if (!environment.demoMode) return;
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
   }
 
@@ -252,7 +255,7 @@ export class MasterDropPointPage implements OnInit {
               error: async (err) => {
                 await loading.dismiss();
                 // Jika jaringan/API offline atau endpoint belum dipasang di server (404), simpan ke cache lokal
-                if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+                if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
                   dp.aktif = statusTarget;
                   dp.diubah_oleh = this.idPengelolaLogin;
                   dp.diubah_pada = new Date().toISOString();
@@ -297,7 +300,7 @@ export class MasterDropPointPage implements OnInit {
               },
               error: async (err) => {
                 await loading.dismiss();
-                if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+                if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
                   this.listDropPoint = this.listDropPoint.filter(item => item.id_drop_point !== dp.id_drop_point);
                   this.simpanCacheLokal(this.listDropPoint);
                   this.terapkanFilter();

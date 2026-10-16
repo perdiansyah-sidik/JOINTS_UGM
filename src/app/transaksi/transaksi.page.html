@@ -1,0 +1,94 @@
+<ion-header><ion-toolbar><ion-buttons slot="start"><ion-back-button [defaultHref]="back"></ion-back-button></ion-buttons><ion-title>{{ payout ? 'Pencairan poin' : 'Setoran sampah' }}</ion-title><ion-buttons slot="end"><ion-button routerLink="/profil" aria-label="Profil"><ion-icon name="person-circle-outline"></ion-icon></ion-button></ion-buttons></ion-toolbar></ion-header>
+<ion-content><main class="workspace">
+  <h1>{{ payout ? 'Saldo dan pencairan' : 'Setoran dan riwayat' }}</h1>
+  <p>{{ payout ? 'Pantau pengajuan dan pembayaran poin Anda.' : 'Lihat perjalanan material dari pencatatan hingga verifikasi.' }}</p>
+  <p *ngIf="error" class="notice error" role="alert">{{error}}</p><p *ngIf="success" class="notice success" role="status">{{success}}</p>
+  <ion-progress-bar *ngIf="loading || busy" type="indeterminate"></ion-progress-bar>
+  <ion-button fill="outline" (click)="load()" [disabled]="busy||loading"><ion-icon slot="start" name="refresh-outline"></ion-icon>Muat ulang</ion-button>
+  <section *ngIf="payout">
+    <h2>{{admin ? 'Dana cadangan' : 'Saldo poin tersedia'}}</h2><strong>{{(admin ? points.kas : points.tersedia) || 0 | number}} {{admin ? 'rupiah' : 'poin'}}</strong>
+    <p>Dicadangkan untuk pengajuan aktif: {{points.dipesan || 0 | number}}</p>
+    <p *ngIf="!config.pencairan_tersedia" class="notice">Nilai rupiah per poin dan minimum pencairan belum ditetapkan. Pengajuan baru belum dibuka.</p>
+    <p *ngIf="config.pencairan_tersedia">1 poin = Rp {{config.nilai_rupiah_per_poin | number}}. Minimum {{config.minimal_poin | number}} poin.</p>
+  </section>
+  <section *ngIf="payout&&admin">
+    <h2>Catat dana cadangan poin</h2><p>Isi hanya setelah dana benar-benar diterima. Catatan ini tidak memindahkan uang secara otomatis.</p>
+    <ion-input type="number" min="0.01" step="0.01" label="Dana diterima (Rp)" labelPlacement="stacked" [(ngModel)]="funding.jumlah_rupiah"></ion-input>
+    <ion-input label="Sumber dana" labelPlacement="stacked" maxlength="150" [(ngModel)]="funding.pihak_terkait"></ion-input>
+    <ion-input label="Keterangan" labelPlacement="stacked" maxlength="255" [(ngModel)]="funding.keterangan"></ion-input>
+    <ion-input label="Tautan bukti penerimaan (HTTPS)" labelPlacement="stacked" maxlength="255" [(ngModel)]="funding.bukti"></ion-input>
+    <ion-checkbox [(ngModel)]="funding.konfirmasi">Dana sudah benar-benar diterima</ion-checkbox>
+    <ion-button [disabled]="busy||!funding.konfirmasi" (click)="addFunding()">Catat dana cadangan</ion-button>
+  </section>
+  <section *ngIf="!payout&&admin">
+    <h2>Buat slot penjemputan</h2>
+    <ion-input type="datetime-local" label="Mulai" labelPlacement="stacked" [(ngModel)]="slotForm.mulai_pada"></ion-input>
+    <ion-input type="datetime-local" label="Selesai" labelPlacement="stacked" [(ngModel)]="slotForm.selesai_pada"></ion-input>
+    <ion-input type="number" min="1" step="1" label="Kapasitas" labelPlacement="stacked" [(ngModel)]="slotForm.kapasitas"></ion-input>
+    <ion-button [disabled]="busy" (click)="addSlot()">Simpan slot</ion-button>
+  </section>
+  <p *ngIf="!payout&&!admin&&!partner" class="notice">Antar sendiri dicatat pengelola saat Anda datang ke drop point. Untuk jemput, pilih slot yang tersedia.</p>
+  <p *ngIf="!payout&&!admin&&!partner&&config.potongan_jemput_persen===null" class="notice">Potongan layanan jemput belum ditetapkan. Pengajuan jemput belum dibuka.</p>
+  <ion-button *ngIf="!partner && (!payout || !admin)" (click)="start()" [disabled]="busy||loading||(payout&&!config.pencairan_tersedia)||(!payout&&!admin&&config.potongan_jemput_persen===null)"><ion-icon slot="start" name="add-circle-outline"></ion-icon>{{payout?'Ajukan pencairan':admin?'Catat antar sendiri':'Ajukan penjemputan'}}</ion-button>
+  <section *ngIf="creating">
+    <h2>{{payout?'Pengajuan pencairan':'Setoran baru'}}</h2>
+    <ng-container *ngIf="!payout">
+      <ion-select *ngIf="admin" label="Pelanggan" labelPlacement="stacked" [(ngModel)]="form.id_pengguna"><ion-select-option *ngFor="let u of customers" [value]="u.id_pengguna">{{u.nama}} — {{u.email}}</ion-select-option></ion-select>
+      <ion-select label="Drop point tujuan" labelPlacement="stacked" [(ngModel)]="form.id_drop_point"><ion-select-option *ngFor="let d of drops" [value]="d.id_drop_point">{{d.nama_drop_point}}</ion-select-option></ion-select>
+      <p *ngIf="!drops.length" class="notice">Belum ada drop point aktif. Data master perlu diisi pengelola.</p>
+      <ng-container *ngIf="!admin">
+        <p>Potongan layanan: {{config.potongan_jemput_persen}}% dari poin kotor.</p>
+        <ion-select label="Slot penjemputan" labelPlacement="stacked" [(ngModel)]="form.id_slot"><ion-select-option *ngFor="let s of slots" [value]="s.id_slot" [disabled]="s.tersisa<=0">{{s.mulai_pada | date:'dd MMM yyyy HH:mm'}} — sisa {{s.tersisa}}</ion-select-option></ion-select>
+        <p *ngIf="!slots.length" class="notice">Belum ada slot mendatang.</p>
+        <ion-input label="Alamat jemput" labelPlacement="stacked" maxlength="255" [(ngModel)]="form.alamat_jemput"></ion-input>
+        <ion-input label="Petunjuk lokasi" labelPlacement="stacked" maxlength="225" [(ngModel)]="form.petunjuk_lokasi"></ion-input>
+        <ion-textarea label="Perkiraan material (opsional)" labelPlacement="stacked" maxlength="500" [(ngModel)]="form.catatan_perkiraan"></ion-textarea>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="payout">
+      <ion-input type="number" min="1" step="1" label="Jumlah poin" labelPlacement="stacked" [(ngModel)]="form.jumlah_poin"></ion-input>
+      <ion-input label="Nama bank" labelPlacement="stacked" maxlength="50" [(ngModel)]="form.nama_bank"></ion-input>
+      <ion-input label="Nomor rekening" inputmode="numeric" labelPlacement="stacked" maxlength="30" [(ngModel)]="form.nomor_rekening"></ion-input>
+      <ion-input label="Nama pemilik rekening" labelPlacement="stacked" maxlength="100" [(ngModel)]="form.nama_pemilik_rekening"></ion-input>
+    </ng-container>
+    <div class="actions"><ion-button [disabled]="busy" (click)="save()">Simpan pengajuan</ion-button><ion-button [disabled]="busy" fill="outline" (click)="creating=false">Batal</ion-button></div>
+  </section>
+  <section><h2>Riwayat {{payout?'pencairan':'setoran'}}</h2><p *ngIf="!rows.length&&!loading">Belum ada transaksi.</p><div class="scroll"><table *ngIf="rows.length"><thead><tr><th>Transaksi</th><th>Status</th><th>Poin</th><th>Aksi</th></tr></thead><tbody><tr *ngFor="let r of rows"><td>#{{payout?r.id_pencairan:r.id_setoran}}<small>{{r.nama_pengguna}}</small><small>{{r.dibuat_pada | date:'dd MMM yyyy HH:mm'}}</small></td><td>{{status(r.status)}}</td><td>{{(payout?r.jumlah_poin:r.total_poin) | number}}</td><td><ion-button size="small" fill="outline" [disabled]="busy" (click)="open(r)">Detail</ion-button></td></tr></tbody></table></div></section>
+  <section *ngIf="selected as s">
+    <h2>Detail #{{payout?s.id_pencairan:s.id_setoran}}</h2><p>{{s.nama_pengguna}} · {{status(s.status)}}</p>
+    <ng-container *ngIf="!payout">
+      <p>{{s.metode}} · {{s.nama_drop_point}}</p><p>Poin final: {{s.total_poin | number}}</p>
+      <p *ngIf="s.catatan_verifikasi">Catatan: {{s.catatan_verifikasi}}</p>
+      <a *ngIf="s.foto_bukti" [href]="s.foto_bukti" target="_blank" rel="noopener noreferrer">Lihat bukti timbang</a>
+      <div *ngFor="let d of s.detail" class="detail">{{d.nama_jenis}}: diterima {{d.berat_diterima_kg}} kg, ditolak {{d.berat_ditolak_kg}} kg. <small>{{d.alasan_penolakan}}</small></div>
+      <div *ngIf="admin&&s.metode==='JEMPUT'&&s.status===1"><ion-select label="Petugas mitra" [(ngModel)]="assigned"><ion-select-option *ngFor="let p of partners" [value]="p.id_pengguna">{{p.nama}}</ion-select-option></ion-select><ion-button [disabled]="busy" (click)="assign()">Tugaskan</ion-button></div>
+      <ng-container *ngIf="canWeigh()">
+        <h3>Hasil timbang</h3><ion-input label="Tautan foto bukti (HTTPS)" labelPlacement="stacked" maxlength="255" [(ngModel)]="proof"></ion-input>
+        <div *ngFor="let d of details;let i=index" class="detail">
+          <ion-select label="Jenis material" [(ngModel)]="d.id_jenis_sampah"><ion-select-option *ngFor="let m of materials" [value]="m.id_jenis_sampah">{{m.nama_jenis}}</ion-select-option></ion-select>
+          <ion-input type="number" min="0" step="0.001" label="Diterima (kg)" labelPlacement="stacked" [(ngModel)]="d.berat_diterima_kg"></ion-input>
+          <ion-input type="number" min="0" step="0.001" label="Ditolak (kg)" labelPlacement="stacked" [(ngModel)]="d.berat_ditolak_kg"></ion-input>
+          <ion-input label="Alasan jika ditolak" labelPlacement="stacked" maxlength="255" [(ngModel)]="d.alasan_penolakan"></ion-input>
+          <ion-button fill="clear" color="danger" [disabled]="busy" (click)="details.splice(i,1)">Hapus baris</ion-button>
+        </div>
+        <ion-button fill="outline" [disabled]="busy||details.length>=4" (click)="addDetail()">Tambah material</ion-button><ion-button [disabled]="busy" (click)="weigh()">Simpan timbang</ion-button>
+      </ng-container>
+      <div *ngIf="admin&&s.status===2"><ion-textarea label="Catatan verifikasi (wajib jika menolak)" labelPlacement="stacked" [(ngModel)]="note"></ion-textarea><ion-button [disabled]="busy" (click)="verify('FINAL')">Finalkan & tambahkan poin</ion-button><ion-button [disabled]="busy" color="danger" fill="outline" (click)="verify('TOLAK')">Tolak</ion-button></div>
+      <ion-button *ngIf="s.status===1&&!partner" color="danger" fill="outline" [disabled]="busy" (click)="cancel()">Batalkan setoran</ion-button>
+    </ng-container>
+    <ng-container *ngIf="payout">
+      <p>{{s.jumlah_poin | number}} poin → Rp {{s.nominal_rupiah | number}}</p><p>{{s.nama_bank}} · {{s.nomor_rekening}} · {{s.nama_pemilik_rekening}}</p><p *ngIf="s.alasan_penolakan">{{s.alasan_penolakan}}</p>
+      <a *ngIf="s.bukti" [href]="s.bukti" target="_blank" rel="noopener noreferrer">Lihat bukti pembayaran</a>
+      <ion-button *ngIf="s.status===1&&!admin" color="danger" fill="outline" [disabled]="busy" (click)="payoutAction('BATAL')">Batalkan pengajuan</ion-button>
+      <ng-container *ngIf="admin&&s.status<=2">
+        <ion-button *ngIf="s.status===1" [disabled]="busy" (click)="payoutAction('PROSES')">Mulai proses</ion-button>
+        <ion-input *ngIf="s.status===2" label="Tautan bukti transfer (HTTPS)" labelPlacement="stacked" maxlength="255" [(ngModel)]="proof"></ion-input>
+        <p *ngIf="s.status===2">Pembayaran dilakukan manual di luar aplikasi. Jangan menolak pengajuan yang sudah ditransfer.</p>
+        <ion-checkbox *ngIf="s.status===2" [(ngModel)]="confirm">Saya sudah memeriksa status transfer sesuai aksi yang dipilih.</ion-checkbox>
+        <ion-button *ngIf="s.status===2" [disabled]="busy||!confirm" (click)="payoutAction('BAYAR')">Catat sudah dibayar</ion-button>
+        <ion-textarea label="Alasan penolakan" labelPlacement="stacked" maxlength="255" [(ngModel)]="note"></ion-textarea>
+        <ion-button color="danger" fill="outline" [disabled]="busy||(s.status===2&&!confirm)" (click)="payoutAction('TOLAK')">Tolak (belum ditransfer)</ion-button>
+      </ng-container>
+    </ng-container>
+  </section>
+</main></ion-content>

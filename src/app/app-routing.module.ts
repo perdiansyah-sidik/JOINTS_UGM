@@ -2,6 +2,9 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+  { path: 'setoran', loadChildren: () => import('./transaksi/transaksi.module').then(m => m.TransaksiModule) },
+  { path: 'pencairan', data: { payout: true }, loadChildren: () => import('./transaksi/transaksi.module').then(m => m.TransaksiModule) },
+  { path: 'profil', loadChildren: () => import('./profil/profil.module').then(m => m.ProfilPageModule) },
   {
     path: '',
     redirectTo: 'welcome',
@@ -51,10 +54,6 @@ const routes: Routes = [
   {
     path: 'penimbangan-verifikasi',
     loadChildren: () => import('./penimbangan-verifikasi/penimbangan-verifikasi.module').then(m => m.PenimbanganVerifikasiPageModule)
-  },
-  {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
   },
   {
     path: 'master-mitra',

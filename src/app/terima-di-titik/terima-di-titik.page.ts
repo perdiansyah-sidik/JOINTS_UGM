@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { environment } from '../../environments/environment';
 
 export interface ItemMaterialTitik {
   id_detail_setoran: number;
@@ -93,6 +94,7 @@ export class TerimaDiTitikPage implements OnInit {
   }
 
   private getDefaultKedatangan(): SetoranKedatanganModel[] {
+    if (!environment.demoMode) return [];
     const cached = localStorage.getItem(this.STORAGE_KEY_T05);
     if (cached) {
       try {
@@ -252,6 +254,7 @@ export class TerimaDiTitikPage implements OnInit {
   }
 
   private simpanCacheKedatangan(list: SetoranKedatanganModel[]) {
+    if (!environment.demoMode) return;
     localStorage.setItem(this.STORAGE_KEY_T05, JSON.stringify(list));
   }
 
@@ -335,7 +338,7 @@ export class TerimaDiTitikPage implements OnInit {
     const idNum = Number(idPencarian);
 
     // Jika sedang mode fallback lokal dan ID ada di daftar lokal, langsung buka tanpa memicu 404 ke server
-    if (this.isUsingFallback) {
+    if (environment.demoMode && this.isUsingFallback) {
       const localMatch = this.daftarAntrean.find(x => Number(x.id_setoran) === idNum && Array.isArray(x.detailMaterial) && x.detailMaterial.length > 0);
       if (localMatch) {
         this.setDataSetoranAktif(JSON.parse(JSON.stringify(localMatch)));
@@ -366,6 +369,7 @@ export class TerimaDiTitikPage implements OnInit {
   }
 
   private cariDariCacheLokal(idNum: number) {
+    if (!environment.demoMode) { this.tampilToast(`Setoran #${idNum} tidak dapat dimuat dari server.`, 'danger'); return; }
     const list = this.getDefaultKedatangan();
     const found = list.find(x => Number(x.id_setoran) === Number(idNum));
     if (found) {
@@ -519,7 +523,7 @@ export class TerimaDiTitikPage implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+        if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
           this.perbaruiCacheSetoranLokal(idSetoran, kodeStatusInt, statusAkhirLabel, catatanBersih);
           const masukStok = this.dataSetoran?.status_label === 'FINAL' && kodeStatusInt === 3;
           await this.tampilToast(
@@ -538,6 +542,7 @@ export class TerimaDiTitikPage implements OnInit {
   }
 
   private perbaruiCacheSetoranLokal(idSetoran: number, kodeInt: number, label: string, catatan: string) {
+    if (!environment.demoMode) return;
     try {
       const list = this.getDefaultKedatangan();
       const idx = list.findIndex(s => Number(s.id_setoran) === Number(idSetoran));

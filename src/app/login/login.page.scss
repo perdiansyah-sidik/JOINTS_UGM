@@ -340,6 +340,37 @@ $bg-switcher: #E5EDE8;
   margin-top: 26px;
 }
 
+.demo-accounts {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid #b7ddc5;
+  border-radius: 16px;
+  background: #f1faf4;
+  color: #174b2b;
+  font-size: 13px;
+
+  p { margin: 8px 0; line-height: 1.4; }
+  code { font-weight: 700; }
+}
+
+.demo-account-list {
+  display: grid;
+  gap: 7px;
+
+  button {
+    padding: 9px 11px;
+    border: 1px solid #d3e9d9;
+    border-radius: 10px;
+    background: white;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  span, small { display: block; }
+  small { margin-top: 2px; opacity: .72; }
+}
+
 .bottom-action-area {
   margin-top: 24px;
 }

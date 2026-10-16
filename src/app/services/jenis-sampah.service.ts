@@ -100,6 +100,7 @@ export class JenisSampahService {
   }
 
   daftar(): Observable<JenisSampah[]> {
+    if (!environment.demoMode) return this.http.get<{data:JenisSampah[]}>(this.url).pipe(map(r=>r.data));
     return this.http.get<any>(this.url, this.opsi()).pipe(
       map((r) => {
         const raw = Array.isArray(r) ? r : Array.isArray(r?.data) ? r.data : [];
@@ -141,6 +142,7 @@ export class JenisSampahService {
     poin_per_kg: number; 
     estimasi_hemat_co2_per_kg?: number 
   }): Observable<any> {
+    if (!environment.demoMode) return this.http.post<any>(this.url, {nama_jenis:body.nama_jenis,ketentuan:body.ketentuan,poin_per_kg:body.poin_per_kg});
     // Siapkan item baru
     const list = this.getSavedLokal();
     const maxId = list.reduce((m, x) => Math.max(m, x.id_jenis_sampah || 0), 0);
@@ -177,6 +179,7 @@ export class JenisSampahService {
     poin_per_kg: number; 
     estimasi_hemat_co2_per_kg?: number 
   }): Observable<any> {
+    if (!environment.demoMode) return this.http.put<any>(`${this.url}/${id}`, {nama_jenis:body.nama_jenis,ketentuan:body.ketentuan,poin_per_kg:body.poin_per_kg});
     const simpanLokalUbah = () => {
       const list = this.getSavedLokal();
       const idx = list.findIndex(x => x.id_jenis_sampah === id);
@@ -205,6 +208,7 @@ export class JenisSampahService {
   }
 
   setAktif(id: number, aktif: 0 | 1): Observable<any> {
+    if (!environment.demoMode) return this.http.patch<any>(`${this.url}/${id}/status`,{aktif});
     const updateLokalStatus = () => {
       const list = this.getSavedLokal();
       const item = list.find(x => x.id_jenis_sampah === id);
@@ -227,6 +231,7 @@ export class JenisSampahService {
   }
 
   hapus(id: number): Observable<any> {
+    if (!environment.demoMode) return this.http.delete<any>(`${this.url}/${id}`);
     const hapusLokal = () => {
       let list = this.getSavedLokal();
       list = list.filter(x => x.id_jenis_sampah !== id);

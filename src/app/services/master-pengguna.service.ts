@@ -31,7 +31,7 @@ export class MasterPenggunaService {
     return this.http.put(`${this.baseUrl}/pengguna/${idPengguna}`, payload);
   }
 
-  // Hapus sementara yang dapat dipulihkan: aktif=0, is_deleted=1.
+  // Nonaktifkan tanpa menghapus data: aktif=0, is_deleted=0.
   nonaktifkanPengguna(idPengguna: number): Observable<unknown> {
     return this.http.patch(`${this.baseUrl}/pengguna/${idPengguna}/nonaktifkan`, {});
   }

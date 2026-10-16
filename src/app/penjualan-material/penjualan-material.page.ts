@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { environment } from '../../environments/environment';
 
 export interface RekapStokMaterialModel {
   id_jenis_sampah: number;
@@ -147,6 +148,7 @@ export class PenjualanMaterialPage implements OnInit {
   inputBeratReturKg: number | null = null;
 
   private readonly STORAGE_KEY_PENJUALAN = 'pilahin_cache_penjualan_t06';
+  private pendingRequestKey: string | null = null;
 
   ngOnInit() {
     this.ambilSesiPengguna();
@@ -196,24 +198,34 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   muatDataMaster() {
+    if (!this.isMitraRole) this.api.getDropPointList(true).subscribe({
+      next: (res: any) => {
+        this.listDropPoint = Array.isArray(res?.data) ? res.data : [];
+        if (!this.listDropPoint.some(dp => Number(dp.id_drop_point) === this.idDropPointPilih)) {
+          this.idDropPointPilih = Number(this.listDropPoint[0]?.id_drop_point || 0);
+        }
+        this.muatStokDanLaporan();
+      },
+      error: () => { this.listDropPoint = []; this.idDropPointPilih = 0; }
+    });
     this.api.getMitra().subscribe({
       next: (res: any) => {
         if (res?.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
           this.listMitra = res.data.filter((m: any) => Number(m.aktif) === 1);
         } else {
-          this.listMitra = [
+          this.listMitra = environment.demoMode ? [
             { id_mitra: 1, nama_mitra: 'PT Hijau Lestari Daur Ulang', alamat_mitra: 'Kawasan Industri Pulogadung Blok C4', aktif: 1 }
-          ];
+          ] : [];
         }
         if (!this.idMitraPilih && this.listMitra.length > 0) {
           this.idMitraPilih = this.listMitra[0].id_mitra;
         }
       },
       error: () => {
-        this.listMitra = [
+        this.listMitra = environment.demoMode ? [
           { id_mitra: 1, nama_mitra: 'PT Hijau Lestari Daur Ulang', alamat_mitra: 'Kawasan Industri Pulogadung Blok C4', aktif: 1 }
-        ];
-        if (!this.idMitraPilih) this.idMitraPilih = 1;
+        ] : [];
+        if (environment.demoMode && !this.idMitraPilih) this.idMitraPilih = 1;
       }
     });
 
@@ -222,21 +234,21 @@ export class PenjualanMaterialPage implements OnInit {
         if (res?.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
           this.listJenisSampah = res.data;
         } else {
-          this.listJenisSampah = [
+          this.listJenisSampah = environment.demoMode ? [
             { id_jenis_sampah: 1, nama_jenis: 'Plastik', poin_per_kg: 300 },
             { id_jenis_sampah: 2, nama_jenis: 'Kardus', poin_per_kg: 200 },
             { id_jenis_sampah: 3, nama_jenis: 'Kaca', poin_per_kg: 150 },
             { id_jenis_sampah: 4, nama_jenis: 'Logam', poin_per_kg: 500 }
-          ];
+          ] : [];
         }
       },
       error: () => {
-        this.listJenisSampah = [
+        this.listJenisSampah = environment.demoMode ? [
           { id_jenis_sampah: 1, nama_jenis: 'Plastik', poin_per_kg: 300 },
           { id_jenis_sampah: 2, nama_jenis: 'Kardus', poin_per_kg: 200 },
           { id_jenis_sampah: 3, nama_jenis: 'Kaca', poin_per_kg: 150 },
           { id_jenis_sampah: 4, nama_jenis: 'Logam', poin_per_kg: 500 }
-        ];
+        ] : [];
       }
     });
   }
@@ -245,8 +257,30 @@ export class PenjualanMaterialPage implements OnInit {
     this.api.getLaporanStokPenjualan().subscribe({
       next: (res: any) => {
         if (res && res.status === 'success' && Array.isArray(res.data)) {
-          this.rekapStokMaterial = res.data;
+          const rows = environment.demoMode ? res.data : res.data.filter((r: any) => Number(r.id_drop_point) === this.idDropPointPilih);
+          this.rekapStokMaterial = rows.map((r: any) => ({
+            ...r,
+            berat_masuk_final_kg: Number(r.berat_masuk_final_kg || 0),
+            berat_dikirim_kg: Number(r.berat_dikirim_kg || 0),
+            berat_retur_kembali_kg: Number(r.berat_retur_kembali_kg || 0),
+            stok_tersedia_kg: Number(r.stok_tersedia_kg || 0),
+            berat_tertahan_selisih_kg: Number(r.berat_tertahan_selisih_kg || 0),
+            berat_diterima_mitra_kg: Number(r.berat_diterima_mitra_kg || 0),
+            berat_ditolak_mitra_kg: Number(r.berat_ditolak_mitra_kg || 0),
+            selisih_timbang_mitra_kg: Number(r.selisih_timbang_mitra_kg || 0),
+            nilai_penjualan_rp: Number(r.nilai_penjualan_rp || 0),
+            poin_per_kg: Number(r.poin_per_kg || 0)
+          }));
           if (res.ringkasan) this.ringkasanStok = res.ringkasan;
+          else this.ringkasanStok = {
+            total_stok_tersedia_kg: this.rekapStokMaterial.reduce((a,r) => a+r.stok_tersedia_kg,0),
+            total_masuk_final_kg: this.rekapStokMaterial.reduce((a,r) => a+r.berat_masuk_final_kg,0),
+            total_tertahan_selisih_kg: 0,
+            total_dikirim_kg: this.rekapStokMaterial.reduce((a,r) => a+r.berat_dikirim_kg,0),
+            total_diterima_mitra_kg: 0, total_ditolak_mitra_kg: 0,
+            total_retur_kembali_kg: this.rekapStokMaterial.reduce((a,r) => a+r.berat_retur_kembali_kg,0),
+            total_nilai_penjualan_rp: 0
+          };
         } else {
           this.hitungRekapStokLokal();
         }
@@ -258,6 +292,7 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   private getDefaultPenjualan(): PenjualanTransaksiModel[] {
+    if (!environment.demoMode) return [];
     const cached = localStorage.getItem(this.STORAGE_KEY_PENJUALAN);
     if (cached) {
       try {
@@ -401,6 +436,7 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   private simpanCachePenjualan(list: PenjualanTransaksiModel[]) {
+    if (!environment.demoMode) return;
     localStorage.setItem(this.STORAGE_KEY_PENJUALAN, JSON.stringify(list));
   }
 
@@ -585,6 +621,7 @@ export class PenjualanMaterialPage implements OnInit {
 
   // Simpan Penjualan sebagai DRAFT atau langsung DIKIRIM (T06)
   async simpanPenjualan(mode: 'DRAFT' | 'DIKIRIM') {
+    if (!this.idDropPointPilih) { this.tampilToast('Pilih Drop Point aktif terlebih dahulu.', 'warning'); return; }
     if (!this.idMitraPilih) {
       this.tampilToast('Pilih Organisasi Mitra tujuan terlebih dahulu!', 'warning');
       return;
@@ -613,6 +650,7 @@ export class PenjualanMaterialPage implements OnInit {
       id_mitra: Number(this.idMitraPilih),
       dibuat_oleh: this.idPenggunaLogin,
       mode_simpan: mode,
+      request_key: this.pendingRequestKey || (this.pendingRequestKey = crypto.randomUUID()),
       catatan: (this.catatanPenjualan || '').trim() || null,
       detailPenjualan: this.keranjangJual
     };
@@ -626,6 +664,7 @@ export class PenjualanMaterialPage implements OnInit {
     this.api.buatPenjualan(payload).subscribe({
       next: async (res: any) => {
         await loading.dismiss();
+        this.pendingRequestKey = null;
         this.simpanPenjualanKeCacheLokal(payload, res?.data?.id_penjualan);
         await this.tampilToast(
           res?.message || (mode === 'DRAFT' ? 'Draft penjualan berhasil disimpan!' : 'Penjualan berhasil dikirim ke Mitra!'),
@@ -638,7 +677,7 @@ export class PenjualanMaterialPage implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+        if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
           this.simpanPenjualanKeCacheLokal(payload);
           await this.tampilToast(
             mode === 'DRAFT'
@@ -658,6 +697,7 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   private simpanPenjualanKeCacheLokal(payload: any, idFromServer?: number) {
+    if (!environment.demoMode) return;
     const list = this.getDefaultPenjualan();
     const newId = idFromServer || Math.floor(Math.random() * 400) + 510;
     const mitraObj = this.listMitra.find(m => Number(m.id_mitra) === Number(payload.id_mitra));
@@ -739,7 +779,7 @@ export class PenjualanMaterialPage implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+        if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
           this.ubahStatusDraftLokal(p.id_penjualan, 'DIKIRIM');
           await this.tampilToast(`${p.kode_penjualan} berhasil dikirim ke Mitra!`, 'success');
           this.muatSemuaData();
@@ -773,7 +813,7 @@ export class PenjualanMaterialPage implements OnInit {
                 this.muatSemuaData();
               },
               error: async (err) => {
-                if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+                if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
                   this.ubahStatusDraftLokal(p.id_penjualan, 'DIBATALKAN');
                   await this.tampilToast('Draft penjualan dibatalkan.', 'success');
                   this.muatSemuaData();
@@ -790,6 +830,7 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   private ubahStatusDraftLokal(idPenjualan: number, statusBaru: 'DIKIRIM' | 'DIBATALKAN') {
+    if (!environment.demoMode) return;
     const list = this.getDefaultPenjualan();
     const idx = list.findIndex(x => Number(x.id_penjualan) === Number(idPenjualan));
     if (idx >= 0) {
@@ -897,7 +938,7 @@ export class PenjualanMaterialPage implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+        if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
           this.simpanKonfirmasiMitraLokal(idPjl, payload);
           this.tutupModalKonfirmasiMitra();
           await this.tampilToast('Konfirmasi penerimaan Mitra berhasil disimpan!', 'success');
@@ -910,6 +951,7 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   private simpanKonfirmasiMitraLokal(idPenjualan: number, payload: any) {
+    if (!environment.demoMode) return;
     const list = this.getDefaultPenjualan();
     const idx = list.findIndex(p => Number(p.id_penjualan) === Number(idPenjualan));
     if (idx >= 0) {
@@ -1000,7 +1042,7 @@ export class PenjualanMaterialPage implements OnInit {
       },
       error: async (err) => {
         await loading.dismiss();
-        if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+        if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
           this.simpanReturKeCacheLokal(idDetail, Number(beratRetur.toFixed(3)));
           this.tutupModalRetur();
           await this.tampilToast(
@@ -1016,6 +1058,7 @@ export class PenjualanMaterialPage implements OnInit {
   }
 
   private simpanReturKeCacheLokal(idDetail: number, beratRetur: number) {
+    if (!environment.demoMode) return;
     const list = this.getDefaultPenjualan();
     for (const p of list) {
       const d = p.detailPenjualan.find(x => Number(x.id_detail_penjualan) === Number(idDetail));

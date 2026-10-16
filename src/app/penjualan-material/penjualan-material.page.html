@@ -81,6 +81,17 @@
         </div>
 
         <div class="field-group">
+          <label>Drop Point Asal <span class="req">*</span></label>
+          <ion-item lines="none" class="clean-select-item">
+            <ion-select [(ngModel)]="idDropPointPilih" (ionChange)="muatStokDanLaporan()" placeholder="Pilih Drop Point" interface="popover">
+              @for (dp of listDropPoint; track dp.id_drop_point) {
+                <ion-select-option [value]="dp.id_drop_point">{{ dp.nama_drop_point }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="field-group">
           <label>Organisasi Mitra Pembeli <span class="req">*</span></label>
           <ion-item lines="none" class="clean-select-item">
             <ion-select [(ngModel)]="idMitraPilih" placeholder="Pilih Organisasi Mitra" interface="popover">

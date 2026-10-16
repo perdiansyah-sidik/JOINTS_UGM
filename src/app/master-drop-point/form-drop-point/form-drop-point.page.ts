@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import * as L from 'leaflet';
 import { ApiService } from '../../services/api.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-form-drop-point',
@@ -96,6 +97,7 @@ export class FormDropPointPage implements OnInit {
         }
       },
       error: () => {
+        if (!environment.demoMode) return;
         const cached = localStorage.getItem(this.STORAGE_KEY);
         if (cached) {
           try {
@@ -346,13 +348,13 @@ export class FormDropPointPage implements OnInit {
       this.api.updateDropPoint(this.idDropPoint, payload).subscribe({
         next: async (res: any) => {
           await loading.dismiss();
-          this.sinkronKeCacheLokal(this.idDropPoint!, payload, false);
+          if (environment.demoMode) this.sinkronKeCacheLokal(this.idDropPoint!, payload, false);
           await this.tampilToast(res?.message || 'Data Drop Point berhasil diperbarui!', 'success');
           this.router.navigate(['/master-drop-point']);
         },
         error: async (err) => {
           await loading.dismiss();
-          if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+          if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
             this.sinkronKeCacheLokal(this.idDropPoint!, payload, false);
             await this.tampilToast('Data Drop Point berhasil diperbarui!', 'success');
             this.router.navigate(['/master-drop-point']);
@@ -366,13 +368,13 @@ export class FormDropPointPage implements OnInit {
         next: async (res: any) => {
           await loading.dismiss();
           const newId = res?.data?.id_drop_point || Date.now();
-          this.sinkronKeCacheLokal(newId, payload, true);
+          if (environment.demoMode) this.sinkronKeCacheLokal(newId, payload, true);
           await this.tampilToast(res?.message || 'Drop Point baru berhasil ditambahkan!', 'success');
           this.router.navigate(['/master-drop-point']);
         },
         error: async (err) => {
           await loading.dismiss();
-          if (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500) {
+          if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
             const newId = Math.floor(Math.random() * 900) + 10;
             this.sinkronKeCacheLokal(newId, payload, true);
             await this.tampilToast('Drop Point baru berhasil ditambahkan!', 'success');
@@ -386,6 +388,7 @@ export class FormDropPointPage implements OnInit {
   }
 
   private sinkronKeCacheLokal(id: number, payload: any, isNew: boolean) {
+    if (!environment.demoMode) return;
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY);
       const list = raw ? JSON.parse(raw) : [];
