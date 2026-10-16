@@ -27,13 +27,33 @@
       <ion-label class="eco-label">Alamat Lengkap</ion-label>
       <ion-item lines="none" class="eco-input-item">
         <ion-textarea [(ngModel)]="formData.alamat" rows="3" placeholder="Masukkan alamat detail..."></ion-textarea>
+        
+        <!-- Tombol untuk melacak alamat ke peta -->
+        <ion-button fill="clear" slot="end" color="success" (click)="cariAlamatKePeta()">
+          <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+        </ion-button>
+
       </ion-item>
     </div>
 
     <!-- KOTAK PETA DITARUH DI SINI -->
     <div class="input-group">
       <ion-label class="eco-label">Tentukan Titik Lokasi Peta</ion-label>
-      <div id="mapId" style="height: 300px; width: 100%; border-radius: 12px; z-index: 1; margin-top: 4px;"></div>
+      
+      <!-- Bungkus peta dengan div relative agar tombol bisa mengambang di dalamnya -->
+      <div style="position: relative; margin-top: 4px;">
+        
+        <div id="mapId" style="height: 300px; width: 100%; border-radius: 12px; z-index: 1;"></div>
+        
+        <!-- Tombol Lokasi Terkini -->
+        <ion-fab vertical="bottom" horizontal="end" style="position: absolute; bottom: 10px; right: 10px; z-index: 999;">
+          <ion-fab-button size="small" color="light" (click)="dapatkanLokasiTerkini()">
+            <ion-icon name="locate-outline" color="success"></ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+
+      </div>
+      
       <ion-text color="medium" style="font-size: 12px; margin-top: 5px;" *ngIf="formData.latitude">
         Koordinat terpilih: {{ formData.latitude }}, {{ formData.longitude }}
       </ion-text>

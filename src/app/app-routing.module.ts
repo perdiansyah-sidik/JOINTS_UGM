@@ -4,7 +4,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'welcome', // <-- OTOMATIS BUKA HALAMAN WELCOME SAAT PERTAMA KALI DIJALANKAN
+    redirectTo: 'welcome',
     pathMatch: 'full'
   },
   {
@@ -44,13 +44,26 @@ const routes: Routes = [
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
   },
   {
-    path: 'dashboard-pengelola',
-    loadChildren: () => import('./dashboard-pengelola/dashboard-pengelola.module').then(m => m.DashboardPengelolaPageModule)
-  },
-  {
     path: 'master-mitra',
     loadChildren: () => import('./master-mitra/master-mitra.module').then(m => m.MasterMitraPageModule)
   },
+  {
+    path: 'terima-di-titik',
+    loadChildren: () => import('./terima-di-titik/terima-di-titik.module').then( m => m.TerimaDiTitikPageModule)
+  },
+  {
+    path: 'penjualan-material',
+    loadChildren: () => import('./penjualan-material/penjualan-material.module').then( m => m.PenjualanMaterialPageModule)
+  },
+  // Tambahan Rute M03 (Tambah & Edit)
+  {
+    path: 'form-drop-point',
+    loadChildren: () => import('./master-drop-point/form-drop-point/form-drop-point.module').then( m => m.FormDropPointPageModule)
+  },
+  {
+    path: 'form-drop-point/:id',
+    loadChildren: () => import('./master-drop-point/form-drop-point/form-drop-point.module').then( m => m.FormDropPointPageModule)
+  }
 ];
 
 @NgModule({

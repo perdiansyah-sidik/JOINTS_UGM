@@ -1,75 +1,191 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="success">
-    <ion-buttons slot="start">
-      <!-- Ubah bagian ini -->
-      <ion-button (click)="kembaliKeDashboard()" style="color: white; font-weight: bold;">
-        <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
-        Back
-      </ion-button>
-    </ion-buttons>
-    <ion-title>Master Drop Point</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="master-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="muatData()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-<ion-content color="light">
-  <div class="page-header">
-    <h2>Daftar Drop Point</h2>
-    <p>Kelola lokasi penampungan dan operasional</p>
-  </div>
+  <div class="master-container">
 
-  <!-- Daftar Data Drop Point -->
-  <div class="list-container">
-    <!-- Teks loading saat menunggu data API -->
-    <div *ngIf="isLoading" class="ion-text-center ion-padding">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Memuat data lokasi...</p>
+    <!-- 1. TOP BAR NAVIGASI -->
+    <div class="top-nav-bar">
+      <button type="button" class="back-btn" routerLink="/dashboard-pengelola">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+
+      <div class="top-title-group">
+        <span class="eyebrow-badge">MASTER DATA &bull; M03</span>
+        <h1>Kelola Drop Point</h1>
+      </div>
+
+      <!-- Tombol ini langsung buka halaman Form Tambah -->
+      <button type="button" class="add-top-btn" routerLink="/form-drop-point">
+        <ion-icon name="add-outline"></ion-icon>
+      </button>
     </div>
 
-    <!-- Tampilkan data jika sudah ada -->
-    <ng-container *ngIf="!isLoading">
-      <ion-card class="dp-card" *ngFor="let item of dropPoints">
-        <ion-card-header class="dp-header">
-          <ion-card-title>
-            <ion-icon name="location" color="success"></ion-icon>
-            <!-- Diubah ke nama_drop_point -->
-            {{ item.nama_drop_point }} 
-          </ion-card-title>
-          <!-- Diubah logikanya ke nilai integer 1 atau 0 dari database -->
-          <ion-badge [color]="item.aktif === 1 ? 'success' : 'medium'" mode="ios">
-            {{ item.aktif === 1 ? 'Aktif' : 'Nonaktif' }}
-          </ion-badge>
-        </ion-card-header>
+    <!-- 2. HERO BANNER RINGKASAN DROP POINT -->
+    <div class="master-hero-card">
+      <div class="hero-decor"></div>
 
-        <ion-card-content>
-          <div class="info-row">
-            <ion-icon name="map-outline"></ion-icon>
-            <span>{{ item.alamat }}</span>
+      <div class="hero-top-row">
+        <div>
+          <span class="hero-label">FASILITAS PENGUMPULAN SAMPAH</span>
+          <h2>Lokasi Operasional</h2>
+          <p>Kelola titik penimbangan dan penyimpanan sementara.</p>
+        </div>
+        
+      </div>
+
+      <div class="stats-mini-grid">
+        <div class="stat-box">
+          <span class="stat-num">{{ totalDP }}</span>
+          <span class="stat-lbl">Total Titik</span>
+        </div>
+        <div class="stat-box active-stat">
+          <span class="stat-num">{{ totalDPAktif }}</span>
+          <span class="stat-lbl">Titik Aktif</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num">{{ totalDPNonaktif }}</span>
+          <span class="stat-lbl">Nonaktif</span>
+        </div>
+        <div class="stat-box" style="background: transparent; border: none;">
+          <!-- Kosongkan untuk menyeimbangkan grid 4 kolom, atau tambahkan info lain -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PENCARIAN & FILTER STATUS -->
+    <div class="search-filter-card">
+      <div class="search-input-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          placeholder="Cari nama lokasi atau alamat..."
+          [(ngModel)]="kataKunci"
+          (input)="terapkanFilter()" />
+        @if (kataKunci) {
+          <ion-icon name="close-circle" class="clear-btn" (click)="kataKunci = ''; terapkanFilter()"></ion-icon>
+        }
+      </div>
+
+      <div class="filter-tabs">
+        <button type="button" class="filter-tab" [class.active]="filterStatus === 'SEMUA'" (click)="pilihFilterStatus('SEMUA')">
+          Semua ({{ totalDP }})
+        </button>
+        <button type="button" class="filter-tab" [class.active]="filterStatus === 'AKTIF'" (click)="pilihFilterStatus('AKTIF')">
+          Aktif ({{ totalDPAktif }})
+        </button>
+        <button type="button" class="filter-tab" [class.active]="filterStatus === 'NONAKTIF'" (click)="pilihFilterStatus('NONAKTIF')">
+          Nonaktif ({{ totalDPNonaktif }})
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. DAFTAR DROP POINT -->
+    <div class="list-header-row">
+      <span>DAFTAR LOKASI ({{ daftarDropPointTampil.length }})</span>
+      <button type="button" class="btn-tambah-inline" routerLink="/form-drop-point">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <span>Tambah Lokasi</span>
+      </button>
+    </div>
+
+    @if (loading) {
+      <div class="state-card">
+        <ion-spinner name="crescent" color="success"></ion-spinner>
+        <p>Memuat data lokasi drop point...</p>
+      </div>
+    } @else if (daftarDropPointTampil.length === 0) {
+      <div class="state-card empty-state">
+        <div class="empty-icon-box">
+          <ion-icon name="storefront-outline"></ion-icon>
+        </div>
+        <h3>Belum Ada Drop Point</h3>
+        <p>Tambahkan lokasi pengumpulan sampah dan jam operasionalnya di sini.</p>
+        <button type="button" class="btn-primary-pilahin" routerLink="/form-drop-point">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Tambah Drop Point Pertama</span>
+        </button>
+      </div>
+    } @else {
+      <div class="master-cards-stack">
+        @for (dp of daftarDropPointTampil; track dp.id_drop_point) {
+        <div class="master-item-card" [class.nonaktif-card]="dp.aktif === 0">
+
+          <div class="card-top-bar">
+            <div class="org-identity">
+              <div class="org-icon" [class.inactive-icon]="dp.aktif === 0">
+                <ion-icon name="storefront-outline"></ion-icon>
+              </div>
+              <div>
+                <div class="id-and-tag">
+                  <span class="id-code">ID #{{ dp.id_drop_point }}</span>
+                  @if (dp.aktif === 1) {
+                    <span class="status-pill pill-active"><i class="dot"></i> Aktif Operasional</span>
+                  } @else {
+                    <span class="status-pill pill-inactive"><i class="dot"></i> Nonaktif</span>
+                  }
+                </div>
+                <h3 class="org-name">{{ dp.nama_drop_point }}</h3>
+              </div>
+            </div>
           </div>
-          <div class="info-row">
-            <ion-icon name="time-outline"></ion-icon>
-            <!-- Diubah ke jam_operasional -->
-            <span>{{ item.jam_operasional }}</span> 
+
+          <div class="info-grid">
+            <div class="info-row">
+              <ion-icon name="time-outline"></ion-icon>
+              <div>
+                <span class="lbl">Jam Layanan Operasional</span>
+                <p>{{ dp.jam_operasional }}</p>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <ion-icon name="map-outline"></ion-icon>
+              <div>
+                <span class="lbl">Alamat Lokasi</span>
+                <a *ngIf="dp.latitude && dp.longitude; else noMap" [href]="'https://maps.google.com/?q=' + dp.latitude + ',' + dp.longitude" target="_blank" style="text-decoration: none;">
+                  <p style="color: #15803D; text-decoration: underline;">{{ dp.alamat }}</p>
+                </a>
+                <ng-template #noMap><p>{{ dp.alamat }}</p></ng-template>
+              </div>
+            </div>
+
+            <div class="info-row" *ngIf="dp.nama_komunitas">
+              <ion-icon name="people-outline"></ion-icon>
+              <div>
+                <span class="lbl">Komunitas / Penyedia Area (Dana 10%)</span>
+                <p>{{ dp.nama_komunitas }} {{ dp.kontak_komunitas ? '— ' + dp.kontak_komunitas : '' }}</p>
+              </div>
+            </div>
           </div>
-          
-          <div class="action-buttons">
-            <ion-button fill="outline" color="primary" size="small" (click)="editData(item.id_drop_point)">
-              <ion-icon name="create-outline" slot="start"></ion-icon> Edit
-            </ion-button>
-            
-            <ion-button [fill]="item.aktif === 1 ? 'outline' : 'solid'" [color]="item.aktif === 1 ? 'danger' : 'success'" size="small" (click)="toggleStatus(item)">
-              <ion-icon [name]="item.aktif === 1 ? 'trash-outline' : 'checkmark-circle-outline'" slot="start"></ion-icon> 
-              {{ item.aktif === 1 ? 'Nonaktifkan' : 'Aktifkan' }}
-            </ion-button>
+
+          <!-- Tombol Aksi CRUD -->
+          <div class="crud-actions-row">
+            <!-- Edit langsung mengarah ke halaman form sesuai rute -->
+            <button type="button" class="btn-crud btn-edit" [routerLink]="['/form-drop-point', dp.id_drop_point]">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Ubah Data</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn-crud"
+              [class.btn-nonaktif]="dp.aktif === 1"
+              [class.btn-aktifkan]="dp.aktif === 0"
+              (click)="konfirmasiToggleStatus(dp)">
+              <ion-icon [name]="dp.aktif === 1 ? 'pause-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+              <span>{{ dp.aktif === 1 ? 'Nonaktifkan' : 'Aktifkan' }}</span>
+            </button>
+
+            <button type="button" class="btn-crud btn-delete" (click)="konfirmasiSoftDelete(dp)" title="Hapus Permanen">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
           </div>
-        </ion-card-content>
-      </ion-card>
-    </ng-container>
+
+        </div>
+        }
+      </div>
+    }
   </div>
-
-  <!-- Tombol Melayang (FAB) untuk Tambah Data Baru -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="success" (click)="tambahData()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 </ion-content>

@@ -16,7 +16,7 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule, 
     IonicModule.forRoot(), 
     AppRoutingModule,
-    HttpClientModule // Sudah ditambahkan di sini
+    HttpClientModule 
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
