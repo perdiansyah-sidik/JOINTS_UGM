@@ -13,9 +13,17 @@ export class ApiService {
   private apiUrl = environment.apiUrl;
   private baseUrl = environment.apiUrl;
 
-  // 1. AUTENTIKASI & PENGGUNA
-  login(data: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, data);
+  login(credentials: { email: string; password: string; jenis_akun?: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/login`, credentials);
+  }
+
+  // ================= DASHBOARD & KURIR MITRA =================
+  getDashboardMitra(idMitra: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/dashboard-mitra/${idMitra}`);
+  }
+
+  updateStatusJemputKurir(idPenjemputan: number, status: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/kurir-mitra/penjemputan/${idPenjemputan}/status`, { status });
   }
 
   register(data: any): Observable<any> {

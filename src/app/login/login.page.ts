@@ -21,6 +21,10 @@ export class LoginPage implements OnInit {
   ingatSaya = false;
   peran: 'pribadi' | 'mitra' = 'pribadi';
 
+  get jenisAkun(): 'PRIBADI' | 'MITRA' {
+    return this.peran === 'mitra' ? 'MITRA' : 'PRIBADI';
+  }
+
   ngOnInit() {
     // Isi otomatis email bila sebelumnya memilih "Ingat saya"
     const emailTersimpan = localStorage.getItem('ecoapp_remember_email');
@@ -34,9 +38,12 @@ export class LoginPage implements OnInit {
     this.peran = peran;
   }
 
-  async prosesLogin() {
-    if (!this.email.trim() || !this.password) {
-      this.tampilPesan('Masukkan email dan password Anda!', 'warning');
+ async prosesLogin() {
+    const emailInput = this.email.trim();
+    const passwordInput = this.password.trim();
+
+    if (!emailInput || !passwordInput) {
+      this.tampilPesan('Mohon isi Email/No. HP dan Kata Sandi terlebih dahulu!', 'warning');
       return;
     }
 
@@ -46,7 +53,11 @@ export class LoginPage implements OnInit {
     });
     await loading.present();
 
-    this.api.login({ email: this.email.trim().toLowerCase(), password: this.password })
+    this.api.login({
+      email: emailInput,
+      password: passwordInput,
+      jenis_akun: this.jenisAkun
+    })
       .pipe(
         timeout(10000),
         finalize(() => {
@@ -54,23 +65,25 @@ export class LoginPage implements OnInit {
         })
       )
       .subscribe({
-        next: async (res) => {
+        next: async (res: any) => {
           if (res && res.data) {
             localStorage.setItem('ecoapp_user', JSON.stringify(res.data));
           }
 
-          if (this.ingatSaya) {
-            localStorage.setItem('ecoapp_remember_email', this.email.trim());
+          // Jika login sebagai Mitra / Komunitas, arahkan langsung ke /dashboard-mitra
+          if (this.jenisAkun === 'MITRA' || res?.data?.peran_aplikasi === 'MITRA' || res?.data?.id_mitra) {
+            await this.tampilPesan(
+              `Selamat datang, ${res?.data?.nama_mitra || res?.data?.nama || 'Mitra Pilahin'}!`,
+              'success'
+            );
+            this.navCtrl.navigateRoot('/dashboard-mitra', { animated: true, animationDirection: 'forward' });
           } else {
-            localStorage.removeItem('ecoapp_remember_email');
+            await this.tampilPesan(`Selamat datang, ${res?.data?.nama || 'Pengguna'}!`, 'success');
+            this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
           }
-
-          await this.tampilPesan(`Selamat datang, ${res.data?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
-          // Langsung masuk ke halaman Dashboard Pengguna
-          this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
         },
-        error: async (err) => {
-          const msg = err.error?.message || 'Email atau password salah!';
+        error: async (err: any) => {
+          const msg = err?.error?.message || 'Email/No. HP atau Kata Sandi salah!';
           this.tampilPesan(msg, 'danger');
         }
       });
