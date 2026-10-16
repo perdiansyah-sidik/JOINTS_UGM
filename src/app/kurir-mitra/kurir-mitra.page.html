@@ -1,271 +1,460 @@
-<ion-content [fullscreen]="true" class="kurir-bg">
-  <ion-refresher slot="fixed" (ionRefresh)="ambilTugasKurir($event)">
+<ion-content [fullscreen]="true" class="t03-slot-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="ambilDataTugasDariPengelola($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="kurir-wrapper">
+  <div class="t03-slot-wrapper">
 
-    <!-- 1. TOP BAR -->
-    <div class="kurir-top-bar">
-      <button type="button" class="back-btn" (click)="kembaliKeDashboardMitra()">
+    <!-- 1. TOP BAR NAVIGASI -->
+    <div class="top-app-bar">
+      <button type="button" class="back-icon-btn" (click)="kembaliKeDashboardMitra()">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </button>
 
-      <div class="center-logo-badge">
-        <ion-icon name="sync-circle"></ion-icon>
-        <span>Transaksi Penjemputan Mitra (T03)</span>
+      <div class="center-brand-mark">
+        <div class="recycle-logo">
+          <ion-icon name="sync-outline"></ion-icon>
+        </div>
       </div>
 
-      <button type="button" class="profile-circle-btn" (click)="kembaliKeDashboardMitra()">
-        <ion-icon name="person-outline"></ion-icon>
-      </button>
-    </div>
-
-    <!-- 2. KARTU PROFIL PETUGAS / KURIR MITRA -->
-    <div class="courier-profile-card">
-      <div class="cp-top">
-        <div class="cp-avatar">
-          <span>{{ inisialKurir }}</span>
-          <i class="online-dot"></i>
-        </div>
-
-        <div class="cp-identity">
-          <div class="cp-name-row">
-            <h2>{{ namaKurir }}</h2>
-            <ion-icon name="checkmark-circle" class="verified-ic"></ion-icon>
-          </div>
-          <p class="cp-org">{{ namaOrganisasiMitra }}</p>
-          <p class="cp-sub">ID Mitra: MTR-00{{ idMitra }} &bull; {{ noHpKurir }}</p>
-        </div>
-
-        <span class="duty-badge">
-          <i class="dot"></i> Bertugas
-        </span>
-      </div>
-
-      <div class="cp-stats-row">
-        <div class="cp-stat">
-          <strong>{{ totalTugasHariIni }}</strong>
-          <span>Total Tugas</span>
-        </div>
-        <div class="cp-stat green-stat">
-          <strong>{{ totalSelesai }}</strong>
-          <span>Selesai</span>
-        </div>
-        <div class="cp-stat">
-          <strong>{{ totalTerangkutKg }} <small>kg</small></strong>
-          <span>Terangkut</span>
+      <div class="right-kurir-pill" (click)="modeHalaman = 'LAPORAN'">
+        <span class="kurir-lbl">{{ namaKurir }}</span>
+        <div class="avatar-green">
+          <ion-icon name="person-outline"></ion-icon>
         </div>
       </div>
     </div>
 
-    <!-- 3. SWITCH MODE: OPERASIONAL JEMPUT (T03) VS LAPORAN T03 (EXCEL & PDF) -->
-    <div class="main-mode-tabs">
+    <!-- 2. SWITCHER: EKSEKUSI TUGAS JEMPUT (T03) | PROGRES | LAPORAN (EXCEL & PDF) -->
+    <div class="top-mode-switcher">
       <button
         type="button"
-        class="m-tab"
-        [class.active]="tabUtama === 'OPERASIONAL'"
-        (click)="tabUtama = 'OPERASIONAL'">
-        <ion-icon name="bicycle-outline"></ion-icon>
-        <span>Operasional Jemput (T03)</span>
+        class="sw-btn"
+        [class.active]="modeHalaman === 'EKSEKUSI'"
+        (click)="modeHalaman = 'EKSEKUSI'">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Slot & Tugas Jemput</span>
       </button>
+
       <button
         type="button"
-        class="m-tab"
-        [class.active]="tabUtama === 'LAPORAN'"
-        (click)="tabUtama = 'LAPORAN'">
+        class="sw-btn"
+        [class.active]="modeHalaman === 'PROGRES'"
+        (click)="modeHalaman = 'PROGRES'">
+        <ion-icon name="navigate-outline"></ion-icon>
+        <span>Lacak Rute</span>
+      </button>
+
+      <button
+        type="button"
+        class="sw-btn"
+        [class.active]="modeHalaman === 'LAPORAN'"
+        (click)="modeHalaman = 'LAPORAN'">
         <ion-icon name="document-text-outline"></ion-icon>
-        <span>Laporan T03 (Excel & PDF)</span>
+        <span>Laporan T03</span>
       </button>
     </div>
 
     <!-- ================================================================= -->
-    <!-- TAB 1: OPERASIONAL PENJEMPUTAN & TIMBANG MITRA (T03)              -->
+    <!-- MODE 1: TRANSAKSI SLOT & EKSEKUSI PENJEMPUTAN MITRA (T03)         -->
+    <!-- (Desain Mengacu Referensi Gambar, Disesuaikan Terusan Tugas T04)  -->
     <!-- ================================================================= -->
-    @if (tabUtama === 'OPERASIONAL') {
-      <div class="priority-banner">
-        <div class="prio-icon">
-          <ion-icon name="notifications-outline"></ion-icon>
-        </div>
-        <div class="prio-text">
-          <h4>{{ tugasAktifList.length }} Tugas Penjemputan Aktif</h4>
-          <p>Hasil penugasan dari Pengelola Drop Point (T04)</p>
-        </div>
-        <span class="prio-pill">T03 Aktif</span>
-      </div>
+    @if (modeHalaman === 'EKSEKUSI' && tugasTerpilih) {
 
-      <div class="segment-tabs">
-        <button
-          type="button"
-          class="seg-btn"
-          [class.active]="tabFilter === 'AKTIF'"
-          (click)="tabFilter = 'AKTIF'">
-          <span>Tugas Aktif</span>
-          <i class="count-badge">{{ tugasAktifList.length }}</i>
-        </button>
-
-        <button
-          type="button"
-          class="seg-btn"
-          [class.active]="tabFilter === 'SELESAI'"
-          (click)="tabFilter = 'SELESAI'">
-          <span>Riwayat Selesai</span>
-          <i class="count-badge muted">{{ tugasSelesaiList.length }}</i>
-        </button>
-      </div>
-
-      @if (tabFilter === 'AKTIF') {
-        @if (tugasAktifList.length === 0) {
-          <div class="empty-task-card">
+      <!-- HEADER JUDUL & 3 LANGKAH EKSEKUSI MITRA -->
+      <div class="header-step-section">
+        <div class="eyebrow-row">
+          <span class="truck-eyebrow">
             <ion-icon name="bicycle-outline"></ion-icon>
-            <h3>Belum Ada Tugas Penjemputan Aktif</h3>
-            <p>Tugas yang telah ditugaskan oleh Pengelola di halaman T04 akan otomatis muncul di sini.</p>
+            TERUSAN TUGAS PENGELOLA &bull; T03
+          </span>
+          <span class="step-pill">Langkah {{ langkahAktif }} dari 3</span>
+        </div>
+
+        <h1 class="page-main-title">Slot & Eksekusi Penjemputan</h1>
+        <p class="page-subtitle">
+          Lanjutan penugasan dari Pengelola Drop Point (T04). Armada kurir <strong>{{ namaOrganisasiMitra }}</strong> memverifikasi jadwal slot dan menimbang sampah pilahan di lokasi pelanggan.
+        </p>
+
+        <!-- Progress Bar 3 Langkah -->
+        <div class="three-steps-bar">
+          <div class="step-col" [class.active]="langkahAktif >= 1" (click)="langkahAktif = 1">
+            <div class="bar-line"></div>
+            <span>1. Titik & Slot</span>
           </div>
-        } @else {
-          @for (item of tugasAktifList; track item.id_penjemputan) {
-          <div class="task-card">
-            <div class="task-top-row">
-              <span class="status-tag" [class.in-transit]="item.status === 'DALAM_PERJALANAN'">
-                <i class="dot"></i> {{ item.status }}
-              </span>
-              <span class="str-code">{{ item.kode_setoran }}</span>
-            </div>
+          <div class="step-col" [class.active]="langkahAktif >= 2" (click)="langkahAktif = 2">
+            <div class="bar-line"></div>
+            <span>2. Timbang Sampah</span>
+          </div>
+          <div class="step-col" [class.active]="langkahAktif >= 3" (click)="langkahAktif = 3">
+            <div class="bar-line"></div>
+            <span>3. Konfirmasi T03</span>
+          </div>
+        </div>
+      </div>
 
-            <div class="customer-row">
-              <div class="loc-pin-box">
-                <ion-icon name="location-outline"></ion-icon>
-              </div>
-              <div class="cust-detail">
-                <div class="cust-name-line">
-                  <h3>{{ item.nama_pelanggan }}</h3>
-                  <span class="role-chip">{{ item.kategori_pelanggan }}</span>
-                </div>
-                <p class="address-text">{{ item.alamat_jemput }}</p>
-
-                <div class="note-pill">
-                  <ion-icon name="time-outline"></ion-icon>
-                  <span>{{ item.jadwal_slot }} &bull; {{ item.catatan_pelanggan }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="drop-target-box">
-              <div class="dt-left">
-                <ion-icon name="cube-outline"></ion-icon>
-                <div>
-                  <span class="lbl">Estimasi Beban & Tujuan Serah Terima</span>
-                  <strong>~{{ item.total_berat_kg }} kg &rarr; {{ item.nama_drop_point }}</strong>
-                </div>
-              </div>
-              <span class="fee-tag">Potongan {{ item.potongan_persen }}%</span>
-            </div>
-
-            <div class="task-actions-row">
-              <button type="button" class="btn-navigasi" (click)="bukaDetailProgres(item)">
-                <ion-icon name="list-outline"></ion-icon>
-                <span>Progres</span>
+      <!-- PEMILIH TIKET TUGAS JIKA ADA LEBIH DARI 1 TUGAS DARI PENGELOLA -->
+      @if (tugasAktifList.length > 1) {
+        <div class="ticket-selector-strip">
+          <span class="ts-label">Pilih Tiket Penugasan Pengelola ({{ tugasAktifList.length }}):</span>
+          <div class="ts-chips">
+            @for (t of tugasAktifList; track t.id_penjemputan; let idx = $index) {
+              <button
+                type="button"
+                class="ts-chip"
+                [class.active]="idx === indeksTugasTerpilih"
+                (click)="pilihTugas(idx)">
+                {{ t.kode_setoran }} &bull; {{ t.nama_pelanggan }}
               </button>
+            }
+          </div>
+        </div>
+      }
 
-              @if (item.status !== 'DALAM_PERJALANAN') {
-                <button type="button" class="btn-aksi-utama" (click)="mulaiPerjalanan(item)">
-                  <ion-icon name="navigate-outline"></ion-icon>
-                  <span>Mulai Perjalanan</span>
-                </button>
+      <!-- KARTU 1: TITIK JEMPUT PELANGGAN (DITUGASKAN PENGELOLA) -->
+      <div class="section-white-card">
+        <div class="card-header-line">
+          <div class="ch-left">
+            <div class="circle-green-ic">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <h2>Titik Jemput Pelanggan</h2>
+          </div>
+          <span class="category-green-pill">{{ tugasTerpilih.kategori_pelanggan }}</span>
+        </div>
+
+        <div class="address-highlight-box">
+          <div class="ah-top">
+            <div class="ah-title">
+              <ion-icon name="home"></ion-icon>
+              <span>{{ tugasTerpilih.nama_pelanggan }} {{ tugasTerpilih.nama_usaha ? '(' + tugasTerpilih.nama_usaha + ')' : '' }}</span>
+            </div>
+            <button type="button" class="btn-ubah-soft" (click)="bukaMapsLokasi(tugasTerpilih.alamat_jemput)">
+              Buka Rute
+            </button>
+          </div>
+
+          <p class="ah-address">{{ tugasTerpilih.alamat_jemput }}</p>
+
+          <div class="assigned-info-strip">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Ditugaskan Pengelola ke <strong>{{ tugasTerpilih.nama_kurir }}</strong> &rarr; {{ tugasTerpilih.nama_drop_point }}</span>
+          </div>
+        </div>
+
+        <div class="field-caption-group">
+          <label>Petunjuk Lokasi / Catatan Lapangan Kurir</label>
+          <div class="note-input-box">
+            <ion-icon name="reader-outline"></ion-icon>
+            <input
+              type="text"
+              [(ngModel)]="catatanLapanganKurir"
+              placeholder="Contoh: Pagar hitam samping warung, titip di pos" />
+          </div>
+        </div>
+      </div>
+
+      <!-- KARTU 2: JADWAL & SLOT PENGAMBILAN MITRA -->
+      <div class="section-white-card">
+        <div class="card-header-line">
+          <div class="ch-left">
+            <div class="circle-blue-ic">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <h2>Jadwal & Slot Pengambilan</h2>
+          </div>
+        </div>
+
+        <!-- 3 Kartu Tanggal -->
+        <div class="date-3-grid">
+          @for (d of daftarTanggalSlot; track d.tanggal) {
+            <button
+              type="button"
+              class="date-box"
+              [class.selected]="d.aktif"
+              (click)="pilihTanggalSlot(d)">
+              <span class="d-day">{{ d.labelHari }}</span>
+              <strong class="d-num">{{ d.tanggal }}</strong>
+              <span class="d-tag" [class.active-tag]="d.aktif">{{ d.status }}</span>
+            </button>
+          }
+        </div>
+
+        <p class="sub-slot-label">Slot Jam Jemput Terjadwal ({{ tanggalTerpilih }}):</p>
+
+        <!-- 3 Pilihan Sesi Jam Jemput -->
+        <div class="time-slots-stack">
+          @for (s of daftarJamSlot; track s.kode) {
+            <div
+              class="time-slot-row"
+              [class.selected]="slotJamTerpilih === s.jam"
+              [class.disabled]="s.disabled"
+              (click)="pilihJamSlot(s)">
+              <div class="radio-circle" [class.checked]="slotJamTerpilih === s.jam">
+                <div class="inner-dot"></div>
+              </div>
+
+              <div class="ts-mid">
+                <div class="ts-time">
+                  <ion-icon [name]="s.ikon"></ion-icon>
+                  <strong>{{ s.jam }}</strong>
+                </div>
+                <span class="ts-sub">{{ s.sesi }}</span>
+              </div>
+
+              <span class="ts-quota-pill" [class.green]="slotJamTerpilih === s.jam" [class.muted]="s.disabled">
+                {{ s.badge }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- KARTU 3: VERIFIKASI & TIMBANG MATERIAL SAMPAH (4 JENIS RESMI) -->
+      <div class="section-white-card">
+        <div class="card-header-line">
+          <div class="ch-left">
+            <div class="circle-green-ic">
+              <ion-icon name="sync-outline"></ion-icon>
+            </div>
+            <h2>Material Sampah Dijemput</h2>
+          </div>
+          <span class="selected-count-txt">{{ jumlahJenisDipilih }} Jenis Dipilih</span>
+        </div>
+
+        <div class="materials-stack">
+          @for (mat of materialList; track mat.kunci) {
+            <div
+              class="mat-item-card"
+              [attr.data-theme]="mat.warnaTema"
+              [class.selected]="mat.dipilih"
+              (click)="togglePilihMaterial(mat)">
+
+              <div class="mat-left">
+                <input
+                  type="checkbox"
+                  class="mat-check"
+                  [checked]="mat.dipilih"
+                  (click)="$event.stopPropagation()"
+                  (change)="togglePilihMaterial(mat)" />
+
+                <div class="mat-icon-box" [attr.data-theme]="mat.warnaTema">
+                  <ion-icon [name]="mat.ikon"></ion-icon>
+                </div>
+
+                <div class="mat-info">
+                  <h4>{{ mat.nama }}</h4>
+                  <p>{{ mat.deskripsi }}</p>
+                </div>
+              </div>
+
+              @if (mat.dipilih && mat.beratKg > 0) {
+                <div class="mat-stepper-pill" (click)="$event.stopPropagation()">
+                  <button type="button" class="step-btn" (click)="ubahMuatanMaterial(mat, -1, $event)">&minus;</button>
+                  <span class="step-val">{{ mat.jumlahKemasan }} {{ mat.satuanKemasan }} (~{{ mat.beratKg }} kg)</span>
+                  <button type="button" class="step-btn" (click)="ubahMuatanMaterial(mat, 1, $event)">&#43;</button>
+                </div>
               } @else {
-                <button type="button" class="btn-aksi-utama" (click)="bukaModalTimbang(item)">
-                  <ion-icon name="scale-outline"></ion-icon>
-                  <span>Timbang & Selesai</span>
-                </button>
+                <div class="mat-empty-right" (click)="$event.stopPropagation(); ubahMuatanMaterial(mat, 1, $event)">
+                  <span>Belum ada (+ Tambah)</span>
+                </div>
               }
             </div>
-          </div>
           }
-        }
-      } @else {
-        @if (tugasSelesaiList.length === 0) {
-          <div class="empty-task-card">
-            <ion-icon name="checkmark-done-outline"></ion-icon>
-            <h3>Belum Ada Riwayat Penjemputan Selesai</h3>
-            <p>Tugas penjemputan yang telah selesai ditimbang oleh kurir mitra akan tercatat di sini.</p>
+        </div>
+
+        <div class="clean-warning-banner">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Pastikan sampah terpilah dalam kondisi kering & bebas sisa makanan organik untuk mempercepat serah terima di Drop Point.</span>
+        </div>
+      </div>
+
+      <!-- KARTU 4: RINGKASAN EKSEKUSI PENJEMPUTAN MITRA -->
+      <div class="section-white-card summary-card">
+        <div class="card-header-line">
+          <h2>Ringkasan Penjemputan</h2>
+          <span class="draft-status-pill" [class.done]="tugasTerpilih.status === 'SELESAI'">
+            {{ tugasTerpilih.status === 'DIAJUKAN' ? 'Menunggu Jemput' : tugasTerpilih.status }}
+          </span>
+        </div>
+
+        <div class="summary-lines">
+          <div class="s-row">
+            <span>Total Muatan Terangkut:</span>
+            <strong class="big-val">~{{ estimasiTotalMuatanKg }} Kg</strong>
           </div>
-        } @else {
-          @for (item of tugasSelesaiList; track item.id_penjemputan) {
-          <div class="task-card completed-card" (click)="bukaDetailProgres(item)">
-            <div class="task-top-row">
-              <span class="status-tag done-tag">
-                <i class="dot"></i> SELESAI DIJEMPUT
-              </span>
-              <span class="str-code">{{ item.kode_setoran }}</span>
-            </div>
-            <div class="customer-row">
-              <div class="loc-pin-box done-pin">
-                <ion-icon name="checkmark-outline"></ion-icon>
-              </div>
-              <div class="cust-detail">
-                <h3>{{ item.nama_pelanggan }} ({{ item.total_berat_kg }} kg)</h3>
-                <p class="address-text">{{ item.alamat_jemput }} &bull; +{{ item.poin_bersih }} Poin Bersih</p>
-              </div>
+          <div class="s-row">
+            <span>Biaya Tunai di Muka:</span>
+            <strong class="green-val">Rp 0 (Gratis)</strong>
+          </div>
+          <div class="s-row">
+            <span>Potongan Layanan Jemput:</span>
+            <strong>{{ persenPotonganJemput }}% dari poin setoran akhir</strong>
+          </div>
+          <div class="s-row">
+            <span>Estimasi Poin Bersih Pelanggan:</span>
+            <strong class="green-val">+{{ estimasiPoinBersih }} Poin</strong>
+          </div>
+        </div>
+
+        <!-- Kotak Kode Kantong Publik -->
+        <div class="bag-code-box">
+          <div class="bc-left">
+            <ion-icon name="pricetag-outline"></ion-icon>
+            <div>
+              <span class="bc-lbl">Kode Kantong (Terdaftar):</span>
+              <strong class="bc-code">{{ tugasTerpilih.kode_setoran }}</strong>
             </div>
           </div>
-          }
+          <button type="button" class="copy-code-btn" (click)="salinKodeKantong(tugasTerpilih.kode_setoran)">
+            <ion-icon name="copy-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- TOMBOL AKSI UTAMA KURIR MITRA (T03) -->
+      <div class="bottom-cta-stack">
+        @if (tugasTerpilih.status !== 'DALAM_PERJALANAN' && tugasTerpilih.status !== 'SELESAI') {
+          <button type="button" class="btn-outline-transit" (click)="mulaiPerjalananKurir()">
+            <ion-icon name="navigate-outline"></ion-icon>
+            <span>Mulai Perjalanan Kurir ke Lokasi Pelanggan</span>
+          </button>
         }
-      }
+
+        <button type="button" class="btn-green-confirm" (click)="konfirmasiSelesaiJemput()">
+          <span>Konfirmasi Timbangan & Selesaikan Jemputan</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+
+        <div class="security-footnote">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Data timbangan kurir mitra otomatis tercatat ke Laporan T03 & siap diserahkan ke Drop Point.</span>
+        </div>
+      </div>
     }
 
     <!-- ================================================================= -->
-    <!-- TAB 2: LAPORAN TRANSAKSI PENJEMPUTAN MITRA (T03) (EXCEL & PDF)    -->
+    <!-- MODE 2: LACAK RUTE & PROGRES 5 TAHAP PENJEMPUTAN                  -->
     <!-- ================================================================= -->
-    @if (tabUtama === 'LAPORAN') {
-      <div class="laporan-t03-card">
-        <div class="lap-head">
+    @if (modeHalaman === 'PROGRES' && tugasTerpilih) {
+      <div class="section-white-card">
+        <div class="card-header-line">
           <div>
-            <h3>Laporan Penjemputan Sampah Mitra (T03)</h3>
-            <p>Rekapitulasi hasil penjemputan, penimbangan lapangan, dan estimasi poin bersih pelanggan.</p>
+            <span class="truck-eyebrow">LIVE TRACKING ARMADA MITRA</span>
+            <h2>Kurir Menuju Lokasi Pelanggan</h2>
+          </div>
+          <span class="category-green-pill">{{ tugasTerpilih.status }}</span>
+        </div>
+
+        <div class="bag-code-box" style="margin-bottom: 14px;">
+          <div class="bc-left">
+            <ion-icon name="pricetag-outline"></ion-icon>
+            <div>
+              <span class="bc-lbl">KODE KANTONG PUBLIK</span>
+              <strong class="bc-code">{{ tugasTerpilih.kode_setoran }}</strong>
+            </div>
+          </div>
+          <button type="button" class="copy-code-btn" (click)="salinKodeKantong(tugasTerpilih.kode_setoran)">
+            <ion-icon name="copy-outline"></ion-icon>
+          </button>
+        </div>
+
+        <div class="timeline-5-steps">
+          <div class="t-step done">
+            <div class="t-dot"><ion-icon name="checkmark"></ion-icon></div>
+            <div class="t-body">
+              <h4>1. Pesanan Diajukan Pelanggan</h4>
+              <p>Slot {{ tugasTerpilih.jadwal_slot }} & estimasi ~{{ estimasiTotalMuatanKg }} kg terdaftar.</p>
+            </div>
           </div>
 
-          <div class="export-row">
-            <button type="button" class="btn-exp excel" (click)="exportLaporanMitraExcel()">
+          <div class="t-step done">
+            <div class="t-dot"><ion-icon name="checkmark"></ion-icon></div>
+            <div class="t-body">
+              <h4>2. Dijadwalkan & Ditugaskan Pengelola (T04)</h4>
+              <p>Ditugaskan kepada {{ namaOrganisasiMitra }} (Kurir: {{ tugasTerpilih.nama_kurir }}).</p>
+            </div>
+          </div>
+
+          <div class="t-step" [class.done]="tugasTerpilih.status === 'DALAM_PERJALANAN' || tugasTerpilih.status === 'SELESAI'">
+            <div class="t-dot"><ion-icon name="bicycle-outline"></ion-icon></div>
+            <div class="t-body">
+              <h4>3. Dalam Perjalanan Menuju Titik Jemput</h4>
+              <p>Armada kurir bergerak menuju {{ tugasTerpilih.alamat_jemput }}.</p>
+            </div>
+          </div>
+
+          <div class="t-step" [class.done]="tugasTerpilih.status === 'SELESAI'">
+            <div class="t-dot"><ion-icon name="scale-outline"></ion-icon></div>
+            <div class="t-body">
+              <h4>4. Penimbangan & Pengecekan Material (T03)</h4>
+              <p>Total muatan aktual {{ estimasiTotalMuatanKg }} kg selesai ditimbang di lokasi pelanggan.</p>
+            </div>
+          </div>
+
+          <div class="t-step" [class.done]="tugasTerpilih.status === 'SELESAI'">
+            <div class="t-dot"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
+            <div class="t-body">
+              <h4>5. Serah Terima Drop Point & Poin Masuk</h4>
+              <p>Diserahkan ke {{ tugasTerpilih.nama_drop_point }} (+{{ estimasiPoinBersih }} Poin Bersih).</p>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-green-confirm" style="margin-top: 14px;" (click)="modeHalaman = 'EKSEKUSI'">
+          <span>Kembali ke Detail Slot & Timbangan</span>
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+      </div>
+    }
+
+    <!-- ================================================================= -->
+    <!-- MODE 3: LAPORAN TRANSAKSI PENJEMPUTAN MITRA (T03) (EXCEL & PDF)   -->
+    <!-- ================================================================= -->
+    @if (modeHalaman === 'LAPORAN') {
+      <div class="section-white-card">
+        <div class="report-header-box">
+          <span class="truck-eyebrow">REKAPITULASI TRANSAKSI &bull; T03</span>
+          <h2>Laporan Penjemputan Sampah oleh Mitra</h2>
+          <p>Organisasi: <strong>{{ namaOrganisasiMitra }}</strong> &bull; Total Terangkut: <strong>{{ totalTerangkutKg }} kg</strong></p>
+
+          <div class="export-buttons-grid">
+            <button type="button" class="btn-export excel" (click)="exportLaporanMitraExcel()">
               <ion-icon name="grid-outline"></ion-icon>
               <span>Convert ke Excel (.xls)</span>
             </button>
-            <button type="button" class="btn-exp pdf" (click)="exportLaporanMitraPDF()">
-              <ion-icon name="document-text-outline"></ion-icon>
+            <button type="button" class="btn-export pdf" (click)="exportLaporanMitraPDF()">
+              <ion-icon name="print-outline"></ion-icon>
               <span>Convert ke PDF</span>
             </button>
           </div>
         </div>
 
-        <div class="table-scroll">
-          <table class="t03-table">
+        <div class="report-table-wrap">
+          <table class="report-table">
             <thead>
               <tr>
-                <th>Kode</th>
-                <th>Pelanggan & Lokasi</th>
-                <th>Berat Aktual</th>
+                <th>Kode Kantong</th>
+                <th>Pelanggan & Titik Jemput</th>
+                <th>Slot Waktu</th>
+                <th>Berat</th>
                 <th>Poin Bersih</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              @for (t of semuaPenjemputanMitra; track t.id_penjemputan) {
-              <tr (click)="bukaDetailProgres(t)">
-                <td>
-                  <strong>{{ t.kode_setoran }}</strong>
-                  <small>{{ t.tanggal_jemput | date:'dd/MM/yyyy' }}</small>
-                </td>
-                <td>
-                  <strong>{{ t.nama_pelanggan }}</strong>
-                  <small>{{ t.alamat_jemput }}</small>
-                </td>
-                <td><strong>{{ t.total_berat_kg }} kg</strong></td>
-                <td>
-                  <strong class="pts">+{{ t.poin_bersih }} Poin</strong>
-                  <small>Potongan {{ t.potongan_persen }}%</small>
-                </td>
-                <td>
-                  <span class="st-pill" [attr.data-st]="t.status">{{ t.status }}</span>
-                </td>
-              </tr>
+              @for (item of semuaPenjemputanMitra; track item.id_penjemputan; let idx = $index) {
+                <tr (click)="pilihTugas(idx); modeHalaman = 'EKSEKUSI'">
+                  <td><strong>{{ item.kode_setoran }}</strong></td>
+                  <td>
+                    <strong>{{ item.nama_pelanggan }}</strong>
+                    <small>{{ item.alamat_jemput }}</small>
+                  </td>
+                  <td><small>{{ item.jadwal_slot }}</small></td>
+                  <td><strong>{{ item.total_berat_kg }} kg</strong></td>
+                  <td><strong class="pts">+{{ item.poin_bersih }}</strong></td>
+                  <td><span class="tbl-status">{{ item.status }}</span></td>
+                </tr>
               }
             </tbody>
           </table>
@@ -274,162 +463,4 @@
     }
 
   </div>
-
-  <!-- ================================================================= -->
-  <!-- MODAL 1: INPUT TIMBANGAN AKTUAL KURIR MITRA (T03)                 -->
-  <!-- ================================================================= -->
-  @if (tampilModalTimbang && itemDitimbang) {
-  <div class="modal-backdrop" (click)="tampilModalTimbang = false">
-    <div class="modal-sheet" (click)="$event.stopPropagation()">
-      <div class="m-head">
-        <div>
-          <span class="eyebrow">PENIMBANGAN LAPANGAN &bull; {{ itemDitimbang.kode_setoran }}</span>
-          <h3>Input Berat Aktual Material (T03)</h3>
-        </div>
-        <button type="button" class="close-btn" (click)="tampilModalTimbang = false">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-
-      <div class="m-body">
-        <div class="cust-banner">
-          <strong>{{ itemDitimbang.nama_pelanggan }} ({{ itemDitimbang.kategori_pelanggan }})</strong>
-          <p>{{ itemDitimbang.alamat_jemput }}</p>
-        </div>
-
-        <div class="weight-grid">
-          <div class="w-field">
-            <label>Plastik (kg)</label>
-            <input type="number" min="0" step="0.5" [(ngModel)]="formTimbang.plastik_kg" />
-          </div>
-          <div class="w-field">
-            <label>Kardus & Kertas (kg)</label>
-            <input type="number" min="0" step="0.5" [(ngModel)]="formTimbang.kardus_kg" />
-          </div>
-          <div class="w-field">
-            <label>Kaca & Botol (kg)</label>
-            <input type="number" min="0" step="0.5" [(ngModel)]="formTimbang.kaca_kg" />
-          </div>
-          <div class="w-field">
-            <label>Logam & Kaleng (kg)</label>
-            <input type="number" min="0" step="0.5" [(ngModel)]="formTimbang.logam_kg" />
-          </div>
-        </div>
-
-        <div class="f-notes">
-          <label>Catatan Timbang & Serah Terima ke Drop Point</label>
-          <input type="text" [(ngModel)]="formTimbang.catatan_kurir" />
-        </div>
-
-        <div class="calc-summary">
-          <div class="c-line">
-            <span>Total Berat Aktual Terangkut:</span>
-            <strong>{{ totalBeratTimbangAktual }} kg</strong>
-          </div>
-          <div class="c-line">
-            <span>Potongan Layanan Jemput ({{ itemDitimbang.potongan_persen }}%):</span>
-            <strong>Otomatis Dipotong</strong>
-          </div>
-          <div class="c-line highlight">
-            <span>Potensi Poin Bersih Pelanggan:</span>
-            <strong>+{{ estimasiPoinBersihTimbang }} Poin</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="m-foot">
-        <button type="button" class="btn-cancel" (click)="tampilModalTimbang = false">Batal</button>
-        <button type="button" class="btn-save" (click)="simpanTimbangDanSelesai()">
-          <ion-icon name="checkmark-done-circle-outline"></ion-icon>
-          <span>Simpan Timbangan & Selesai</span>
-        </button>
-      </div>
-    </div>
-  </div>
-  }
-
-  <!-- ================================================================= -->
-  <!-- MODAL 2: DETAIL PROGRES PENJEMPUTAN 5 TAHAP (SESUAI GAMBAR 2)     -->
-  <!-- ================================================================= -->
-  @if (tampilModalProgres && itemProgresTerpilih) {
-  <div class="modal-backdrop" (click)="tampilModalProgres = false">
-    <div class="modal-sheet" (click)="$event.stopPropagation()">
-      <div class="m-head">
-        <div>
-          <span class="eyebrow">DETAIL TRACKING PENJEMPUTAN &bull; T03</span>
-          <h3>{{ itemProgresTerpilih.status === 'SELESAI' ? 'Penjemputan Selesai' : 'Kurir Menuju Lokasi Anda' }}</h3>
-        </div>
-        <button type="button" class="close-btn" (click)="tampilModalProgres = false">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-
-      <div class="m-body">
-        <!-- Kode Kantong Publik -->
-        <div class="bag-code-card">
-          <div>
-            <span class="lbl">KODE KANTONG PUBLIK</span>
-            <h4>{{ itemProgresTerpilih.kode_setoran }}</h4>
-          </div>
-          <span class="st-badge">{{ itemProgresTerpilih.status }}</span>
-        </div>
-
-        <!-- Timeline Progres Penjemputan 5 Langkah -->
-        <h4 class="tl-title">Progres Penjemputan</h4>
-        <div class="timeline-list">
-          <div class="tl-item done">
-            <div class="tl-dot"><ion-icon name="checkmark"></ion-icon></div>
-            <div class="tl-content">
-              <h5>1. Pesanan Diajukan Pelanggan</h5>
-              <p>Slot jemput {{ itemProgresTerpilih.jadwal_slot }} & estimasi ~{{ itemProgresTerpilih.total_berat_kg }} kg terdaftar.</p>
-            </div>
-          </div>
-
-          <div class="tl-item" [class.done]="itemProgresTerpilih.status !== 'DIAJUKAN'">
-            <div class="tl-dot"><ion-icon name="checkmark"></ion-icon></div>
-            <div class="tl-content">
-              <h5>2. Dijadwalkan & Ditugaskan Pengelola (T04)</h5>
-              <p>Ditugaskan ke {{ itemProgresTerpilih.nama_mitra }} ({{ itemProgresTerpilih.nama_kurir }}).</p>
-            </div>
-          </div>
-
-          <div class="tl-item" [class.done]="itemProgresTerpilih.status === 'DALAM_PERJALANAN' || itemProgresTerpilih.status === 'SELESAI'">
-            <div class="tl-dot"><ion-icon name="bicycle-outline"></ion-icon></div>
-            <div class="tl-content">
-              <h5>3. Kurir Mitra Dalam Perjalanan</h5>
-              <p>Armada bergerak menuju {{ itemProgresTerpilih.alamat_jemput }}.</p>
-            </div>
-          </div>
-
-          <div class="tl-item" [class.done]="itemProgresTerpilih.status === 'SELESAI'">
-            <div class="tl-dot"><ion-icon name="scale-outline"></ion-icon></div>
-            <div class="tl-content">
-              <h5>4. Penimbangan & Pengecekan Lapangan (T03)</h5>
-              <p>Penimbangan fisik per material di lokasi pelanggan oleh kurir mitra.</p>
-            </div>
-          </div>
-
-          <div class="tl-item" [class.done]="itemProgresTerpilih.status === 'SELESAI'">
-            <div class="tl-dot"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
-            <div class="tl-content">
-              <h5>5. Serah Terima Drop Point & Poin Masuk</h5>
-              <p>Diserahkan ke {{ itemProgresTerpilih.nama_drop_point }} (Potensi +{{ itemProgresTerpilih.poin_bersih }} Poin Bersih).</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="m-foot">
-        <button type="button" class="btn-cancel" (click)="tampilModalProgres = false">Tutup</button>
-        @if (itemProgresTerpilih.status !== 'SELESAI') {
-          <button type="button" class="btn-save" (click)="tampilModalProgres = false; bukaModalTimbang(itemProgresTerpilih)">
-            <ion-icon name="scale-outline"></ion-icon>
-            <span>Input Timbang Sekarang</span>
-          </button>
-        }
-      </div>
-    </div>
-  </div>
-  }
-
 </ion-content>

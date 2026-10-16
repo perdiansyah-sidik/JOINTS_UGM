@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular/lazy';
 
 import { PenugasanJemputPageRoutingModule } from './penugasan-jemput-routing.module';
-import { PenugasanJemputPage } from './penugasan-jemput.page';
 
 @NgModule({
   imports: [
@@ -13,6 +12,6 @@ import { PenugasanJemputPage } from './penugasan-jemput.page';
     IonicModule,
     PenugasanJemputPageRoutingModule
   ],
-  declarations: [PenugasanJemputPage]
+  declarations: []
 })
 export class PenugasanJemputPageModule {}

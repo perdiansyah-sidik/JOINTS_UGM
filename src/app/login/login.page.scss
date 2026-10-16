@@ -1,373 +1,306 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-$hijau: #34B24E;
-$hijau-tua: #2A9A41;
-$biru: #1E9BE0;
-$teks-gelap: #1B2B22;
-$teks-abu: #5F6B65;
-$teks-placeholder: #98A39D;
-$bg-halaman: #F0FBF3;
-$bg-input: #EAF3EC;
-$bg-switcher: #E5EDE8;
-
-:host {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+.login-bg {
+  --background: #F4F8F5 !important;
 }
 
-/* Paksa tampilan terang (desain tidak memakai dark mode) */
-.eco-login-bg {
-  --background: #{$bg-halaman};
-  --color: #{$teks-gelap};
-  color-scheme: light;
-}
-
-.login-container {
-  position: relative;
-  min-height: 100%;
-  max-width: 440px;
+.login-wrapper {
+  max-width: 480px;
   margin: 0 auto;
-}
-  
-
-.top-bar {
-  position: absolute;
-  top: 16px;
-  left: 20px;
-
-  .back-btn {
-    border: 0;
-    background: transparent;
-    color: #3B7A57;
-    font-size: 24px;
-    cursor: pointer;
-  }
-}
-
-/* ===== Logo ===== */
-.logo-badge-wrap {
+  padding: 24px 20px 48px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  min-height: 100%;
 }
-.logo-badge-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
 
-  .mini-eco-logo {
+.brand-header {
+  text-align: center;
+  margin-bottom: 24px;
+
+  .logo-circle {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 14px;
+    background: #E8F5EE;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
-    width: 76px;
-    height: 76px;
+    box-shadow: 0 8px 20px rgba(21, 128, 61, 0.12);
 
-    svg {
-      width: 100%;
-      height: 100%;
-      display: block;
+    .main-logo-ic {
+      font-size: 34px;
+      color: #15803D;
     }
 
-    .leaf-corner-badge {
+    .leaf-badge {
       position: absolute;
-      bottom: 1px;
-      right: 1px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: $hijau;
+      bottom: -4px;
+      right: -4px;
+      width: 24px;
+      height: 24px;
+      background: #15803D;
       color: #FFFFFF;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
-      border: 2px solid $bg-halaman;
+      border: 2px solid #FFFFFF;
     }
   }
-}
 
-.header-text,
-.hero-header {
-  text-align: center;
-  margin-bottom: 22px;
-}
-  
-
-  h2 {
-    font-size: 24px;
+  h1 {
+    font-size: 22px;
     font-weight: 800;
-    color: $teks-gelap;
-    margin: 0 0 8px;
-    letter-spacing: -0.2px;
+    color: #0F291E;
+    margin: 0 0 6px;
   }
 
   p {
-    font-size: 13px;
-    font-weight: 400;
-    color: $teks-abu;
-    line-height: 1.5;
-    margin: 0 auto;
-    max-width: 290px;
+    font-size: 12.5px;
+    color: #475569;
+    margin: 0;
+    line-height: 1.4;
+    padding: 0 16px;
   }
+}
 
-
-/* ===== Pilihan peran ===== */
-.role-switcher {
+.role-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: $bg-switcher;
-  padding: 4px;
-  border-radius: 14px;
-  margin-bottom: 18px;
+  gap: 8px;
+  background: #E2ECE7;
+  padding: 5px;
+  border-radius: 16px;
+  margin-bottom: 16px;
 
-  .switch-btn {
+  .role-tab-btn {
+    height: 42px;
+    border-radius: 12px;
     border: none;
     background: transparent;
-    padding: 11px 6px;
-    border-radius: 11px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: #3F4A44;
-    transition: all 0.25s ease;
     cursor: pointer;
-    outline: none;
+    transition: all 0.2s ease;
 
     ion-icon {
       font-size: 16px;
     }
 
-    .mitra-icon {
-      width: 16px;
-      height: 16px;
-    }
-
     &.active {
       background: #FFFFFF;
-      color: $hijau;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      color: #15803D;
+      box-shadow: 0 4px 12px rgba(15, 41, 30, 0.08);
     }
   }
 }
 
-.auth-card,
-.white-box-card {
+.login-card {
   background: #FFFFFF;
-  border-radius: 22px;
-  padding: 22px 18px 20px;
-}
-  
+  border: 1.5px solid #E2ECE7;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 41, 30, 0.05);
+  margin-bottom: 16px;
 
-  .form-group {
+  .role-info-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    color: #065F46;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 700;
     margin-bottom: 16px;
+
+    ion-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    &.mitra-banner {
+      background: #EFF6FF;
+      border-color: #BFDBFE;
+      color: #1E40AF;
+    }
+  }
+
+  .field-group {
+    margin-bottom: 14px;
 
     label {
       display: block;
-      font-size: 12.5px;
-      font-weight: 700;
-      color: $teks-gelap;
-      margin-bottom: 8px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #1E293B;
+      margin-bottom: 6px;
     }
 
     .input-box {
       display: flex;
       align-items: center;
-      background: $bg-input;
-      border-radius: 12px;
-      padding: 0 14px;
-      height: 48px;
-      border: 1.5px solid transparent;
-      transition: border 0.2s ease, background 0.2s ease;
+      background: #F4F8F5;
+      border: 1.5px solid #DCE8E0;
+      border-radius: 14px;
+      padding: 0 12px;
+      height: 46px;
+      gap: 10px;
 
-      &:focus-within {
-        border-color: $hijau;
-        background: #F6FCF8;
-      }
-
-      .prefix-icon {
+      ion-icon {
+        color: #15803D;
         font-size: 18px;
-        color: #7A857F;
-        margin-right: 10px;
         flex-shrink: 0;
       }
 
       input {
         flex: 1;
-        min-width: 0;
         border: none;
         background: transparent;
         outline: none;
-        font-family: inherit;
         font-size: 13px;
-        color: $teks-gelap;
-        padding: 0;
+        color: #0F291E;
 
         &::placeholder {
-          color: $teks-placeholder;
-          opacity: 1;
+          color: #94A3B8;
         }
       }
 
-      .suffix-icon {
+      .eye-btn {
+        background: transparent;
+        border: none;
+        color: #64748B;
         font-size: 18px;
-        color: #7A857F;
         cursor: pointer;
-        padding: 4px;
-        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
 
   .options-row {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin: 4px 0 18px;
+    align-items: center;
+    margin: 14px 0 18px;
     font-size: 12px;
 
     .remember-me {
       display: flex;
       align-items: center;
-      gap: 9px;
-      color: $teks-abu;
+      gap: 6px;
+      color: #334155;
       cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
+      font-weight: 600;
 
-      .check-box {
-        width: 18px;
-        height: 18px;
-        border-radius: 5px;
-        background: #E3ECE6;
-        border: 1.5px solid #D2DED6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: transparent;
-        font-size: 14px;
-        transition: all 0.2s ease;
-
-        &.checked {
-          background: $hijau;
-          border-color: $hijau;
-          color: #FFFFFF;
-        }
+      input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #15803D;
       }
     }
 
     .forgot-link {
-      color: $biru;
-      font-weight: 700;
+      color: #15803D;
+      font-weight: 800;
       text-decoration: none;
       cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 
-  .btn-submit-eco {
-    --background: #{$hijau};
-    --background-activated: #{$hijau-tua};
-    --background-hover: #{$hijau-tua};
-    --color: #FFFFFF;
-    --border-radius: 14px;
-    --box-shadow: 0 6px 16px rgba(52, 178, 78, 0.28);
+  .btn-masuk {
+    width: 100%;
     height: 48px;
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 700;
-    letter-spacing: 0;
-    text-transform: none;
-    margin: 0;
+    border-radius: 14px;
+    border: none;
+    background: #15803D;
+    color: #FFFFFF;
+    font-size: 13.5px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(21, 128, 61, 0.22);
+    transition: background 0.2s;
+
+    &:hover {
+      background: #166534;
+    }
   }
+}
 
-
-/* ===== Pemisah ===== */
 .divider-line {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 20px 0 16px;
-  color: #8E9A94;
+  margin: 16px 0;
+  color: #94A3B8;
   font-size: 11.5px;
 
   &::before,
   &::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid #D9E5DD;
+    border-bottom: 1px solid #DCE8E0;
   }
 
   span {
-    padding: 0 14px;
+    padding: 0 12px;
   }
 }
 
-/* ===== Login sosial ===== */
-.social-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+.social-single-wrap {
+  width: 100%;
+  margin-bottom: 16px;
 
-  .social-btn {
+  .btn-google-full {
+    width: 100%;
     height: 46px;
     border-radius: 14px;
-    border: none;
+    border: 1.5px solid #DCE8E0;
     background: #FFFFFF;
+    color: #0F291E;
+    font-size: 13px;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    color: $teks-gelap;
+    gap: 10px;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(20, 83, 45, 0.06);
-    outline: none;
-
-    .google-icon {
-      width: 18px;
-      height: 18px;
-    }
-
-    .apple-icon {
-      color: #000000;
-      font-size: 19px;
-    }
+    box-shadow: 0 4px 12px rgba(15, 41, 30, 0.04);
   }
 }
 
-.bottom-redirect {
-  margin-top: 26px;
-}
-
-.bottom-action-area {
-  margin-top: 24px;
-}
-
-.btn-masuk-eco {
-  --background: #22AD5C;
-  --background-activated: #1B8F4B;
-  --color: #FFFFFF;
-  --border-radius: 14px;
-  --box-shadow: 0 6px 16px rgba(34, 173, 92, 0.28);
-  height: 48px;
-  margin: 0;
-  font-size: 14.5px;
-  font-weight: 700;
-  text-transform: none;
-}
-
-.bottom-register-link {
-  margin-top: 20px;
+.bottom-register-text {
   text-align: center;
   font-size: 12.5px;
-  color: $teks-abu;
-}
-  
+  color: #475569;
+  margin: 0;
 
   a {
-    color: $biru;
+    color: #15803D;
     font-weight: 800;
     text-decoration: none;
     cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
+}

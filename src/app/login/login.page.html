@@ -1,122 +1,106 @@
-<ion-content [fullscreen]="true" class="eco-login-bg">
-  <div class="login-container">
+<ion-content [fullscreen]="true" class="login-bg">
+  <div class="login-wrapper">
 
-    <!-- Logo -->
-    <div class="logo-badge-wrap">
-      <div class="mini-eco-logo">
-        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="60" r="54" fill="#E3EEF1"/>
-          <path d="M28 66 C23 40, 42 22, 66 24" stroke="#1DA1F2" stroke-width="9" stroke-linecap="round"/>
-          <polygon points="64,13 82,25 62,35" fill="#1DA1F2"/>
-          <path d="M92 54 C97 80, 78 98, 54 96" stroke="#22AD5C" stroke-width="9" stroke-linecap="round"/>
-          <polygon points="56,107 38,95 58,85" fill="#22AD5C"/>
-          <path d="M46 74 C45 55, 58 44, 74 45 C73 61, 63 74, 46 74 Z" fill="#22AD5C"/>
-          <path d="M46 74 C45 55, 58 44, 74 45 C60 54, 53 63, 46 74 Z" fill="#1DA1F2"/>
-        </svg>
-        <div class="leaf-corner-badge">
+    <!-- Logo & Header -->
+    <div class="brand-header">
+      <div class="logo-circle">
+        <ion-icon name="sync-outline" class="main-logo-ic"></ion-icon>
+        <span class="leaf-badge">
           <ion-icon name="leaf-outline"></ion-icon>
-        </div>
+        </span>
       </div>
-    </div>
-
-    <!-- Judul -->
-    <div class="header-text">
-      <h2>Selamat Datang Kembali</h2>
+      <h1>Selamat Datang Kembali</h1>
       <p>Masuk untuk melanjutkan aksi daur ulang dan pantau dampak lingkunganmu</p>
     </div>
 
-    <!-- Pilihan peran -->
-    <div class="role-switcher">
-      <button type="button" class="switch-btn" [class.active]="peran === 'pribadi'" (click)="pilihPeran('pribadi')">
+    <!-- Tab Switcher: Pengguna Pribadi vs Mitra / Komunitas -->
+    <div class="role-tabs">
+      <button
+        type="button"
+        class="role-tab-btn"
+        [class.active]="jenisAkun === 'PRIBADI'"
+        (click)="pilihJenisAkun('PRIBADI')">
         <ion-icon name="person-outline"></ion-icon>
         <span>Pengguna Pribadi</span>
       </button>
-      <button type="button" class="switch-btn" [class.active]="peran === 'mitra'" (click)="pilihPeran('mitra')">
-        <svg class="mitra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="2.2"/>
-          <circle cx="12" cy="4.5" r="1.8"/>
-          <circle cx="12" cy="19.5" r="1.8"/>
-          <circle cx="4.5" cy="12" r="1.8"/>
-          <circle cx="19.5" cy="12" r="1.8"/>
-        </svg>
+
+      <button
+        type="button"
+        class="role-tab-btn"
+        [class.active]="jenisAkun === 'MITRA'"
+        (click)="pilihJenisAkun('MITRA')">
+        <ion-icon name="git-network-outline"></ion-icon>
         <span>Mitra / Komunitas</span>
       </button>
     </div>
 
-    <!-- Kartu form -->
-    <div class="auth-card">
-      <div class="form-group">
-        <label>Email atau No. Handphone</label>
+    <!-- Kartu Form Login -->
+    <div class="login-card">
+      <div class="role-info-banner" [class.mitra-banner]="jenisAkun === 'MITRA'">
+        <ion-icon [name]="jenisAkun === 'MITRA' ? 'business-outline' : 'shield-checkmark-outline'"></ion-icon>
+        <span>
+          {{ jenisAkun === 'MITRA'
+            ? 'Mode Mitra: Hanya untuk akun Organisasi Mitra & Kurir Penjemput.'
+            : 'Mode Pribadi: Khusus untuk Pelanggan Rumah Tangga, UMKM & Pengelola.' }}
+        </span>
+      </div>
+
+      <div class="field-group">
+        <label>{{ jenisAkun === 'MITRA' ? 'No. HP Mitra / Nama Organisasi / Penanggung Jawab' : 'Email atau No. Handphone' }}</label>
         <div class="input-box">
-          <ion-icon name="mail-outline" class="prefix-icon"></ion-icon>
+          <ion-icon [name]="jenisAkun === 'MITRA' ? 'business-outline' : 'mail-outline'"></ion-icon>
           <input
             type="text"
-            autocomplete="username"
-            placeholder="nama@email.com"
-            [(ngModel)]="email"
-            name="email" />
+            [placeholder]="jenisAkun === 'MITRA' ? 'Contoh: 081122334455 atau PT Daur Ulang Nusantara' : 'Masukkan email atau nomor handphone'"
+            [(ngModel)]="email" />
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="field-group">
         <label>Kata Sandi</label>
         <div class="input-box">
-          <ion-icon name="lock-closed-outline" class="prefix-icon"></ion-icon>
+          <ion-icon name="lock-closed-outline"></ion-icon>
           <input
             [type]="tampilkanSandi ? 'text' : 'password'"
-            autocomplete="current-password"
-            placeholder="Minimal 8 karakter"
+            placeholder="Masukkan kata sandi"
             [(ngModel)]="password"
-            name="password"
             (keyup.enter)="prosesLogin()" />
-          <ion-icon
-            [name]="tampilkanSandi ? 'eye-off-outline' : 'eye-outline'"
-            class="suffix-icon"
-            (click)="tampilkanSandi = !tampilkanSandi">
-          </ion-icon>
+          <button type="button" class="eye-btn" (click)="toggleSandi()">
+            <ion-icon [name]="tampilkanSandi ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
         </div>
       </div>
 
       <div class="options-row">
-        <div class="remember-me" (click)="ingatSaya = !ingatSaya">
-          <span class="check-box" [class.checked]="ingatSaya">
-            <ion-icon name="checkmark"></ion-icon>
-          </span>
+        <label class="remember-me">
+          <input type="checkbox" [(ngModel)]="ingatSaya" />
           <span>Ingat saya</span>
-        </div>
+        </label>
         <a class="forgot-link" (click)="lupaSandi()">Lupa Kata Sandi?</a>
       </div>
 
-      <ion-button expand="block" class="btn-submit-eco" (click)="prosesLogin()">
-        <span>Masuk ke Akun</span>
-        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-      </ion-button>
-    </div>
-
-    <!-- Login sosial -->
-    <div class="divider-line"><span>atau masuk dengan</span></div>
-
-    <div class="social-grid">
-      <button type="button" class="social-btn" (click)="loginSosial('Google')">
-        <svg class="google-icon" viewBox="0 0 48 48">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        <span>Google</span>
-      </button>
-
-      <button type="button" class="social-btn" (click)="loginSosial('Apple')">
-        <ion-icon name="logo-apple" class="apple-icon"></ion-icon>
-        <span>Apple</span>
+      <button type="button" class="btn-masuk" (click)="prosesLogin()">
+        <span>{{ jenisAkun === 'MITRA' ? 'Masuk ke Portal Mitra' : 'Masuk ke Akun' }}</span>
+        <ion-icon name="arrow-forward-outline"></ion-icon>
       </button>
     </div>
 
-    <!-- Daftar -->
-    <div class="bottom-redirect">
+    <!-- Pembatas Sosial -->
+    <div class="divider-line">
+      <span>atau masuk dengan</span>
+    </div>
+
+    <!-- Tombol Masuk dengan Google (Tanpa Apple) -->
+    <div class="social-single-wrap">
+      <button type="button" class="btn-google-full" (click)="loginSosial('Google')">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20" />
+        <span>Lanjutkan dengan Google ({{ jenisAkun === 'MITRA' ? 'Mitra' : 'Pribadi' }})</span>
+      </button>
+    </div>
+
+    <p class="bottom-register-text">
       Belum punya akun? <a (click)="keHalamanDaftar()">Daftar Sekarang</a>
-    </div>
+    </p>
 
   </div>
 </ion-content>

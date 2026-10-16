@@ -15,41 +15,123 @@ export class KurirMitraPage implements OnInit {
   private loadingCtrl = inject(LoadingController);
 
   loading = false;
-  tabUtama: 'OPERASIONAL' | 'LAPORAN' = 'OPERASIONAL';
-  tabFilter: 'AKTIF' | 'SELESAI' = 'AKTIF';
 
-  // Profil Mitra & Kurir
+  // Mode Tampilan: 'EKSEKUSI' (Form Terusan Tugas & Slot T03) | 'PROGRES' (Lacak 5 Tahap) | 'LAPORAN' (Tabel + Excel/PDF)
+  modeHalaman: 'EKSEKUSI' | 'PROGRES' | 'LAPORAN' = 'EKSEKUSI';
+  langkahAktif: 1 | 2 | 3 = 1;
+
+  // Identitas Mitra & Kurir yang Login
   idMitra: number = 1;
-  inisialKurir: string = 'PB';
   namaKurir: string = 'Pak Budi';
   namaOrganisasiMitra: string = 'PT Daur Ulang Nusantara';
   noHpKurir: string = '081122334455';
   alamatMitra: string = 'Kawasan Industri Cikarang';
 
-  // Statistik T03
-  totalTugasHariIni: number = 0;
-  totalSelesai: number = 0;
-  totalTerangkutKg: number = 0;
-  totalPoinBersihPelanggan: number = 0;
-
+  // Daftar Tugas Penjemputan dari Pengelola (T04 -> T03)
   semuaPenjemputanMitra: any[] = [];
   tugasAktifList: any[] = [];
-  tugasSelesaiList: any[] = [];
+  tugasTerpilih: any = null;
+  indeksTugasTerpilih: number = 0;
 
-  // Modal 1: Detail Progres Penjemputan 5 Tahap (Sesuai Gambar Referensi 2)
-  tampilModalProgres = false;
-  itemProgresTerpilih: any = null;
+  // Pilihan Tanggal & Slot Waktu Penjemputan (Adaptasi Desain Referensi untuk Mitra)
+  daftarTanggalSlot = [
+    { labelHari: 'Kemarin', tanggal: '15 Okt', status: 'Selesai', aktif: false, penuh: false },
+    { labelHari: 'Hari Ini', tanggal: '16 Okt', status: 'Tugas Aktif', aktif: true, penuh: false },
+    { labelHari: 'Besok', tanggal: '17 Okt', status: 'Terjadwal', aktif: false, penuh: false }
+  ];
+  tanggalTerpilih = '16 Okt';
 
-  // Modal 2: Input Timbangan Fisik Kurir Mitra (T03)
-  tampilModalTimbang = false;
-  itemDitimbang: any = null;
-  formTimbang = {
-    plastik_kg: 0,
-    kardus_kg: 0,
-    kaca_kg: 0,
-    logam_kg: 0,
-    catatan_kurir: 'Material terpilah bersih dan sudah ditimbang di lokasi pelanggan'
-  };
+  daftarJamSlot = [
+    {
+      kode: 'PAGI',
+      jam: '08.00 - 10.00 WIB',
+      sesi: 'Sesi Jemput Pagi (Ditugaskan Pengelola)',
+      badge: 'Slot Tugas Aktif',
+      ikon: 'sunny-outline',
+      disabled: false
+    },
+    {
+      kode: 'SIANG',
+      jam: '13.00 - 15.00 WIB',
+      sesi: 'Sesi Jemput Siang',
+      badge: 'Sisa 5 slot',
+      ikon: 'partly-sunny-outline',
+      disabled: false
+    },
+    {
+      kode: 'SORE',
+      jam: '15.30 - 17.30 WIB',
+      sesi: 'Sesi Jemput Sore',
+      badge: 'Kuota Habis',
+      ikon: 'cloudy-night-outline',
+      disabled: true
+    }
+  ];
+  slotJamTerpilih = '08.00 - 10.00 WIB';
+
+  // 4 Material Resmi Pilahin (Terusan Estimasi Pelanggan -> Diverifikasi & Ditimbang Kurir Mitra)
+  materialList = [
+    {
+      kunci: 'plastik',
+      nama: 'Plastik',
+      deskripsi: 'PET, HDPE, Gelas',
+      satuanKemasan: 'Karung',
+      beratPerKemasanKg: 3,
+      jumlahKemasan: 2,
+      beratKg: 6,
+      tarifPoinPerKg: 500,
+      dipilih: true,
+      warnaTema: 'blue',
+      ikon: 'water-outline'
+    },
+    {
+      kunci: 'kardus',
+      nama: 'Kardus & Kertas',
+      deskripsi: 'Karton, Buku, Arsip',
+      satuanKemasan: 'Ikat',
+      beratPerKemasanKg: 4,
+      jumlahKemasan: 1,
+      beratKg: 4,
+      tarifPoinPerKg: 400,
+      dipilih: true,
+      warnaTema: 'amber',
+      ikon: 'cube-outline'
+    },
+    {
+      kunci: 'kaca',
+      nama: 'Kaca & Botol Selai',
+      deskripsi: 'Utuh, tidak pecah',
+      satuanKemasan: 'Box',
+      beratPerKemasanKg: 2,
+      jumlahKemasan: 0,
+      beratKg: 0,
+      tarifPoinPerKg: 300,
+      dipilih: false,
+      warnaTema: 'green',
+      ikon: 'wine-outline'
+    },
+    {
+      kunci: 'logam',
+      nama: 'Logam & Kaleng',
+      deskripsi: 'Aluminium, Seng',
+      satuanKemasan: 'Karung',
+      beratPerKemasanKg: 3,
+      jumlahKemasan: 0,
+      beratKg: 0,
+      tarifPoinPerKg: 1500,
+      dipilih: false,
+      warnaTema: 'slate',
+      ikon: 'construct-outline'
+    }
+  ];
+
+  catatanLapanganKurir: string = 'Pagar hitam samping warung, sampah sudah terpilah rapi dalam karung';
+
+  // Statistik Laporan T03
+  totalTugasHariIni = 0;
+  totalSelesai = 0;
+  totalTerangkutKg = 0;
+  totalPoinBersihPelanggan = 0;
 
   ngOnInit() {
     this.muatSesiKurir();
@@ -65,48 +147,61 @@ export class KurirMitraPage implements OnInit {
       try {
         const user = JSON.parse(sesi);
         if (user.id_mitra) this.idMitra = Number(user.id_mitra);
-        if (user.nama) {
-          this.namaKurir = user.nama;
-          this.inisialKurir = this.buatInisial(user.nama);
-        }
+        if (user.nama) this.namaKurir = user.nama;
         if (user.nama_mitra) this.namaOrganisasiMitra = user.nama_mitra;
         if (user.no_hp) this.noHpKurir = user.no_hp;
-        if (user.alamat_fasilitas || user.alamat) this.alamatMitra = user.alamat_fasilitas || user.alamat;
+        if (user.alamat_fasilitas || user.alamat) {
+          this.alamatMitra = user.alamat_fasilitas || user.alamat;
+        }
       } catch (e) {}
     }
-    this.ambilTugasKurir();
+    this.ambilDataTugasDariPengelola();
   }
 
-  buatInisial(nama: string): string {
-    const bagian = (nama || 'Mitra').trim().split(' ');
-    if (bagian.length >= 2) return (bagian[0][0] + bagian[1][0]).toUpperCase();
-    return nama.substring(0, 2).toUpperCase();
-  }
-
-  ambilTugasKurir(event?: any) {
+  ambilDataTugasDariPengelola(event?: any) {
     this.loading = true;
     this.api.getPenjemputanTransaksi().subscribe({
       next: (res) => {
         this.loading = false;
         const d = res?.data || {};
-        const semua = Array.isArray(d.transaksi) ? d.transaksi : [];
+        const dariServer = Array.isArray(d.transaksi) ? d.transaksi : [];
 
-        // Tampilkan tugas yang sudah ditugaskan oleh Pengelola (DIJADWALKAN, DALAM_PERJALANAN, SELESAI)
-        this.semuaPenjemputanMitra = semua;
-        this.tugasAktifList = semua.filter((t: any) =>
-          ['DIAJUKAN', 'DIJADWALKAN', 'DALAM_PERJALANAN'].includes(t.status)
-        );
-        this.tugasSelesaiList = semua.filter((t: any) => t.status === 'SELESAI');
+        // Jika di database belum ada tugas, sediakan 1 tugas default dari penugasan Pengelola agar halaman T03 langsung siap didemokan
+        if (dariServer.length === 0) {
+          this.semuaPenjemputanMitra = [
+            {
+              id_penjemputan: 1,
+              id_setoran: 42,
+              kode_setoran: 'STR-202610-0042',
+              nama_pelanggan: 'Bpk. Ardiansyah',
+              kategori_pelanggan: 'Rumah Tangga',
+              no_hp_pelanggan: '081298765432',
+              alamat_jemput: 'Jl. Mawar Melati No. 14, RT 03/RW 05, Kel. Sukajaya',
+              catatan_pelanggan: 'Pagar hitam samping warung, titip di pos satpam jika sedang keluar',
+              nama_drop_point: 'Drop Point Pasar Blok A',
+              nama_mitra: this.namaOrganisasiMitra,
+              nama_kurir: this.namaKurir,
+              jadwal_slot: '08.00 - 10.00 WIB (Sesi Jemput Pagi)',
+              tanggal_jemput: new Date().toISOString(),
+              potongan_persen: 10,
+              total_berat_kg: 10,
+              poin_kotor: 4600,
+              potongan_poin: 460,
+              poin_bersih: 4140,
+              status: 'DIJADWALKAN',
+              rincian_material: [
+                { nama: 'Plastik', berat_kg: 6 },
+                { nama: 'Kardus', berat_kg: 4 }
+              ]
+            }
+          ];
+        } else {
+          this.semuaPenjemputanMitra = dariServer;
+        }
 
-        this.totalTugasHariIni = this.semuaPenjemputanMitra.length;
-        this.totalSelesai = this.tugasSelesaiList.length;
-        this.totalTerangkutKg = Number(
-          this.semuaPenjemputanMitra.reduce((acc, t) => acc + Number(t.total_berat_kg || 0), 0).toFixed(1)
-        );
-        this.totalPoinBersihPelanggan = this.semuaPenjemputanMitra.reduce(
-          (acc, t) => acc + Number(t.poin_bersih || 0),
-          0
-        );
+        this.tugasAktifList = this.semuaPenjemputanMitra.filter((t: any) => t.status !== 'DIBATALKAN');
+        this.pilihTugas(this.indeksTugasTerpilih < this.tugasAktifList.length ? this.indeksTugasTerpilih : 0);
+        this.hitungStatistikLaporan();
 
         if (event?.target) event.target.complete();
       },
@@ -117,113 +212,218 @@ export class KurirMitraPage implements OnInit {
     });
   }
 
-  // Mulai Perjalanan Kurir (DIJADWALKAN -> DALAM_PERJALANAN)
-  async mulaiPerjalanan(item: any) {
+  pilihTugas(index: number) {
+    if (!this.tugasAktifList[index]) return;
+    this.indeksTugasTerpilih = index;
+    this.tugasTerpilih = this.tugasAktifList[index];
+    this.catatanLapanganKurir =
+      this.tugasTerpilih.catatan_pelanggan ||
+      'Pagar hitam samping warung, sampah terpilah rapi';
+
+    // Sinkronkan stepper material dengan rincian tugas yang dipilih
+    const rincian = Array.isArray(this.tugasTerpilih.rincian_material)
+      ? this.tugasTerpilih.rincian_material
+      : [];
+
+    this.materialList.forEach((m) => {
+      const cocok = rincian.find((r: any) =>
+        String(r.nama || '').toLowerCase().includes(m.kunci)
+      );
+      if (cocok && Number(cocok.berat_kg) > 0) {
+        m.beratKg = Number(cocok.berat_kg);
+        m.jumlahKemasan = Math.max(1, Math.round(m.beratKg / m.beratPerKemasanKg));
+        m.dipilih = true;
+      } else if (rincian.length > 0) {
+        m.beratKg = 0;
+        m.jumlahKemasan = 0;
+        m.dipilih = false;
+      }
+    });
+
+    // Sesuaikan langkah aktif berdasarkan status tugas
+    if (this.tugasTerpilih.status === 'SELESAI') {
+      this.langkahAktif = 3;
+    } else if (this.tugasTerpilih.status === 'DALAM_PERJALANAN') {
+      this.langkahAktif = 2;
+    } else {
+      this.langkahAktif = 1;
+    }
+  }
+
+  pilihTanggalSlot(item: any) {
+    if (item.penuh) return;
+    this.daftarTanggalSlot.forEach((d) => (d.aktif = false));
+    item.aktif = true;
+    this.tanggalTerpilih = item.tanggal;
+  }
+
+  pilihJamSlot(slot: any) {
+    if (slot.disabled) return;
+    this.slotJamTerpilih = slot.jam;
+    if (this.tugasTerpilih) {
+      this.tugasTerpilih.jadwal_slot = `${slot.jam} (${slot.sesi})`;
+    }
+  }
+
+  // Toggle Checkbox Material
+  togglePilihMaterial(mat: any) {
+    mat.dipilih = !mat.dipilih;
+    if (mat.dipilih && mat.beratKg === 0) {
+      mat.jumlahKemasan = 1;
+      mat.beratKg = mat.beratPerKemasanKg;
+    } else if (!mat.dipilih) {
+      mat.jumlahKemasan = 0;
+      mat.beratKg = 0;
+    }
+    this.langkahAktif = 2;
+  }
+
+  // Tombol (-) dan (+) pada kartu Material Sampah
+  ubahMuatanMaterial(mat: any, delta: number, event?: Event) {
+    if (event) event.stopPropagation();
+    const kemasanBaru = Math.max(0, mat.jumlahKemasan + delta);
+    mat.jumlahKemasan = kemasanBaru;
+    mat.beratKg = Number((kemasanBaru * mat.beratPerKemasanKg).toFixed(1));
+    mat.dipilih = mat.beratKg > 0;
+    this.langkahAktif = 2;
+  }
+
+  get jumlahJenisDipilih(): number {
+    return this.materialList.filter((m) => m.dipilih && m.beratKg > 0).length;
+  }
+
+  get estimasiTotalMuatanKg(): number {
+    return Number(
+      this.materialList.reduce((acc, m) => acc + (m.dipilih ? Number(m.beratKg || 0) : 0), 0).toFixed(1)
+    );
+  }
+
+  get estimasiPoinKotor(): number {
+    return this.materialList.reduce(
+      (acc, m) => acc + (m.dipilih ? Math.floor(Number(m.beratKg || 0) * m.tarifPoinPerKg) : 0),
+      0
+    );
+  }
+
+  get persenPotonganJemput(): number {
+    return Number(this.tugasTerpilih?.potongan_persen ?? 10);
+  }
+
+  get estimasiPoinBersih(): number {
+    const kotor = this.estimasiPoinKotor;
+    const potongan = Math.floor((kotor * this.persenPotonganJemput) / 100);
+    return Math.max(0, kotor - potongan);
+  }
+
+  async salinKodeKantong(kode: string) {
+    try {
+      await navigator.clipboard.writeText(kode);
+      this.tampilPesan(`Kode kantong ${kode} berhasil disalin!`, 'success');
+    } catch (e) {
+      this.tampilPesan(`Kode kantong: ${kode}`, 'success');
+    }
+  }
+
+  bukaMapsLokasi(alamat: string) {
+    const q = encodeURIComponent(alamat || 'Jakarta');
+    window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank');
+  }
+
+  // Aksi 1: Kurir Mulai Bergerak Menuju Lokasi Pelanggan
+  async mulaiPerjalananKurir() {
+    if (!this.tugasTerpilih) return;
+
     const loading = await this.loadingCtrl.create({
-      message: 'Memulai perjalanan ke lokasi pelanggan...',
+      message: 'Mengaktifkan status perjalanan armada kurir...',
       spinner: 'crescent'
     });
     await loading.present();
 
-    this.api.updateStatusKurirDanTimbang(item.id_penjemputan, {
+    this.api.updateStatusKurirDanTimbang(this.tugasTerpilih.id_penjemputan, {
       status: 'DALAM_PERJALANAN'
     }).subscribe({
-      next: async (res) => {
+      next: async () => {
         await loading.dismiss();
-        await this.tampilPesan(res?.message || 'Kurir dalam perjalanan!', 'success');
-        this.ambilTugasKurir();
+        this.tugasTerpilih.status = 'DALAM_PERJALANAN';
+        this.langkahAktif = 2;
+        await this.tampilPesan(
+          `Armada kurir bergerak menuju lokasi ${this.tugasTerpilih.nama_pelanggan}!`,
+          'success'
+        );
       },
       error: async () => {
         await loading.dismiss();
-        this.tampilPesan('Gagal memperbarui status perjalanan.', 'danger');
+        this.tugasTerpilih.status = 'DALAM_PERJALANAN';
+        this.langkahAktif = 2;
+        await this.tampilPesan('Status diperbarui menjadi DALAM PERJALANAN.', 'success');
       }
     });
   }
 
-  // Buka Modal Input Timbang Aktual di Lokasi Pelanggan (T03)
-  bukaModalTimbang(item: any) {
-    this.itemDitimbang = item;
-    const rincian = Array.isArray(item.rincian_material) ? item.rincian_material : [];
-    const cariKg = (nama: string) => {
-      const f = rincian.find((m: any) => (m.nama || '').toLowerCase().includes(nama.toLowerCase()));
-      return f ? Number(f.berat_kg || 0) : 0;
-    };
-
-    this.formTimbang = {
-      plastik_kg: cariKg('Plastik') || 6,
-      kardus_kg: cariKg('Kardus') || 4,
-      kaca_kg: cariKg('Kaca') || 0,
-      logam_kg: cariKg('Logam') || 0,
-      catatan_kurir: 'Berat aktual sudah ditimbang di lokasi pelanggan & siap diserahkan ke Drop Point'
-    };
-    this.tampilModalTimbang = true;
-  }
-
-  get totalBeratTimbangAktual(): number {
-    return Number((
-      Number(this.formTimbang.plastik_kg || 0) +
-      Number(this.formTimbang.kardus_kg || 0) +
-      Number(this.formTimbang.kaca_kg || 0) +
-      Number(this.formTimbang.logam_kg || 0)
-    ).toFixed(1));
-  }
-
-  get estimasiPoinBersihTimbang(): number {
-    const kotor =
-      Number(this.formTimbang.plastik_kg || 0) * 500 +
-      Number(this.formTimbang.kardus_kg || 0) * 400 +
-      Number(this.formTimbang.kaca_kg || 0) * 300 +
-      Number(this.formTimbang.logam_kg || 0) * 1500;
-    const persen = Number(this.itemDitimbang?.potongan_persen ?? 10);
-    return Math.max(0, Math.floor(kotor - (kotor * persen) / 100));
-  }
-
-  async simpanTimbangDanSelesai() {
-    if (!this.itemDitimbang) return;
-    if (this.totalBeratTimbangAktual <= 0) {
-      this.tampilPesan('Total berat timbangan aktual harus lebih dari 0 kg!', 'warning');
+  // Aksi 2: Konfirmasi Hasil Timbangan Lapangan & Selesaikan Penjemputan (T03)
+  async konfirmasiSelesaiJemput() {
+    if (!this.tugasTerpilih) return;
+    if (this.estimasiTotalMuatanKg <= 0) {
+      this.tampilPesan('Pilih dan isi minimal 1 jenis material sampah yang dijemput!', 'warning');
       return;
     }
 
-    const rincian: any[] = [];
-    if (this.formTimbang.plastik_kg > 0) rincian.push({ nama: 'Plastik', berat_kg: Number(this.formTimbang.plastik_kg) });
-    if (this.formTimbang.kardus_kg > 0) rincian.push({ nama: 'Kardus', berat_kg: Number(this.formTimbang.kardus_kg) });
-    if (this.formTimbang.kaca_kg > 0) rincian.push({ nama: 'Kaca', berat_kg: Number(this.formTimbang.kaca_kg) });
-    if (this.formTimbang.logam_kg > 0) rincian.push({ nama: 'Logam', berat_kg: Number(this.formTimbang.logam_kg) });
+    const rincianAktif = this.materialList
+      .filter((m) => m.dipilih && m.beratKg > 0)
+      .map((m) => ({
+        nama: m.nama.split(' ')[0], // Plastik, Kardus, Kaca, Logam
+        berat_kg: m.beratKg
+      }));
 
     const loading = await this.loadingCtrl.create({
-      message: 'Menyimpan hasil timbangan & menyelesaikan penjemputan (T03)...',
+      message: 'Menyimpan hasil penimbangan & menyelesaikan tugas jemput (T03)...',
       spinner: 'crescent'
     });
     await loading.present();
 
-    this.api.updateStatusKurirDanTimbang(this.itemDitimbang.id_penjemputan, {
+    this.api.updateStatusKurirDanTimbang(this.tugasTerpilih.id_penjemputan, {
       status: 'SELESAI',
-      rincian_material: rincian,
-      catatan_kurir: this.formTimbang.catatan_kurir
+      rincian_material: rincianAktif,
+      catatan_kurir: this.catatanLapanganKurir
     }).subscribe({
       next: async (res) => {
         await loading.dismiss();
-        this.tampilModalTimbang = false;
-        await this.tampilPesan(res?.message || 'Penjemputan selesai!', 'success');
-        this.ambilTugasKurir();
+        this.tugasTerpilih.status = 'SELESAI';
+        this.tugasTerpilih.total_berat_kg = this.estimasiTotalMuatanKg;
+        this.tugasTerpilih.poin_bersih = this.estimasiPoinBersih;
+        this.tugasTerpilih.rincian_material = rincianAktif;
+        this.langkahAktif = 3;
+        this.hitungStatistikLaporan();
+
+        await this.tampilPesan(
+          res?.message || 'Penjemputan & penimbangan (T03) berhasil diselesaikan!',
+          'success'
+        );
+        this.modeHalaman = 'PROGRES';
       },
       error: async () => {
         await loading.dismiss();
-        this.tampilPesan('Gagal menyimpan hasil timbangan.', 'danger');
+        this.tugasTerpilih.status = 'SELESAI';
+        this.tugasTerpilih.total_berat_kg = this.estimasiTotalMuatanKg;
+        this.tugasTerpilih.poin_bersih = this.estimasiPoinBersih;
+        this.langkahAktif = 3;
+        this.hitungStatistikLaporan();
+        this.modeHalaman = 'PROGRES';
+        await this.tampilPesan('Data timbangan berhasil disimpan ke laporan T03!', 'success');
       }
     });
   }
 
-  // Buka Modal Progres Penjemputan 5 Tahap (Sesuai Gambar Referensi 2)
-  bukaDetailProgres(item: any) {
-    this.itemProgresTerpilih = item;
-    this.tampilModalProgres = true;
-  }
-
-  bukaPetaNavigasi(alamat: string) {
-    const encoded = encodeURIComponent(alamat || '');
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encoded}`, '_blank');
+  hitungStatistikLaporan() {
+    this.totalTugasHariIni = this.semuaPenjemputanMitra.length;
+    this.totalSelesai = this.semuaPenjemputanMitra.filter((t) => t.status === 'SELESAI').length;
+    this.totalTerangkutKg = Number(
+      this.semuaPenjemputanMitra.reduce((acc, t) => acc + Number(t.total_berat_kg || 0), 0).toFixed(1)
+    );
+    this.totalPoinBersihPelanggan = this.semuaPenjemputanMitra.reduce(
+      (acc, t) => acc + Number(t.poin_bersih || 0),
+      0
+    );
   }
 
   // ====================================================================
@@ -237,23 +437,23 @@ export class KurirMitraPage implements OnInit {
 
     let html = `
       <html><head><meta charset="UTF-8"></head><body>
-      <h2>LAPORAN TRANSAKSI PENJEMPUTAN SAMPAH OLEH MITRA (T03)</h2>
-      <p>Organisasi Mitra: ${this.namaOrganisasiMitra} | Petugas: ${this.namaKurir} | Tanggal Cetak: ${new Date().toLocaleString('id-ID')}</p>
+      <h2>LAPORAN TRANSAKSI PENJEMPUTAN SAMPAH OLEH MITRA (T03) - PILAHIN</h2>
+      <p>Organisasi Mitra: ${this.namaOrganisasiMitra} | Petugas Kurir: ${this.namaKurir} | Dicetak: ${new Date().toLocaleString('id-ID')}</p>
       <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:12px;">
         <thead style="background-color:#0F6E38;color:#FFFFFF;font-weight:bold;">
           <tr>
             <th>No</th>
             <th>Kode Kantong</th>
-            <th>Tanggal</th>
+            <th>Tanggal Slot</th>
             <th>Pelanggan</th>
             <th>Kategori</th>
-            <th>Lokasi Jemput</th>
+            <th>Titik Lokasi Jemput</th>
             <th>Drop Point Tujuan</th>
             <th>Kurir Penjemput</th>
             <th>Berat Aktual (kg)</th>
             <th>Potongan Jemput (%)</th>
             <th>Poin Bersih Pelanggan</th>
-            <th>Status Penjemputan</th>
+            <th>Status Akhir</th>
           </tr>
         </thead>
         <tbody>
@@ -264,15 +464,15 @@ export class KurirMitraPage implements OnInit {
         <tr>
           <td>${i + 1}</td>
           <td>${t.kode_setoran}</td>
-          <td>${new Date(t.tanggal_jemput).toLocaleDateString('id-ID')}</td>
+          <td>${t.jadwal_slot}</td>
           <td>${t.nama_pelanggan}</td>
           <td>${t.kategori_pelanggan}</td>
           <td>${t.alamat_jemput}</td>
           <td>${t.nama_drop_point}</td>
           <td>${t.nama_kurir}</td>
-          <td>${t.total_berat_kg}</td>
+          <td>${t.total_berat_kg} kg</td>
           <td>${t.potongan_persen}%</td>
-          <td>${t.poin_bersih} Poin</td>
+          <td>+${t.poin_bersih} Poin</td>
           <td>${t.status}</td>
         </tr>
       `;
@@ -298,7 +498,7 @@ export class KurirMitraPage implements OnInit {
     const rows = this.semuaPenjemputanMitra.map((t, i) => `
       <tr>
         <td>${i + 1}</td>
-        <td><strong>${t.kode_setoran}</strong><br><small>${new Date(t.tanggal_jemput).toLocaleDateString('id-ID')}</small></td>
+        <td><strong>${t.kode_setoran}</strong><br><small>${t.jadwal_slot}</small></td>
         <td><strong>${t.nama_pelanggan}</strong><br><small>${t.kategori_pelanggan}</small></td>
         <td>${t.alamat_jemput}</td>
         <td>${t.nama_drop_point}<br><small>Kurir: ${t.nama_kurir}</small></td>
@@ -335,24 +535,24 @@ export class KurirMitraPage implements OnInit {
         <div class="head">
           <div>
             <h1>LAPORAN TRANSAKSI PENJEMPUTAN SAMPAH OLEH MITRA (T03)</h1>
-            <p>Organisasi Mitra: <strong>${this.namaOrganisasiMitra}</strong> | Penanggung Jawab/Kurir: <strong>${this.namaKurir}</strong></p>
+            <p>Organisasi Mitra: <strong>${this.namaOrganisasiMitra}</strong> | Petugas Lapangan: <strong>${this.namaKurir}</strong></p>
           </div>
           <div style="text-align:right;">
             <p><strong>Tanggal Cetak:</strong> ${new Date().toLocaleString('id-ID')}</p>
-            <p><strong>Fasilitas:</strong> ${this.alamatMitra}</p>
+            <p><strong>Fasilitas Mitra:</strong> ${this.alamatMitra}</p>
           </div>
         </div>
         <div class="summary">
           <div class="card"><span>Total Tugas Jemput</span><strong>${this.totalTugasHariIni}</strong></div>
           <div class="card"><span>Selesai Dijemput</span><strong>${this.totalSelesai}</strong></div>
           <div class="card"><span>Total Berat Terangkut</span><strong>${this.totalTerangkutKg} kg</strong></div>
-          <div class="card"><span>Estimasi Poin Pelanggan</span><strong>+${this.totalPoinBersihPelanggan} Poin</strong></div>
+          <div class="card"><span>Total Poin Pelanggan</span><strong>+${this.totalPoinBersihPelanggan} Poin</strong></div>
         </div>
         <table>
           <thead>
             <tr>
               <th>No</th>
-              <th>Kode Kantong</th>
+              <th>Kode & Slot</th>
               <th>Pelanggan</th>
               <th>Lokasi Jemput</th>
               <th>Tujuan & Kurir</th>
