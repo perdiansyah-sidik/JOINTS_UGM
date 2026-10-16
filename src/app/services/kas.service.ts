@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export type PosDana = 'HASIL_PENJUALAN' | 'CADANGAN_POIN' | 'KOMUNITAS' | 'OPERASIONAL';
@@ -60,12 +60,9 @@ export class KasService {
     };
   }
 
-  // Mendapatkan daftar mutasi kas (mendukung varian URL backend)
+  // Semua penulisan memakai satu endpoint agar kesalahan jaringan tidak membuat transaksi ganda.
   getMutasiKas(): Observable<MutasiKas[]> {
     return this.http.get<any>(`${this.baseUrl}/mutasi-kas`, this.opsi()).pipe(
-      catchError(() => this.http.get<any>(`${this.baseUrl}/mutasi_kas`, this.opsi())),
-      catchError(() => this.http.get<any>(`${this.baseUrl}/t_mutasi_kas`, this.opsi())),
-      catchError(() => this.http.get<any>(`${this.baseUrl}/kas`, this.opsi())),
       map((res) => {
         const data = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
         return data.map((m: any) => ({
@@ -99,7 +96,7 @@ export class KasService {
     );
   }
 
-  // Mencatat penerimaan pelunasan penjualan (Alokasi 40/10/50)
+  // Alokasi dana ditentukan konfigurasi server dan disimpan sebagai snapshot oleh API.
   catatPelunasanPenjualan(payload: {
     id_penjualan: number;
     jumlah_rupiah: number;
@@ -108,17 +105,13 @@ export class KasService {
     keterangan?: string;
     dicatat_oleh?: number;
     waktu_transaksi?: string;
+    request_key?: string;
   }): Observable<any> {
     const body = {
       ...payload,
-      pos_dana: 'HASIL_PENJUALAN',
-      persen_cadangan_snapshot: 40.0,
-      persen_komunitas_snapshot: 10.0,
+      request_key: payload.request_key || crypto.randomUUID(),
     };
-    return this.http.post(`${this.baseUrl}/mutasi-kas/penjualan`, body, this.opsi()).pipe(
-      catchError(() => this.http.post(`${this.baseUrl}/mutasi_kas/penjualan`, body, this.opsi())),
-      catchError(() => this.http.post(`${this.baseUrl}/t_mutasi_kas/penjualan`, body, this.opsi()))
-    );
+    return this.http.post(`${this.baseUrl}/mutasi-kas/penjualan`, body, this.opsi());
   }
 
   // Mencatat modal cadangan atau pengeluaran operasional/komunitas
@@ -131,10 +124,8 @@ export class KasService {
     keterangan: string;
     dicatat_oleh?: number;
     waktu_transaksi?: string;
+    request_key?: string;
   }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/mutasi-kas`, payload, this.opsi()).pipe(
-      catchError(() => this.http.post(`${this.baseUrl}/mutasi_kas`, payload, this.opsi())),
-      catchError(() => this.http.post(`${this.baseUrl}/t_mutasi_kas`, payload, this.opsi()))
-    );
+    return this.http.post(`${this.baseUrl}/mutasi-kas`, { ...payload, request_key: payload.request_key || crypto.randomUUID() }, this.opsi());
   }
 }

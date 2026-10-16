@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-master-drop-point',
@@ -15,7 +16,7 @@ export class MasterDropPointPage {
   kataKunci: string = '';
   filterStatus: string = 'SEMUA'; // SEMUA, AKTIF, NONAKTIF
   
-  apiUrl: string = 'https://7n947wwl-3000.asse.devtunnels.ms/api';
+  apiUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -75,15 +76,13 @@ export class MasterDropPointPage {
   konfirmasiToggleStatus(dp: any) {
     const aksi = dp.aktif === 1 ? 'menonaktifkan' : 'mengaktifkan';
     if (confirm(`Apakah Anda yakin ingin ${aksi} drop point ini?`)) {
-      console.log('API Toggle Status untuk ID:', dp.id_drop_point);
-      alert('Akan dihubungkan ke API (PATCH) untuk mengubah status.');
+      this.http.patch(`${this.apiUrl}/drop-points/${dp.id_drop_point}/status`, {aktif: dp.aktif === 1 ? 0 : 1}).subscribe({next:()=>this.muatData(),error:(e:any)=>alert(e.error?.message || 'Gagal mengubah status.')});
     }
   }
 
   konfirmasiSoftDelete(dp: any) {
     if (confirm('Apakah Anda yakin ingin menghapus (soft-delete) drop point ini?')) {
-      console.log('API Soft Delete untuk ID:', dp.id_drop_point);
-      alert('Akan dihubungkan ke API (DELETE).');
+      this.http.delete(`${this.apiUrl}/drop-points/${dp.id_drop_point}`).subscribe({next:()=>this.muatData(),error:(e:any)=>alert(e.error?.message || 'Gagal menghapus data.')});
     }
   }
 }

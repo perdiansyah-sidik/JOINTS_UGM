@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -279,7 +279,7 @@ export class LaporanService {
     return this.http.get<any>(`${this.baseUrl}/setoran`, this.opsi()).pipe(
       map((res) => {
         const data = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
-        if (!data.length) {
+        if (!data.length && environment.demoMode) {
           return this.generateMockLaporan();
         }
 
@@ -322,13 +322,13 @@ export class LaporanService {
             kode_setoran: `ST-${id}`,
             tanggal,
             waktu: tanggalRaw.substring(11, 16) + ' WIB',
-            id_pelanggan: s.id_pelanggan || 1,
-            nama_pelanggan: s.nama_pelanggan || s.nama || 'Warga Pilahin',
+            id_pelanggan: s.id_pelanggan || s.id_pengguna,
+            nama_pelanggan: s.nama_pelanggan || s.nama_pengguna || s.nama || 'Pelanggan',
             sumber_pelanggan: sumber,
             metode,
-            id_drop_point: s.id_drop_point || 1,
-            nama_drop_point: s.nama_drop_point || 'Drop Point Pusat',
-            status: s.status || 'FINAL',
+            id_drop_point: s.id_drop_point,
+            nama_drop_point: s.nama_drop_point || 'Drop point',
+            status: ({1:'DRAFT',2:'DIAJUKAN',3:'FINAL',4:'DITOLAK'} as any)[s.status] || s.status,
             potongan_persen: potonganPersen,
             total_berat_diterima: beratDiterima || Number(s.total_berat_kg || 0),
             total_berat_ditolak: beratDitolak,
@@ -342,7 +342,7 @@ export class LaporanService {
           };
         });
       }),
-      catchError(() => of(this.generateMockLaporan()))
+      catchError(error => environment.demoMode ? of(this.generateMockLaporan()) : throwError(() => error))
     );
   }
 }

@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar class="profile-toolbar">
+    <ion-buttons slot="start">
+      <ion-button [disabled]="busy" (click)="kembali()" aria-label="Kembali"><ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon></ion-button>
+    </ion-buttons>
+    <ion-title>Profil Saya</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+  <ng-container *ngIf="pengguna as user">
+    <div class="profile-hero">
+      <label class="avatar-picker" for="profile-photo" title="Pilih foto profil">
+        <img *ngIf="fotoProfil; else avatarInitial" [src]="fotoProfil" alt="Foto profil" />
+        <ng-template #avatarInitial><span>{{ user.nama.charAt(0).toUpperCase() }}</span></ng-template>
+        <span class="camera-icon"><ion-icon name="camera-outline"></ion-icon></span>
+      </label>
+      <input id="profile-photo" type="file" accept="image/jpeg,image/png,image/webp" [disabled]="busy" (change)="pilihFoto($event)" aria-label="Unggah foto profil" />
+      <h1>{{ user.nama }}</h1>
+      <span class="role-pill">{{ peran }}</span>
+      <p>Ketuk foto untuk memilih gambar</p><ion-button [disabled]="busy" *ngIf="fotoProfil" fill="clear" (click)="hapusFoto()">Hapus foto</ion-button>
+    </div>
+
+    <div class="profile-body">
+      <section class="profile-card">
+        <h2>Informasi akun</h2>
+        <div class="info-row"><ion-icon name="mail-outline"></ion-icon><div><small>Email</small><strong>{{ user.email }}</strong></div></div>
+        <div class="info-row"><ion-icon name="call-outline"></ion-icon><div><small>Telepon</small><strong>{{ user.no_hp || 'Belum diisi' }}</strong></div></div>
+        <div class="info-row" *ngIf="user.nama_usaha"><ion-icon name="storefront-outline"></ion-icon><div><small>Nama usaha</small><strong>{{ user.nama_usaha }}</strong></div></div>
+        <div class="info-row"><ion-icon name="location-outline"></ion-icon><div><small>Alamat</small><strong>{{ user.alamat || 'Belum diisi' }}</strong></div></div>
+      </section>
+
+      <section class="profile-card edit-card" *ngIf="sedangEdit">
+        <h2>Edit profil</h2>
+        <ion-input label="Nama" labelPlacement="stacked" fill="outline" maxlength="100" [(ngModel)]="draft.nama"></ion-input>
+        <ion-input label="Telepon" labelPlacement="stacked" fill="outline" maxlength="20" type="tel" [(ngModel)]="draft.no_hp"></ion-input>
+        <ion-input label="Alamat" labelPlacement="stacked" fill="outline" maxlength="255" [(ngModel)]="draft.alamat"></ion-input>
+        <ion-input *ngIf="user.peran === 2 || user.peran === 3" label="Nama usaha" labelPlacement="stacked" fill="outline" maxlength="150" [(ngModel)]="draft.nama_usaha"></ion-input>
+        <ion-input *ngIf="!demoMode" label="Email" labelPlacement="stacked" fill="outline" maxlength="150" type="email" [(ngModel)]="draft.email"></ion-input>
+        <p *ngIf="!demoMode">Untuk mengganti email atau password, masukkan password saat ini.</p>
+        <ion-input *ngIf="!demoMode" label="Password saat ini" labelPlacement="stacked" fill="outline" type="password" autocomplete="current-password" [(ngModel)]="draft.password_lama"></ion-input>
+        <ion-input *ngIf="!demoMode" label="Password baru (opsional, minimal 8 karakter)" labelPlacement="stacked" fill="outline" type="password" autocomplete="new-password" maxlength="128" [(ngModel)]="draft.password_baru"></ion-input>
+        <div class="edit-actions">
+          <ion-button [disabled]="busy" fill="outline" color="medium" (click)="sedangEdit = false">Batal</ion-button>
+          <ion-button [disabled]="busy" color="success" (click)="simpanEdit()">Simpan</ion-button>
+        </div>
+      </section>
+
+      <p class="storage-note">{{ demoMode ? 'Foto dan perubahan profil demo tersimpan di browser ini, belum di Supabase.' : 'Profil dan foto tersimpan di Supabase.' }}</p>
+      <ion-button [disabled]="busy" expand="block" class="edit-button" (click)="mulaiEdit()"><ion-icon slot="start" name="create-outline"></ion-icon>Edit Profil</ion-button>
+      <ion-button [disabled]="busy" expand="block" class="logout-button" fill="outline" (click)="keluar()"><ion-icon slot="start" name="log-out-outline"></ion-icon>Keluar</ion-button>
+    </div>
+  </ng-container>
+</ion-content>

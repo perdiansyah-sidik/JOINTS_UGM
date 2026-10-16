@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { NavController, ToastController, LoadingController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { timeout, finalize } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../demo/demo-accounts';
 
 @Component({
   selector: 'app-login',
@@ -20,10 +22,17 @@ export class LoginPage implements OnInit {
   tampilkanSandi = false;
   ingatSaya = false;
   peran: 'pribadi' | 'mitra' = 'pribadi';
+  readonly demoMode = environment.demoMode;
+  readonly demoAccounts = DEMO_ACCOUNTS;
+  readonly demoPassword = DEMO_PASSWORD;
 
-  get jenisAkun(): 'PRIBADI' | 'MITRA' {
-    return this.peran === 'mitra' ? 'MITRA' : 'PRIBADI';
+  pilihAkunDemo(email: string) {
+    this.email = email;
+    this.password = DEMO_PASSWORD;
+    this.peran = email.startsWith('mitra@') ? 'mitra' : 'pribadi';
   }
+
+  get jenisAkun(): 'PRIBADI' | 'MITRA' { return this.peran === 'mitra' ? 'MITRA' : 'PRIBADI'; }
 
   ngOnInit() {
     // Isi otomatis email bila sebelumnya memilih "Ingat saya"
@@ -38,14 +47,14 @@ export class LoginPage implements OnInit {
     this.peran = peran;
   }
 
- async prosesLogin() {
-    const emailInput = this.email.trim();
-    const passwordInput = this.password.trim();
-
-    if (!emailInput || !passwordInput) {
-      this.tampilPesan('Mohon isi Email/No. HP dan Kata Sandi terlebih dahulu!', 'warning');
+  async prosesLogin() {
+    if (!this.email.trim() || !this.password) {
+      this.tampilPesan('Masukkan email dan password Anda!', 'warning');
       return;
     }
+
+    localStorage.removeItem('ecoapp_token');
+    localStorage.removeItem('ecoapp_user');
 
     const loading = await this.loadingCtrl.create({
       message: 'Memverifikasi akun...',
@@ -53,11 +62,7 @@ export class LoginPage implements OnInit {
     });
     await loading.present();
 
-    this.api.login({
-      email: emailInput,
-      password: passwordInput,
-      jenis_akun: this.jenisAkun
-    })
+    this.api.login({ email: this.email.trim().toLowerCase(), password: this.password })
       .pipe(
         timeout(10000),
         finalize(() => {
@@ -65,25 +70,29 @@ export class LoginPage implements OnInit {
         })
       )
       .subscribe({
-        next: async (res: any) => {
+        next: async (res) => {
+          if (typeof res?.token !== 'string' || !res.token) {
+            this.tampilPesan('Sesi dari server tidak tersedia. Coba masuk lagi.', 'danger');
+            return;
+          }
+          localStorage.setItem('ecoapp_token', res.token);
           if (res && res.data) {
             localStorage.setItem('ecoapp_user', JSON.stringify(res.data));
           }
 
-          // Jika login sebagai Mitra / Komunitas, arahkan langsung ke /dashboard-mitra
-          if (this.jenisAkun === 'MITRA' || res?.data?.peran_aplikasi === 'MITRA' || res?.data?.id_mitra) {
-            await this.tampilPesan(
-              `Selamat datang, ${res?.data?.nama_mitra || res?.data?.nama || 'Mitra Pilahin'}!`,
-              'success'
-            );
-            this.navCtrl.navigateRoot('/dashboard-mitra', { animated: true, animationDirection: 'forward' });
+          if (this.ingatSaya) {
+            localStorage.setItem('ecoapp_remember_email', this.email.trim());
           } else {
-            await this.tampilPesan(`Selamat datang, ${res?.data?.nama || 'Pengguna'}!`, 'success');
-            this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
+            localStorage.removeItem('ecoapp_remember_email');
           }
+
+          await this.tampilPesan(`Selamat datang, ${res.data?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
+          const peran = Number(res.data?.peran);
+          const tujuan = peran === 4 ? '/dashboard-pengelola' : peran === 5 ? '/dashboard-mitra' : '/dashboard';
+          await this.navCtrl.navigateRoot(tujuan, { animated: true, animationDirection: 'forward' });
         },
-        error: async (err: any) => {
-          const msg = err?.error?.message || 'Email/No. HP atau Kata Sandi salah!';
+        error: async (err) => {
+          const msg = err.error?.message || 'Email atau password salah!';
           this.tampilPesan(msg, 'danger');
         }
       });

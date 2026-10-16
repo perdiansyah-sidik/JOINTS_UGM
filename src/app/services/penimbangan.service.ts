@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface DetailSetoranInput {
@@ -61,7 +61,6 @@ export class PenimbanganService {
   // Mendapatkan daftar setoran yang siap ditimbang atau diverifikasi
   getDaftarSetoran(): Observable<SetoranTimbang[]> {
     return this.http.get<any>(`${this.baseUrl}/setoran`, this.opsi()).pipe(
-      catchError(() => this.http.get<any>(`${this.baseUrl}/setoran/antrean`, this.opsi())),
       map((res) => {
         const data = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
         return data.map((s: any) => ({
@@ -69,7 +68,7 @@ export class PenimbanganService {
           id_setoran: s.id_setoran ?? s.id,
           id_pelanggan: s.id_pelanggan ?? s.id_pengguna,
           potongan_persen: Number(s.potongan_persen_disepakati ?? s.potongan_persen ?? 0),
-          status_drop_point: s.status_terima_drop_point ?? s.status_drop_point ?? 'MENUNGGU',
+          status_drop_point: s.status_drop_point ?? 'MENUNGGU',
         }));
       })
     );
@@ -91,7 +90,15 @@ export class PenimbanganService {
     ditimbang_oleh?: number;
     details: DetailSetoranInput[];
   }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/setoran/${payload.id_setoran}/timbang`, payload, this.opsi());
+    return this.http.put(`${this.baseUrl}/setoran/${payload.id_setoran}/timbang`, {
+      foto_bukti: payload.foto_bukti,
+      detail: payload.details.map(d => ({
+        id_jenis_sampah: d.id_jenis_sampah,
+        berat_diterima_kg: d.berat_diterima_kg,
+        berat_ditolak_kg: d.berat_ditolak_kg,
+        alasan_penolakan: d.alasan_penolakan,
+      })),
+    }, this.opsi());
   }
 
   // Pengelola memverifikasi setoran menjadi FINAL (3) atau DITOLAK (4)
@@ -102,6 +109,9 @@ export class PenimbanganService {
     diverifikasi_oleh?: number;
     waktu_verifikasi?: string;
   }): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/setoran/${payload.id_setoran}/verifikasi`, payload, this.opsi());
+    return this.http.patch(`${this.baseUrl}/setoran/${payload.id_setoran}/verifikasi`, {
+      aksi: payload.status === 3 || payload.status === 'FINAL' ? 'FINAL' : 'TOLAK',
+      catatan: payload.catatan_verifikasi,
+    }, this.opsi());
   }
 }

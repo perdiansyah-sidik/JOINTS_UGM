@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http'; // <-- Import HttpClient
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-terima-di-titik',
@@ -15,7 +16,7 @@ export class TerimaDiTitikPage implements OnInit {
   catatanPenerimaan: string = '';
 
   // Ganti URL ini dengan URL backend-mu (misal: localhost atau link devtunnels)
-  apiUrl: string = 'https://7n947wwl-3000.asse.devtunnels.ms/api';
+  apiUrl: string = environment.apiUrl;
 
   constructor(
     private router: Router,
@@ -89,7 +90,7 @@ export class TerimaDiTitikPage implements OnInit {
       },
       error: (err) => {
         console.error('Gagal menyimpan:', err);
-        alert('Gagal menyimpan konfirmasi penerimaan.');
+        alert(err.error?.message || 'Gagal menyimpan konfirmasi penerimaan.');
       }
     });
   }
@@ -97,7 +98,7 @@ export class TerimaDiTitikPage implements OnInit {
   simpanVerifikasiFinal() {
     // Siapkan Payload Data Verifikasi
     const payloadVerifikasi = {
-      diverifikasi_oleh: 2, // ID Pengelola yang login (sementara hardcode)
+      // Identitas pengelola diambil server dari token login.
       catatan_verifikasi: "Verifikasi aman, sesuai standar.",
       detailVerifikasi: this.dataSetoran.detailMaterial.map((item: any) => ({
         id_detail_setoran: item.id_detail_setoran,
@@ -117,7 +118,7 @@ export class TerimaDiTitikPage implements OnInit {
       },
       error: (err) => {
         console.error('Gagal memverifikasi:', err);
-        alert('Terjadi kesalahan saat memverifikasi setoran.');
+        alert(err.error?.message || 'Terjadi kesalahan saat memverifikasi setoran.');
       }
     });
   }

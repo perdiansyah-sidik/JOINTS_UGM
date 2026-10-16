@@ -51,7 +51,7 @@
 
       <div class="card-divider"></div>
 
-      <div class="fund-split-row">
+      <div class="fund-split-row" *ngIf="demoMode">
         <span class="split-pill">Cadangan 40%</span>
         <span class="split-dot">&bull;</span>
         <span class="split-pill">Komunitas 10%</span>
@@ -60,6 +60,9 @@
       </div>
     </div>
 
+    <p *ngIf="loadError" class="ion-padding" role="alert">{{loadError}}</p>
+    <ion-button routerLink="/profil" fill="outline" aria-label="Buka profil"><ion-icon slot="start" name="person-circle-outline"></ion-icon>Profil</ion-button>
+    <ion-button *ngIf="!demoMode" routerLink="/pencairan" fill="outline"><ion-icon slot="start" name="wallet-outline"></ion-icon>Pencairan poin</ion-button>
     <!-- 3. QUICK ACTIONS OPERASIONAL -->
     <div class="quick-actions-grid">
       <div class="action-card" (click)="goToTimbang()">
@@ -117,7 +120,7 @@
     </div>
 
     <!-- 5. STOK FISIK DI DROP POINT -->
-    <div class="white-panel-card stok-panel">
+    <div class="white-panel-card stok-panel" *ngIf="demoMode">
       <div class="panel-top-row">
         <div>
           <h3>Stok di Drop Point</h3>
@@ -149,11 +152,11 @@
     </div>
 
     <!-- 6. PENJEMPUTAN BERIKUTNYA -->
-    <div class="section-header-row">
+    <div class="section-header-row" *ngIf="demoMode">
       <span class="section-eyebrow">PENJEMPUTAN BERIKUTNYA</span>
     </div>
 
-    <div class="white-panel-card schedule-panel" (click)="bukaMenu('Penugasan Jemput')">
+    <div class="white-panel-card schedule-panel" *ngIf="demoMode" (click)="bukaMenu('Penugasan Jemput')">
       <div class="date-badge-box">
         <span class="day">SEL</span>
         <span class="date">14</span>
@@ -391,7 +394,7 @@
           <ion-input type="number" min="1" placeholder="Contoh: 1000000" [(ngModel)]="form.nominal" (ionInput)="cdr.detectChanges()"></ion-input>
         </ion-item>
 
-        <div class="alokasi-preview" *ngIf="form.pos_dana === 'HASIL_PENJUALAN' && form.nominal && form.nominal > 0">
+        <div class="alokasi-preview" *ngIf="demoMode && form.pos_dana === 'HASIL_PENJUALAN' && form.nominal && form.nominal > 0">
           <h5>Perhitungan Porsi Alokasi Dana (T08):</h5>
           <div class="alo-row">
             <span>Cadangan Poin (40%):</span>
@@ -425,7 +428,9 @@
           </ion-select>
         </ion-item>
 
-        <div class="bukti-upload-box">
+        <p *ngIf="!demoMode && form.pos_dana === 'HASIL_PENJUALAN'">Persentase alokasi mengikuti konfigurasi backend yang disepakati tim.</p>
+        <ion-input *ngIf="!demoMode" label="Tautan bukti HTTPS" labelPlacement="stacked" maxlength="255" [(ngModel)]="form.bukti"></ion-input>
+        <div *ngIf="demoMode" class="bukti-upload-box">
           <label><strong>Bukti Transaksi (Struk / Bukti Transfer) * Wajib</strong></label>
           <input type="file" accept="image/*" (change)="simulasiUploadBukti($event)" />
           <div class="preview-img" *ngIf="form.bukti">

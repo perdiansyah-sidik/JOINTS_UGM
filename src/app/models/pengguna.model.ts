@@ -14,6 +14,7 @@ export const LABEL_PERAN: Record<NilaiPeran, string> = {
 // Peran 1-3 dibuat lewat registrasi publik, peran 4 lewat setup terkontrol di server.
 
 export interface Pengguna {
+  foto_profil?: string | null;
   id_pengguna: number;
   nama: string;
   email: string;

@@ -31,11 +31,11 @@ export class ApiService {
   }
 
   getProfil(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/pengguna/${id}`);
+    return this.http.get(`${this.apiUrl}/profil`);
   }
 
   updateProfil(idPengguna: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/pengguna/${idPengguna}`, data);
+    return this.http.put(`${this.apiUrl}/profil`, data);
   }
 
   // 2. MITRA, DROP POINT & JENIS SAMPAH
@@ -66,7 +66,7 @@ export class ApiService {
   }
 
   getAntreanSetoranMitra(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/setoran/antrean`);
+    return this.http.get(`${this.apiUrl}/setoran`);
   }
 
   getSlotJemput(): Observable<any> {
@@ -83,7 +83,7 @@ export class ApiService {
   }
 
   verifikasiPencairan(idPencairan: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/pencairan/verifikasi/${idPencairan}`, data);
+    return this.http.patch(`${this.apiUrl}/pencairan/${idPencairan}/status`, data);
   }
 
   updateKategoriPelanggan(idPengguna: number, jenisPelanggan: string): Observable<any> {

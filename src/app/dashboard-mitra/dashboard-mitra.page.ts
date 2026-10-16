@@ -143,7 +143,7 @@ export class DashboardMitraPage implements OnInit {
 
   // Navigasi ke Halaman Kurir Lapangan (Beda Page sesuai permintaan)
   bukaHalamanKurir() {
-    this.navCtrl.navigateForward('/kurir-mitra', { animated: true });
+    this.navCtrl.navigateForward('/setoran', { animated: true });
   }
 
   formatRibuan(angka: number): string {
@@ -154,14 +154,14 @@ export class DashboardMitraPage implements OnInit {
     this.tabAktif = tab;
     if (tab === 'armada' || tab === 'timbangan') {
       this.bukaHalamanKurir();
+    } else if (tab === 'profil') { this.navCtrl.navigateForward('/profil');
     } else if (tab !== 'beranda') {
       this.tampilInfo(`Membuka tab ${tab.toUpperCase()}...`);
     }
   }
 
   keluarAkun() {
-    localStorage.removeItem('ecoapp_user');
-    this.navCtrl.navigateRoot('/login', { animated: true });
+    this.navCtrl.navigateForward('/profil', { animated: true });
   }
 
   async tampilInfo(pesan: string) {

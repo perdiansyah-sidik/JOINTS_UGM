@@ -293,25 +293,7 @@ export class DashboardPage implements OnInit {
 
   pilihKategoriProfil(kategori: 'RUMAH_TANGGA' | 'UMKM_KULINER' | 'PEDAGANG_PASAR') {
     if (this.kategoriAktif === kategori) return;
-    this.kategoriAktif = kategori;
-
-    if (this.idPengguna > 0) {
-      this.api.updateKategoriPelanggan(this.idPengguna, kategori).subscribe({
-        next: async () => {
-          const tersimpan = localStorage.getItem('ecoapp_user');
-          if (tersimpan) {
-            const user = JSON.parse(tersimpan);
-            user.jenis_pelanggan = kategori;
-            localStorage.setItem('ecoapp_user', JSON.stringify(user));
-          }
-          await this.tampilPesan('Kategori profil berhasil disesuaikan!', 'success');
-          this.ambilDataDashboard();
-        },
-        error: async () => {
-          await this.tampilPesan('Kategori tampilan diubah.', 'medium');
-        }
-      });
-    }
+    this.tampilPesan('Kategori mengikuti peran akun. Perubahan kategori belum tersedia.', 'medium');
   }
 
   async tampilPesan(pesan: string, warna: string = 'medium') {
@@ -341,18 +323,21 @@ export class DashboardPage implements OnInit {
   }
 
   async klikFitur(namaFitur: string) {
+    if (/setor|jemput|riwayat/i.test(namaFitur)) { this.navCtrl.navigateForward('/setoran'); return; }
+    if (/dompet|poin|cair/i.test(namaFitur)) { this.navCtrl.navigateForward('/pencairan'); return; }
     const toast = await this.toastCtrl.create({
-      message: `Membuka ${namaFitur}...`,
+      message: `${namaFitur} belum tersedia untuk dicoba.`,
       duration: 1500,
-      color: 'success',
+      color: 'medium',
       position: 'top'
     });
     await toast.present();
   }
 
   pilihTab(tab: 'beranda' | 'setor' | 'peta' | 'dompet' | 'profil') {
-    this.tabAktif = tab;
-    if (tab !== 'beranda') {
+    if (tab === 'profil') {
+      this.navCtrl.navigateForward('/profil');
+    } else if (tab !== 'beranda') {
       this.klikFitur(tab.charAt(0).toUpperCase() + tab.slice(1));
     }
   }

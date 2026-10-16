@@ -25,6 +25,17 @@
       <p>Masuk untuk melanjutkan aksi daur ulang dan pantau dampak lingkunganmu</p>
     </div>
 
+    <div class="demo-accounts" *ngIf="demoMode">
+      <strong>Mode demo lokal</strong>
+      <p>Pilih akun untuk mengisi form. Data contoh ini tidak tersimpan di Supabase.</p>
+      <div class="demo-account-list">
+        <button type="button" *ngFor="let akun of demoAccounts" (click)="pilihAkunDemo(akun.email)">
+          <span>{{ akun.nama }}</span><small>{{ akun.email }}</small>
+        </button>
+      </div>
+      <p>Kata sandi semua akun: <code>{{ demoPassword }}</code></p>
+    </div>
+
     <!-- Pilihan peran -->
     <div class="role-switcher">
       <button type="button" class="switch-btn" [class.active]="peran === 'pribadi'" (click)="pilihPeran('pribadi')">
@@ -46,7 +57,7 @@
     <!-- Kartu form -->
     <div class="auth-card">
       <div class="form-group">
-        <label>Email atau No. Handphone</label>
+        <label>Email</label>
         <div class="input-box">
           <ion-icon name="mail-outline" class="prefix-icon"></ion-icon>
           <input
@@ -84,7 +95,7 @@
           </span>
           <span>Ingat saya</span>
         </div>
-        <a class="forgot-link" (click)="lupaSandi()">Lupa Kata Sandi?</a>
+        <a *ngIf="demoMode" class="forgot-link" (click)="lupaSandi()">Lupa Kata Sandi?</a>
       </div>
 
       <ion-button expand="block" class="btn-submit-eco" (click)="prosesLogin()">
@@ -94,9 +105,9 @@
     </div>
 
     <!-- Login sosial -->
-    <div class="divider-line"><span>atau masuk dengan</span></div>
+    <div *ngIf="demoMode" class="divider-line"><span>atau masuk dengan</span></div>
 
-    <div class="social-grid">
+    <div *ngIf="demoMode" class="social-grid">
       <button type="button" class="social-btn" (click)="loginSosial('Google')">
         <svg class="google-icon" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import * as L from 'leaflet';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-form-drop-point',
@@ -27,11 +29,14 @@ export class FormDropPointPage implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private http: HttpClient
   ) { }
 
   ngOnInit() {
     // Mengecek apakah halaman dibuka untuk mengedit data lama
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (id > 0) this.http.get<any>(`${environment.apiUrl}/drop-points/${id}`).subscribe({next:r=>{const d=r.data;this.isEdit=true;this.formData={id:d.id_drop_point,nama:d.nama_drop_point,alamat:d.alamat,jamOperasional:d.jam_operasional,status:d.aktif===1?'aktif':'nonaktif',latitude:d.latitude===null?null:Number(d.latitude),longitude:d.longitude===null?null:Number(d.longitude)};},error:e=>alert(e.error?.message||'Data drop point gagal dimuat.')});
     this.route.queryParams.subscribe(params => {
       if (this.router.getCurrentNavigation()?.extras.state) {
         const data = this.router.getCurrentNavigation()?.extras.state?.['dataDropPoint'];
@@ -134,11 +139,15 @@ export class FormDropPointPage implements OnInit {
   }
 
   simpanData() {
-    console.log('Data yang siap dikirim ke API database:', this.formData);
-    // TODO: Nanti kita hubungkan dengan API backend di sini
-    
-    // Setelah tekan simpan, kembali ke tabel halaman utama master drop point
-    this.router.navigate(['/master-drop-point']);
+    const b={nama_drop_point:this.formData.nama.trim(),alamat:this.formData.alamat.trim(),jam_operasional:this.formData.jamOperasional.trim(),latitude:this.formData.latitude,longitude:this.formData.longitude,aktif:this.formData.status==='aktif'?1:0};
+    if(!b.nama_drop_point||!b.alamat||!b.jam_operasional){alert('Nama, alamat, dan jam operasional wajib diisi.');return;}
+    const id=Number(this.route.snapshot.paramMap.get('id'));
+    const request=id?this.http.put(`${environment.apiUrl}/drop-points/${id}`,b):this.http.post<any>(`${environment.apiUrl}/drop-points`,(({aktif,...data})=>data)(b));
+    request.subscribe({next:(response:any)=>{
+      if (!id && b.aktif===0) {
+        this.http.patch(`${environment.apiUrl}/drop-points/${response.data.id_drop_point}/status`,{aktif:0}).subscribe({next:()=>this.router.navigate(['/master-drop-point']),error:(e:any)=>alert(e.error?.message||'Drop point tersimpan, tetapi status belum berhasil diubah.')});
+      } else this.router.navigate(['/master-drop-point']);
+    },error:(e:any)=>alert(e.error?.message||'Gagal menyimpan drop point.')});
   }
 
   // FUNGSI BARU: Mendapatkan lokasi GPS terkini dari perangkat pengguna
