@@ -1,0 +1,262 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard-pengelola"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Penimbangan & Verifikasi</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="toolbar-segment">
+    <ion-segment [(ngModel)]="segmenAktif" (ionChange)="cdr.detectChanges()">
+      <ion-segment-button value="timbang">
+        <ion-label>Timbang ({{ setoranMenungguTimbang.length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="verifikasi">
+        <ion-label>Verifikasi ({{ setoranMenungguVerifikasi.length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="riwayat">
+        <ion-label>Riwayat</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="timbang-content">
+  <ion-refresher slot="fixed" (ionRefresh)="muatMasterDanSetoran(); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="state" *ngIf="sedangMuat">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Memuat data transaksi setoran...</p>
+  </div>
+
+  <div class="container" *ngIf="!sedangMuat">
+    <div class="header-section">
+      <div class="location-badge">
+        <ion-icon name="scale-outline"></ion-icon>
+        <span>T02 Transaksi Operasional &bull; Pilahin</span>
+      </div>
+      <h2 class="page-title">Penimbangan & Verifikasi</h2>
+      <p class="intro">
+        Pencatatan berat aktual per jenis material, upload foto bukti, dan verifikasi status FINAL untuk penerbitan hak poin pelanggan.
+      </p>
+    </div>
+
+    <!-- 1. TAB MENUNGGU TIMBANG -->
+    <div *ngIf="segmenAktif === 'timbang'">
+      <div class="empty-state" *ngIf="setoranMenungguTimbang.length === 0">
+        <ion-icon name="scale-outline"></ion-icon>
+        <p>Tidak ada antrean setoran yang menunggu penimbangan.</p>
+      </div>
+
+      <div class="setoran-card" *ngFor="let s of setoranMenungguTimbang">
+        <div class="card-top">
+          <div class="id-badge">#STR-{{ s.id_setoran }}</div>
+          <ion-badge [color]="warnaStatus(s.status)">{{ labelStatus(s.status) }}</ion-badge>
+        </div>
+
+        <h3 class="pelanggan-nama">{{ s.nama_pelanggan || 'Pelanggan #' + s.id_pengguna }}</h3>
+        <p class="titik-info"><ion-icon name="location-outline"></ion-icon> {{ s.nama_drop_point || 'Drop Point Utama' }}</p>
+
+        <div class="card-footer">
+          <span class="info-potongan" *ngIf="s.potongan_persen && s.potongan_persen > 0">
+            Potongan jemput: {{ s.potongan_persen }}%
+          </span>
+          <ion-button size="small" color="success" class="btn-aksi" (click)="bukaFormTimbang(s)">
+            <ion-icon slot="start" name="scale-outline"></ion-icon>
+            Mulai Timbang
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. TAB MENUNGGU VERIFIKASI -->
+    <div *ngIf="segmenAktif === 'verifikasi'">
+      <div class="empty-state" *ngIf="setoranMenungguVerifikasi.length === 0">
+        <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+        <p>Semua hasil penimbangan sudah diverifikasi pengelola.</p>
+      </div>
+
+      <div class="setoran-card" *ngFor="let s of setoranMenungguVerifikasi">
+        <div class="card-top">
+          <div class="id-badge">#STR-{{ s.id_setoran }}</div>
+          <ion-badge color="warning">DIAJUKAN (Menunggu Pengelola)</ion-badge>
+        </div>
+
+        <h3 class="pelanggan-nama">{{ s.nama_pelanggan || 'Pelanggan #' + s.id_pengguna }}</h3>
+        
+        <!-- Rincian Material yang Ditimbang -->
+        <div class="rincian-box" *ngIf="s.details && s.details.length">
+          <div class="rincian-item" *ngFor="let d of s.details">
+            <span class="nama-mat"><strong>{{ d.nama_jenis }}</strong></span>
+            <span>Diterima: <strong>{{ d.berat_diterima_kg }} kg</strong></span>
+            <span *ngIf="d.berat_ditolak_kg > 0" class="teks-tolak">Tolak: {{ d.berat_ditolak_kg }} kg ({{ d.alasan_penolakan }})</span>
+          </div>
+        </div>
+
+        <!-- Rangkuman Poin -->
+        <div class="poin-summary">
+          <div>Poin Kotor: <strong>{{ fmt(s.poin_kotor) }}</strong></div>
+          <div *ngIf="s.potongan_poin">Potongan Jemput: -{{ fmt(s.potongan_poin) }}</div>
+          <div class="poin-bersih">Poin Bersih: <strong>{{ fmt(s.poin_bersih) }} Poin</strong></div>
+        </div>
+
+        <!-- Foto Bukti -->
+        <div class="bukti-preview" *ngIf="s.foto_bukti">
+          <img [src]="s.foto_bukti" alt="Bukti Timbang" />
+        </div>
+
+        <div class="card-footer" *ngIf="isPengelola">
+          <ion-button expand="block" color="primary" class="btn-aksi" (click)="bukaVerifikasi(s)">
+            <ion-icon slot="start" name="checkbox-outline"></ion-icon>
+            Verifikasi & Sahkan Hasil
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. TAB RIWAYAT -->
+    <div *ngIf="segmenAktif === 'riwayat'">
+      <div class="empty-state" *ngIf="setoranRiwayat.length === 0">
+        <ion-icon name="time-outline"></ion-icon>
+        <p>Belum ada riwayat setoran yang final atau ditolak.</p>
+      </div>
+
+      <div class="setoran-card" *ngFor="let s of setoranRiwayat">
+        <div class="card-top">
+          <div class="id-badge">#STR-{{ s.id_setoran }}</div>
+          <ion-badge [color]="warnaStatus(s.status)">{{ labelStatus(s.status) }}</ion-badge>
+        </div>
+
+        <h3 class="pelanggan-nama">{{ s.nama_pelanggan || 'Pelanggan #' + s.id_pengguna }}</h3>
+        
+        <div class="poin-summary" *ngIf="s.status === 3">
+          <div class="poin-bersih text-success">
+            Hak Poin Pelanggan: <strong>+{{ fmt(s.poin_bersih) }} Poin</strong>
+          </div>
+        </div>
+
+        <div class="poin-summary" *ngIf="s.status === 4">
+          <div class="teks-tolak">
+            <strong>DITOLAK (0 Poin)</strong>: {{ s.catatan_verifikasi || 'Material tidak memenuhi ketentuan.' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- MODAL FORM PENIMBANGAN (T02) -->
+<ion-modal [isOpen]="modalTimbangTerbuka" (didDismiss)="modalTimbangTerbuka = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Input Timbang #STR-{{ setoranDipilih?.id_setoran }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalTimbangTerbuka = false">Batal</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding modal-timbang">
+      <p class="instruksi">
+        Timbang dan catat berat aktual tiap material. Foto bukti timbangan <strong>wajib</strong> dilampirkan sebelum diajukan.
+      </p>
+
+      <!-- Baris Input per Material (4 Jenis) -->
+      <div class="material-block" *ngFor="let b of barisTimbang">
+        <div class="mat-head">
+          <h4>{{ b.nama_jenis }}</h4>
+          <span class="tarif-badge">{{ b.poin_per_kg }} poin/kg</span>
+        </div>
+
+        <div class="input-grid">
+          <ion-item lines="outline">
+            <ion-label position="stacked">Diterima (kg)</ion-label>
+            <ion-input type="number" min="0" step="0.1" placeholder="0.0" [(ngModel)]="b.berat_diterima"></ion-input>
+          </ion-item>
+          <ion-item lines="outline">
+            <ion-label position="stacked">Ditolak (kg)</ion-label>
+            <ion-input type="number" min="0" step="0.1" placeholder="0.0" [(ngModel)]="b.berat_ditolak"></ion-input>
+          </ion-item>
+        </div>
+
+        <ion-item lines="outline" class="item-alasan" *ngIf="b.berat_ditolak && b.berat_ditolak > 0">
+          <ion-label position="stacked">Alasan Penolakan {{ b.nama_jenis }} (Wajib)</ion-label>
+          <ion-input placeholder="Contoh: Kotor, basah, berbau" [(ngModel)]="b.alasan_penolakan"></ion-input>
+        </ion-item>
+
+        <div class="subtotal-poin" *ngIf="b.berat_diterima">
+          Subtotal: <strong>{{ hitungPoinDetail(b) }} poin</strong>
+        </div>
+      </div>
+
+      <!-- Unggah Foto Bukti Wajib -->
+      <div class="foto-section">
+        <label><strong>Foto Bukti Penimbangan (Wajib) *</strong></label>
+        <input type="file" accept="image/*" (change)="simulasiUploadFoto($event)" />
+        <div class="img-preview" *ngIf="fotoBuktiPreview">
+          <img [src]="fotoBuktiPreview" alt="Preview Timbang" />
+        </div>
+      </div>
+
+      <!-- Ringkasan Perhitungan Poin -->
+      <div class="kalkulasi-card">
+        <div class="kalk-row">
+          <span>Poin Kotor:</span>
+          <strong>{{ totalPoinKotorForm }} Poin</strong>
+        </div>
+        <div class="kalk-row" *ngIf="setoranDipilih && setoranDipilih.potongan_persen">
+          <span>Potongan Jemput ({{ setoranDipilih.potongan_persen }}%):</span>
+          <span>-{{ potonganPoinForm }} Poin</span>
+        </div>
+        <div class="kalk-row total">
+          <span>Poin Bersih ke Pelanggan:</span>
+          <strong>{{ totalPoinBersihForm }} Poin</strong>
+        </div>
+      </div>
+
+      <ion-button expand="block" color="success" class="btn-simpan" [disabled]="menyimpanTimbang" (click)="simpanTimbang()">
+        Simpan & Ajukan Hasil Timbang
+      </ion-button>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- MODAL VERIFIKASI PENGELOLA -->
+<ion-modal [isOpen]="modalVerifikasiTerbuka" (didDismiss)="modalVerifikasiTerbuka = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Verifikasi Pengelola #STR-{{ setoranDipilih?.id_setoran }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalVerifikasiTerbuka = false">Batal</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="verif-box">
+        <h3>Poin yang Akan Diterbitkan: <strong>{{ fmt(setoranDipilih?.poin_bersih) }} Poin</strong></h3>
+        <p>Memverifikasi setoran menjadi <strong>FINAL</strong> akan segera mengkreditkan poin ke saldo pelanggan.</p>
+
+        <ion-item lines="outline">
+          <ion-label position="stacked">Catatan Verifikasi (Opsional)</ion-label>
+          <ion-textarea rows="3" placeholder="Contoh: Berat dan material terverifikasi sesuai ketentuan." [(ngModel)]="catatanVerifikasi"></ion-textarea>
+        </ion-item>
+
+        <div class="btn-group">
+          <ion-button expand="block" class="btn-sahkan" [disabled]="memprosesVerifikasi" (click)="prosesVerifikasi(3)">
+            <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+            Sahkan FINAL (Kredit Poin)
+          </ion-button>
+          <ion-button expand="block" color="danger" fill="outline" [disabled]="memprosesVerifikasi" (click)="prosesVerifikasi(4)">
+            <ion-icon slot="start" name="close-circle"></ion-icon>
+            Tolak Setoran (0 Poin)
+          </ion-button>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

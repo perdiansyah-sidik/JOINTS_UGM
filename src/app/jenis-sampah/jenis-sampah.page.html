@@ -1,9 +1,32 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar>
+  <ion-toolbar class="toolbar-master">
     <ion-buttons slot="start">
-      <ion-back-button [defaultHref]="defaultBackHref"></ion-back-button>
+      <ion-back-button [defaultHref]="defaultBackHref" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Jenis Sampah</ion-title>
+    <ion-title>Master Jenis Sampah</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="bukaTambah()">
+        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Filter & Search Toolbar -->
+  <ion-toolbar class="toolbar-sub">
+    <ion-searchbar 
+      [(ngModel)]="kataKunci" 
+      (ionInput)="cdr.detectChanges()" 
+      placeholder="Cari material atau ketentuan..." 
+      class="custom-searchbar">
+    </ion-searchbar>
+  </ion-toolbar>
+
+  <ion-toolbar class="toolbar-filter">
+    <ion-segment [(ngModel)]="filterStatus" (ionChange)="cdr.detectChanges()" mode="ios">
+      <ion-segment-button value="SEMUA"><ion-label>Semua ({{ daftar.length }})</ion-label></ion-segment-button>
+      <ion-segment-button value="AKTIF"><ion-label>Aktif ({{ hitungAktif }})</ion-label></ion-segment-button>
+      <ion-segment-button value="NONAKTIF"><ion-label>Nonaktif ({{ hitungNonaktif }})</ion-label></ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
@@ -12,101 +35,197 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Status Memuat -->
-  <div class="state" *ngIf="memuat">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Memuat data...</p>
-  </div>
-
-  <!-- Status Gagal -->
-  <div class="state" *ngIf="gagal && !memuat">
-    <p>Data belum bisa dimuat.</p>
-    <ion-button size="small" (click)="muat()">Coba lagi</ion-button>
-  </div>
-
-  <!-- Konten Utama -->
-  <div class="js-container" *ngIf="!memuat && !gagal">
-    <p class="intro">
-      Empat material yang diterima Pilahin, lengkap dengan ketentuan penerimaan dan tarif poin per kilogram.
-    </p>
-
-    <div class="empty" *ngIf="daftar.length === 0">Belum ada jenis sampah.</div>
-
-    <div class="jenis" *ngFor="let j of daftar" [class.nonaktif]="j.aktif === 0">
-      <div class="jenis-head">
-        <div class="ikon" [style.background]="warna(j) + '26'">
-          <ion-icon [name]="ikon(j)" [style.color]="warna(j)"></ion-icon>
-        </div>
-        <div class="judul">
-          <h3>{{ j.nama_jenis }}</h3>
-          <span class="badge-off" *ngIf="j.aktif === 0">Nonaktif</span>
-        </div>
-        <div class="tarif">
-          <strong>{{ fmt(j.poin_per_kg) }}</strong>
-          <span>poin/kg</span>
-        </div>
+  <div class="js-container">
+    <!-- Header Banner -->
+    <div class="banner-card">
+      <div class="banner-icon">
+        <ion-icon name="cube-outline"></ion-icon>
       </div>
-
-      <p class="ketentuan">{{ j.ketentuan }}</p>
-
-      <div class="aksi" *ngIf="bolehUbah">
-        <button type="button" (click)="bukaUbah(j)">
-          <ion-icon name="create-outline"></ion-icon> Ubah
-        </button>
-        <button type="button" (click)="ubahStatus(j)">
-          <ion-icon [name]="j.aktif === 0 ? 'checkmark-circle-outline' : 'pause-circle-outline'"></ion-icon>
-          {{ j.aktif === 0 ? 'Aktifkan' : 'Nonaktifkan' }}
-        </button>
-        <button type="button" class="bahaya" (click)="hapus(j)">
-          <ion-icon name="trash-outline"></ion-icon> Hapus
-        </button>
+      <div class="banner-text">
+        <h2>Kelola Jenis Sampah & Tarif</h2>
+        <p>Atur jenis limbah anorganik yang diterima, ketentuan pemilahan, tarif poin, dan reduksi emisi CO2.</p>
       </div>
     </div>
 
-    <ion-button *ngIf="bolehUbah && belumAda.length" expand="block" class="btn-tambah" (click)="bukaTambah()">
-      <ion-icon slot="start" name="add"></ion-icon>
-      Tambah jenis sampah
-    </ion-button>
-    <p class="hint" *ngIf="bolehUbah && !belumAda.length">Keempat jenis sudah terdaftar.</p>
+    <!-- Status Memuat -->
+    <div class="state" *ngIf="memuat">
+      <ion-spinner name="crescent" color="success"></ion-spinner>
+      <p>Memuat daftar material...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!memuat && daftarTersaring.length === 0">
+      <ng-container *ngIf="filterStatus === 'NONAKTIF'">
+        <ion-icon name="checkmark-done-circle-outline" style="color: #16a34a; font-size: 56px;"></ion-icon>
+        <h3>Tidak Ada Material Nonaktif</h3>
+        <p>Saat ini seluruh <strong>{{ hitungAktif }}</strong> jenis sampah berstatus <strong>Aktif</strong> dan siap disetor oleh pelanggan.</p>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
+          <ion-button size="small" class="btn-tambah-outline" (click)="filterStatus = 'SEMUA'">
+            <ion-icon slot="start" name="apps-outline"></ion-icon>
+            Tampilkan Semua Material ({{ daftar.length }})
+          </ion-button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="filterStatus !== 'NONAKTIF'">
+        <ion-icon name="trash-bin-outline"></ion-icon>
+        <h3>Tidak Ada Jenis Sampah Ditemukan</h3>
+        <p *ngIf="kataKunci">Tidak ada jenis sampah yang cocok dengan "<strong>{{ kataKunci }}</strong>".</p>
+        <p *ngIf="!kataKunci">Belum ada data material jenis sampah yang terdaftar.</p>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap;">
+          <ion-button *ngIf="kataKunci" size="small" fill="outline" color="medium" (click)="kataKunci = ''">
+            Reset Pencarian
+          </ion-button>
+          <ion-button size="small" class="btn-tambah-outline" (click)="bukaTambah()">
+            <ion-icon slot="start" name="add"></ion-icon>
+            Tambah Jenis Sampah
+          </ion-button>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- List Material Cards -->
+    <div class="jenis-list" *ngIf="!memuat && daftarTersaring.length > 0">
+      <div class="jenis-card" *ngFor="let j of daftarTersaring" [class.is-nonaktif]="j.aktif === 0">
+        <div class="card-top">
+          <div class="material-avatar" [style.background]="warna(j) + '1A'" [style.color]="warna(j)">
+            <ion-icon [name]="ikon(j)"></ion-icon>
+          </div>
+
+          <div class="material-info">
+            <div class="title-row">
+              <h3>{{ j.nama_jenis }}</h3>
+              <span class="status-pill active-pill" *ngIf="j.aktif === 1">Aktif</span>
+              <span class="status-pill inactive-pill" *ngIf="j.aktif === 0">Nonaktif</span>
+            </div>
+            <span class="badge-id">ID: #JS-{{ j.id_jenis_sampah }}</span>
+          </div>
+
+          <div class="rate-badge">
+            <span class="rate-num">{{ fmt(j.poin_per_kg) }}</span>
+            <span class="rate-unit">poin/kg</span>
+          </div>
+        </div>
+
+        <div class="card-mid">
+          <p class="ketentuan-text">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            {{ j.ketentuan }}
+          </p>
+
+          <div class="co2-pill" *ngIf="j.estimasi_hemat_co2_per_kg && j.estimasi_hemat_co2_per_kg > 0">
+            <ion-icon name="leaf-outline"></ion-icon>
+            <span>Hemat <strong>{{ j.estimasi_hemat_co2_per_kg }} kg CO2e</strong> / kg</span>
+          </div>
+        </div>
+
+        <div class="card-bottom-actions">
+          <button type="button" class="btn-action edit" (click)="bukaUbah(j)">
+            <ion-icon name="create-outline"></ion-icon> Ubah
+          </button>
+          <button type="button" class="btn-action toggle" (click)="ubahStatus(j)">
+            <ion-icon [name]="j.aktif === 0 ? 'checkmark-circle-outline' : 'pause-circle-outline'"></ion-icon>
+            {{ j.aktif === 0 ? 'Aktifkan' : 'Nonaktifkan' }}
+          </button>
+          <button type="button" class="btn-action delete" (click)="hapus(j)">
+            <ion-icon name="trash-outline"></ion-icon> Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating / Bottom Add Button -->
+    <div class="bottom-action-wrap" *ngIf="!memuat">
+      <ion-button expand="block" class="btn-tambah-utama" (click)="bukaTambah()">
+        <ion-icon slot="start" name="add-circle"></ion-icon>
+        Tambah Jenis Sampah Baru
+      </ion-button>
+    </div>
   </div>
 </ion-content>
 
-<!-- Modal Tambah / Ubah -->
+<!-- MODAL FORM TAMBAH / UBAH (CRUD LENGKAP) -->
 <ion-modal [isOpen]="modalTerbuka" (didDismiss)="modalTerbuka = false">
   <ng-template>
-    <ion-header>
-      <ion-toolbar>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="toolbar-modal">
         <ion-title>{{ mode === 'tambah' ? 'Tambah Jenis Sampah' : 'Ubah ' + form.nama_jenis }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="modalTerbuka = false">Tutup</ion-button>
+          <ion-button (click)="modalTerbuka = false">Batal</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content class="ion-padding">
-      <div class="form">
-        <ion-select *ngIf="mode === 'tambah'" label="Jenis" labelPlacement="stacked" fill="outline"
-          [(ngModel)]="form.nama_jenis">
-          <ion-select-option *ngFor="let n of belumAda" [value]="n">{{ n }}</ion-select-option>
-        </ion-select>
+    <ion-content class="ion-padding modal-form-content">
+      <div class="form-wrapper">
+        <div class="form-tip">
+          <ion-icon name="bulb-outline"></ion-icon>
+          <p>
+            {{ mode === 'tambah' ? 'Masukkan material baru yang dapat diterima di Drop Point Pilahin.' : 'Perubahan tarif hanya berlaku untuk setoran baru berikutnya.' }}
+          </p>
+        </div>
 
-        <ion-input *ngIf="mode === 'ubah'" label="Jenis" labelPlacement="stacked" fill="outline"
-          [value]="form.nama_jenis" [disabled]="true"></ion-input>
+        <!-- Saran Cepat (Hanya saat Tambah Baru) -->
+        <div class="saran-chips" *ngIf="mode === 'tambah'">
+          <label>Pilihan Saran Cepat:</label>
+          <div class="chip-scroll">
+            <span class="saran-chip" *ngFor="let s of saranMaterial" (click)="pilihSaran(s)">
+              + {{ s }}
+            </span>
+          </div>
+        </div>
 
-        <ion-textarea label="Ketentuan penerimaan" labelPlacement="stacked" fill="outline"
-          [counter]="true" maxlength="500" [autoGrow]="true" rows="4"
-          placeholder="Contoh: botol plastik bersih, tanpa sisa isi"
-          [(ngModel)]="form.ketentuan"></ion-textarea>
+        <div class="form-group">
+          <!-- Nama Jenis Sampah -->
+          <ion-item lines="outline" class="input-item">
+            <ion-label position="stacked">Nama Jenis Material *</ion-label>
+            <ion-input 
+              placeholder="Contoh: Botol Plastik PET / Kardus Tebal" 
+              [(ngModel)]="form.nama_jenis">
+            </ion-input>
+          </ion-item>
 
-        <ion-input label="Tarif poin per kg" labelPlacement="stacked" fill="outline"
-          type="number" inputmode="decimal" placeholder="Contoh: 10"
-          [(ngModel)]="form.poin_per_kg"></ion-input>
+          <!-- Ketentuan Pemilahan -->
+          <ion-item lines="outline" class="input-item">
+            <ion-label position="stacked">Ketentuan Penerimaan (Maks. 500 Karakter) *</ion-label>
+            <ion-textarea 
+              rows="3" 
+              maxlength="500" 
+              placeholder="Contoh: Bersih dari sisa makanan, dikeringkan, dilipat rapi." 
+              [(ngModel)]="form.ketentuan">
+            </ion-textarea>
+          </ion-item>
 
-        <ion-note>Tarif baru hanya berlaku untuk setoran berikutnya. Setoran lama tetap memakai tarif saat itu.</ion-note>
+          <!-- Tarif Poin / kg -->
+          <ion-item lines="outline" class="input-item">
+            <ion-label position="stacked">Tarif Poin per Kilogram (poin/kg) *</ion-label>
+            <ion-input 
+              type="number" 
+              min="0" 
+              placeholder="Contoh: 2500 (isi 0 jika tanpa imbalan poin)" 
+              [(ngModel)]="form.poin_per_kg">
+            </ion-input>
+          </ion-item>
 
-        <ion-button expand="block" class="btn-simpan" [disabled]="menyimpan" (click)="simpan()">
-          Simpan
-        </ion-button>
+          <!-- Estimasi Hemat Emisi CO2 / kg -->
+          <ion-item lines="outline" class="input-item">
+            <ion-label position="stacked">Estimasi Hemat CO2 (kg CO2e per kg material)</ion-label>
+            <ion-input 
+              type="number" 
+              step="0.1" 
+              min="0" 
+              placeholder="Contoh: 1.5" 
+              [(ngModel)]="form.estimasi_hemat_co2_per_kg">
+            </ion-input>
+          </ion-item>
+        </div>
+
+        <div class="btn-submit-wrap">
+          <ion-button expand="block" class="btn-submit" [disabled]="menyimpan" (click)="simpan()">
+            <ion-spinner *ngIf="menyimpan" name="crescent" slot="start"></ion-spinner>
+            <span>{{ mode === 'tambah' ? 'Simpan Material Baru' : 'Simpan Perubahan' }}</span>
+          </ion-button>
+        </div>
       </div>
     </ion-content>
   </ng-template>

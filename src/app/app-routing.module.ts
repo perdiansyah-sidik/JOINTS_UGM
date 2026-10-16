@@ -45,6 +45,14 @@ const routes: Routes = [
     loadChildren: () => import('./master-pengguna/master-pengguna.module').then(m => m.MasterPenggunaPageModule)
   },
   {
+    path: 'jenis-sampah',
+    loadChildren: () => import('./jenis-sampah/jenis-sampah.module').then(m => m.JenisSampahPageModule)
+  },
+  {
+    path: 'penimbangan-verifikasi',
+    loadChildren: () => import('./penimbangan-verifikasi/penimbangan-verifikasi.module').then(m => m.PenimbanganVerifikasiPageModule)
+  },
+  {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
   },
@@ -72,6 +80,10 @@ const routes: Routes = [
   {
     path: 'dashboard-mitra',
     loadChildren: () => import('./dashboard-mitra/dashboard-mitra.module').then(m => m.DashboardMitraPageModule)
+  },
+  {
+    path: 'laporan-penyetoran',
+    loadChildren: () => import('./laporan-penyetoran/laporan-penyetoran.module').then(m => m.LaporanPenyetoranPageModule)
   }
 ];
 

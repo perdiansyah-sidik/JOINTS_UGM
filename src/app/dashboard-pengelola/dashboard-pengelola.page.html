@@ -36,7 +36,7 @@
           <span>Cadangan Poin Tersedia</span>
         </div>
 
-        <button type="button" class="btn-lihat-kas" (click)="bukaMenu('Mutasi Kas & Alokasi')">
+        <button type="button" class="btn-lihat-kas" (click)="bukaModalKas()">
           <span>Lihat kas</span>
           <ion-icon name="chevron-forward-outline"></ion-icon>
         </button>
@@ -62,9 +62,9 @@
 
     <!-- 3. QUICK ACTIONS OPERASIONAL -->
     <div class="quick-actions-grid">
-      <div class="action-card" (click)="bukaMenu('Timbang & Verifikasi')">
+      <div class="action-card" (click)="goToTimbang()">
         <div class="icon-wrap">
-          <span class="badge-counter">{{ tindakanHariIni[0].count }}</span>
+          <span class="badge-counter">{{ countMenungguVerifikasi }}</span>
           <ion-icon name="scale-outline"></ion-icon>
         </div>
         <span class="action-name">Timbang &<br>Verifikasi</span>
@@ -165,7 +165,26 @@
       <span class="status-pill-green">Terjadwal</span>
     </div>
 
-    <!-- 7. KELOLA MASTER DATA (4 MASTER PILAHIN) -->
+    <!-- 7. LAPORAN & ANALITIK PENYETORAN (TUGAS PERDI) -->
+    <div class="section-header-row">
+      <span class="section-eyebrow">LAPORAN & ANALITIK</span>
+      <span class="section-hint">Tugas Perdi</span>
+    </div>
+
+    <div class="white-panel-card laporan-promo-panel" (click)="goToLaporanPenyetoran()" style="cursor: pointer;">
+      <div class="laporan-panel-content">
+        <div class="laporan-icon-box">
+          <ion-icon name="stats-chart"></ion-icon>
+        </div>
+        <div class="laporan-panel-text">
+          <h3>Laporan Penyetoran Sampah</h3>
+          <p>Filter tanggal & sumber, pantau berat diterima/ditolak, material, metode, dan poin.</p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+      </div>
+    </div>
+
+    <!-- 8. KELOLA MASTER DATA (4 MASTER PILAHIN) -->
     <div class="section-header-row">
       <span class="section-eyebrow">KELOLA MASTER DATA</span>
       <span class="section-hint">4 Tabel Referensi</span>
@@ -202,7 +221,7 @@
         </div>
 
         <!-- M04 Jenis Sampah -->
-        <div class="master-item" (click)="bukaMenu('Master Jenis Sampah')">
+        <div class="master-item" (click)="goToJenisSampah()">
           <div class="master-icon-box">
             <ion-icon name="cube-outline"></ion-icon>
           </div>
@@ -226,3 +245,198 @@
 
   </div>
 </ion-content>
+
+<!-- MODAL BUKU KAS & ALOKASI DANA (T08 - TUGAS PERDI) -->
+<ion-modal [isOpen]="modalKasTerbuka" (didDismiss)="modalKasTerbuka = false">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="toolbar-kas">
+        <ion-title>Buku Kas & Alokasi Dana</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalKasTerbuka = false">Tutup</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+
+      <ion-toolbar class="toolbar-segment">
+        <ion-segment [(ngModel)]="filterPos" (ionChange)="cdr.detectChanges()" [scrollable]="true">
+          <ion-segment-button value="SEMUA"><ion-label>Semua</ion-label></ion-segment-button>
+          <ion-segment-button value="HASIL_PENJUALAN"><ion-label>Penjualan</ion-label></ion-segment-button>
+          <ion-segment-button value="CADANGAN_POIN"><ion-label>Cadangan</ion-label></ion-segment-button>
+          <ion-segment-button value="KOMUNITAS"><ion-label>Komunitas</ion-label></ion-segment-button>
+          <ion-segment-button value="OPERASIONAL"><ion-label>Operasional</ion-label></ion-segment-button>
+        </ion-segment>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="kas-modal-content">
+      <div class="kas-container">
+        <!-- RINGKASAN SALDO & 3 POS ALOKASI -->
+        <div class="modal-balance-card">
+          <div class="bal-head">
+            <ion-icon name="shield-checkmark"></ion-icon>
+            <span>Total Kas Pengelola</span>
+          </div>
+          <h1 class="total-amount">Rp {{ fmt(kas.total) }}</h1>
+
+          <div class="pos-grid">
+            <div class="pos-item cadangan">
+              <span class="persen-badge">40%</span>
+              <span class="label">Cadangan Poin</span>
+              <strong>Rp {{ fmt(kas.tersedia) }}</strong>
+              <small *ngIf="kas.dipesan > 0">Dipesan: Rp {{ fmt(kas.dipesan) }}</small>
+            </div>
+
+            <div class="pos-item komunitas">
+              <span class="persen-badge">10%</span>
+              <span class="label">Komunitas</span>
+              <strong>Rp {{ fmt(kas.komunitas) }}</strong>
+              <small>Drop Point</small>
+            </div>
+
+            <div class="pos-item operasional">
+              <span class="persen-badge">50%</span>
+              <span class="label">Operasional</span>
+              <strong>Rp {{ fmt(kas.operasional) }}</strong>
+              <small>Pengelolaan</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOMBOL CATAT TRANSAKSI KAS BARU -->
+        <ion-button expand="block" class="btn-tambah-kas" (click)="bukaModalTambah()">
+          <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+          Catat Kas Masuk / Keluar Baru
+        </ion-button>
+
+        <!-- DAFTAR MUTASI BUKU KAS -->
+        <div class="kas-section-title">
+          <h3>RIWAYAT BUKU KAS</h3>
+          <span>{{ mutasiTersaring.length }} transaksi</span>
+        </div>
+
+        <div class="empty-state" *ngIf="mutasiTersaring.length === 0">
+          <ion-icon name="receipt-outline"></ion-icon>
+          <p>Belum ada catatan mutasi kas pada pos ini.</p>
+        </div>
+
+        <div class="mutasi-card" *ngFor="let m of mutasiTersaring">
+          <div class="mutasi-top">
+            <ion-badge [color]="warnaPos(m.pos_dana)">{{ labelPos(m.pos_dana) }}</ion-badge>
+            <span class="metode-tag">{{ m.metode }}</span>
+          </div>
+
+          <div class="mutasi-mid">
+            <div class="keterangan-col">
+              <strong>{{ m.pihak_terkait || 'Pihak Terkait' }}</strong>
+              <p>{{ m.keterangan || 'Tanpa keterangan' }}</p>
+              <span class="waktu">{{ m.waktu_transaksi }}</span>
+            </div>
+
+            <div class="nominal-col" [class.masuk]="m.jumlah_rupiah > 0" [class.keluar]="m.jumlah_rupiah < 0">
+              <strong>{{ m.jumlah_rupiah > 0 ? '+Rp ' + fmt(m.jumlah_rupiah) : '-Rp ' + fmt(m.jumlah_rupiah * -1) }}</strong>
+            </div>
+          </div>
+
+          <div class="mutasi-bottom">
+            <button type="button" class="btn-bukti" (click)="lihatBukti(m)">
+              <ion-icon name="document-attach-outline"></ion-icon>
+              Lihat Bukti
+            </button>
+          </div>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- MODAL INPUT KAS BARU -->
+<ion-modal [isOpen]="modalTambahTerbuka" (didDismiss)="modalTambahTerbuka = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="toolbar-kas">
+        <ion-title>Catat Transaksi Kas</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalTambahTerbuka = false">Batal</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding modal-form">
+      <p class="form-hint">
+        Sesuai ketentuan probis T08: Pelunasan penjualan otomatis dialokasikan <strong>40% Cadangan Poin, 10% Komunitas, dan 50% Operasional</strong>. Bukti transaksi <strong>wajib</strong> dilampirkan.
+      </p>
+
+      <div class="form-group">
+        <ion-item lines="outline">
+          <ion-label position="stacked">Pos Dana / Jenis Transaksi</ion-label>
+          <ion-select [(ngModel)]="form.pos_dana" (ionChange)="onPosDanaChange()">
+            <ion-select-option value="HASIL_PENJUALAN">Pelunasan Penjualan Mitra (Alokasi 40/10/50)</ion-select-option>
+            <ion-select-option value="CADANGAN_POIN">Modal / Suntikan Cadangan Poin (+)</ion-select-option>
+            <ion-select-option value="KOMUNITAS">Pengeluaran Pembayaran Komunitas (-)</ion-select-option>
+            <ion-select-option value="OPERASIONAL">Pengeluaran Operasional (-)</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="outline" *ngIf="form.pos_dana === 'HASIL_PENJUALAN'">
+          <ion-label position="stacked">Referensi Penjualan Mitra *</ion-label>
+          <ion-select placeholder="Pilih nomor penjualan" [(ngModel)]="form.id_penjualan" (ionChange)="onPilihPenjualan()">
+            <ion-select-option *ngFor="let p of penjualanTersedia" [value]="p.id_penjualan">
+              #PJL-{{ p.id_penjualan }} - {{ p.nama_mitra }} (Rp {{ fmt(p.total_tagihan) }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="outline">
+          <ion-label position="stacked">Nominal (Rp) *</ion-label>
+          <ion-input type="number" min="1" placeholder="Contoh: 1000000" [(ngModel)]="form.nominal" (ionInput)="cdr.detectChanges()"></ion-input>
+        </ion-item>
+
+        <div class="alokasi-preview" *ngIf="form.pos_dana === 'HASIL_PENJUALAN' && form.nominal && form.nominal > 0">
+          <h5>Perhitungan Porsi Alokasi Dana (T08):</h5>
+          <div class="alo-row">
+            <span>Cadangan Poin (40%):</span>
+            <strong>Rp {{ fmt(alokasiCadangan) }}</strong>
+          </div>
+          <div class="alo-row">
+            <span>Komunitas Drop Point (10%):</span>
+            <strong>Rp {{ fmt(alokasiKomunitas) }}</strong>
+          </div>
+          <div class="alo-row">
+            <span>Operasional (50%):</span>
+            <strong>Rp {{ fmt(alokasiOperasional) }}</strong>
+          </div>
+        </div>
+
+        <ion-item lines="outline" *ngIf="form.pos_dana !== 'HASIL_PENJUALAN'">
+          <ion-label position="stacked">Pihak Terkait (Penerima / Penyetor) *</ion-label>
+          <ion-input placeholder="Contoh: Komunitas RW 02 / Toko ATK" [(ngModel)]="form.pihak_terkait"></ion-input>
+        </ion-item>
+
+        <ion-item lines="outline" *ngIf="form.pos_dana !== 'HASIL_PENJUALAN'">
+          <ion-label position="stacked">Keterangan Penggunaan Dana *</ion-label>
+          <ion-input placeholder="Contoh: Pembelian karung timbang dan spidol" [(ngModel)]="form.keterangan"></ion-input>
+        </ion-item>
+
+        <ion-item lines="outline">
+          <ion-label position="stacked">Metode Pembayaran</ion-label>
+          <ion-select [(ngModel)]="form.metode">
+            <ion-select-option value="TRANSFER">Transfer Bank / E-Wallet</ion-select-option>
+            <ion-select-option value="TUNAI">Tunai (Cash)</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <div class="bukti-upload-box">
+          <label><strong>Bukti Transaksi (Struk / Bukti Transfer) * Wajib</strong></label>
+          <input type="file" accept="image/*" (change)="simulasiUploadBukti($event)" />
+          <div class="preview-img" *ngIf="form.bukti">
+            <img [src]="form.bukti" alt="Preview Bukti" />
+          </div>
+        </div>
+
+        <ion-button expand="block" class="btn-submit" [disabled]="menyimpan" (click)="simpanMutasi()">
+          Sahkan & Simpan ke Buku Kas
+        </ion-button>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

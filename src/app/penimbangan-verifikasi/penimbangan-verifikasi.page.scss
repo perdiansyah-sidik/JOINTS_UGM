@@ -1,0 +1,360 @@
+ion-toolbar {
+  --background: #1fa048;
+  --color: #ffffff;
+}
+
+ion-segment {
+  --background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 3px;
+  margin: 0 12px 10px;
+
+  ion-segment-button {
+    --color: rgba(255, 255, 255, 0.9);
+    --color-checked: #1fa048;
+    --indicator-color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    min-height: 36px;
+    border-radius: 10px;
+  }
+}
+
+.timbang-content {
+  --background: #f8f9fa;
+}
+
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.header-section {
+  padding: 4px 0 8px;
+  
+  .location-badge {
+    display: flex;
+    align-items: center;
+    color: #1fa048;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    gap: 4px;
+
+    span {
+      color: #64748b;
+    }
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e293b;
+  }
+
+  .intro {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+}
+
+.state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #64748b;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 48px;
+    color: #94a3b8;
+  }
+}
+
+.setoran-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .id-badge {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1fa048;
+    }
+  }
+
+  .pelanggan-nama {
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .titik-info {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .rincian-box {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+
+    .rincian-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+
+      .nama-mat {
+        min-width: 65px;
+        color: #1e293b;
+      }
+
+      .teks-tolak {
+        color: #dc2626;
+        font-size: 11px;
+      }
+    }
+  }
+
+  .poin-summary {
+    background: #f0fdf4;
+    border: 1px dashed #86efac;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #166534;
+
+    .poin-bersih {
+      margin-top: 4px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #1fa048;
+    }
+  }
+
+  .bukti-preview {
+    img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+
+    .info-potongan {
+      font-size: 11px;
+      color: #d97706;
+      font-weight: 700;
+    }
+
+    .btn-aksi {
+      --background: #1fa048;
+      --border-radius: 12px;
+      font-weight: 700;
+      text-transform: none;
+      height: 38px;
+    }
+  }
+}
+
+.modal-timbang {
+  .instruksi {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    background: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+
+  .material-block {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+
+    .mat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 800;
+        color: #1e293b;
+      }
+
+      .tarif-badge {
+        font-size: 11px;
+        color: #1fa048;
+        font-weight: 700;
+        background: #ecfdf5;
+        padding: 3px 8px;
+        border-radius: 999px;
+      }
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .item-alasan {
+      margin-top: 8px;
+    }
+
+    .subtotal-poin {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #0284c7;
+      text-align: right;
+    }
+  }
+
+  .foto-section {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    input[type="file"] {
+      display: block;
+      width: 100%;
+      font-size: 12px;
+    }
+
+    .img-preview {
+      margin-top: 10px;
+      img {
+        width: 100%;
+        max-height: 180px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+    }
+  }
+
+  .kalkulasi-card {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+
+    .kalk-row {
+      display: flex;
+      justify-content: space-between;
+
+      &.total {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px dashed #cbd5e1;
+        font-size: 15px;
+        color: #1fa048;
+        font-weight: 800;
+      }
+    }
+  }
+
+  .btn-simpan {
+    margin-top: 20px;
+    --background: #1fa048;
+    --border-radius: 14px;
+    height: 48px;
+    font-weight: 700;
+    text-transform: none;
+  }
+}
+
+.verif-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #1e293b;
+    strong {
+      color: #1fa048;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+
+    ion-button {
+      --border-radius: 14px;
+      font-weight: 700;
+      text-transform: none;
+      height: 48px;
+
+      &.btn-sahkan {
+        --background: #1fa048;
+      }
+    }
+  }
+}
