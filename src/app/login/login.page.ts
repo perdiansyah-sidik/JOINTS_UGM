@@ -62,7 +62,11 @@ export class LoginPage implements OnInit {
     });
     await loading.present();
 
-    this.api.login({ email: this.email.trim().toLowerCase(), password: this.password })
+    this.api.login({
+      email: this.email.trim().toLowerCase(),
+      password: this.password,
+      jenis_akun: this.jenisAkun
+    })
       .pipe(
         timeout(10000),
         finalize(() => {
@@ -71,13 +75,17 @@ export class LoginPage implements OnInit {
       )
       .subscribe({
         next: async (res) => {
-          if (typeof res?.token !== 'string' || !res.token) {
+          const userData = res?.data || res?.user || null;
+          if (!userData && !res?.token) {
             this.tampilPesan('Sesi dari server tidak tersedia. Coba masuk lagi.', 'danger');
             return;
           }
-          localStorage.setItem('ecoapp_token', res.token);
-          if (res && res.data) {
-            localStorage.setItem('ecoapp_user', JSON.stringify(res.data));
+          const tokenSimpan = typeof res?.token === 'string' && res.token
+            ? res.token
+            : `ecoapp-session-${userData?.id_pengguna || 1}`;
+          localStorage.setItem('ecoapp_token', tokenSimpan);
+          if (userData) {
+            localStorage.setItem('ecoapp_user', JSON.stringify(userData));
           }
 
           if (this.ingatSaya) {
@@ -86,9 +94,17 @@ export class LoginPage implements OnInit {
             localStorage.removeItem('ecoapp_remember_email');
           }
 
-          await this.tampilPesan(`Selamat datang, ${res.data?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
-          const peran = Number(res.data?.peran);
-          const tujuan = peran === 4 ? '/dashboard-pengelola' : peran === 5 ? '/dashboard-mitra' : '/dashboard';
+          await this.tampilPesan(`Selamat datang, ${userData?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
+          const peranNum = Number(userData?.peran);
+          const peranStr = String(userData?.peran || '').toUpperCase();
+          const peranApp = String(userData?.peran_aplikasi || '').toUpperCase();
+
+          let tujuan = '/dashboard';
+          if (peranNum === 4 || peranStr === 'PENGELOLA' || peranStr === 'ADMIN') {
+            tujuan = '/dashboard-pengelola';
+          } else if (peranNum === 5 || peranStr === 'MITRA' || peranApp === 'MITRA' || this.jenisAkun === 'MITRA') {
+            tujuan = '/dashboard-mitra';
+          }
           await this.navCtrl.navigateRoot(tujuan, { animated: true, animationDirection: 'forward' });
         },
         error: async (err) => {

@@ -159,11 +159,7 @@ export class ApiService {
     aktif?: number;
     dibuat_oleh?: number | null;
   }): Observable<any> {
-    if (environment.demoMode) return this.http.post(`${this.apiUrl}/drop-points`, payload);
-    const { aktif, dibuat_oleh, ...body } = payload;
-    return this.http.post<any>(`${this.apiUrl}/drop-points`, body).pipe(
-      switchMap(res => aktif === 0 ? this.http.patch(`${this.apiUrl}/drop-points/${res.data.id_drop_point}/status`, { aktif: 0 }) : of(res))
-    );
+    return this.http.post(`${this.apiUrl}/drop-points`, payload);
   }
 
   updateDropPoint(idDropPoint: number, payload: {
@@ -194,13 +190,7 @@ export class ApiService {
 
   // ================= PENERIMAAN FISIK DI DROP POINT (T05 - ZAAFRANS) =================
   getAntreanKedatanganSetoran(): Observable<any> {
-    if (environment.demoMode) return this.http.get(`${this.apiUrl}/setoran/kedatangan`);
-    return this.http.get<any>(`${this.apiUrl}/setoran`).pipe(map(res => ({...res, data: (res.data || []).filter((s: any) => [2, 3].includes(Number(s.status))).map((s: any) => ({
-      ...s, nomor: `STR-${String(s.id_setoran).padStart(3, '0')}`, pelanggan: s.nama_pelanggan || s.nama || '',
-      status_label: Number(s.status) === 3 ? 'FINAL' : 'DITIMBANG',
-      status_drop_point_label: ({1:'MENUNGGU',2:'SELISIH',3:'DITERIMA'} as Record<number,string>)[Number(s.status_drop_point)] || 'MENUNGGU',
-      masuk_stok: Number(s.status) === 3 && Number(s.status_drop_point) === 3
-    })) })));
+    return this.http.get(`${this.apiUrl}/setoran/kedatangan`);
   }
 
   getDetailSetoranTitik(nomorAtauId: string | number): Observable<any> {
@@ -219,44 +209,13 @@ export class ApiService {
       beratMasukFisik: number;
     }>;
   }): Observable<any> {
-    if (environment.demoMode) return this.http.put(`${this.apiUrl}/setoran/terima/${idSetoran}`, payload);
-    return this.http.put(`${this.apiUrl}/setoran/terima/${idSetoran}`, {
-      status_terima_drop_point: payload.status_terima_drop_point,
-      catatan_serah_terima: payload.catatan_serah_terima,
-      detailMaterial: payload.detailMaterial.map(d => ({ id_detail_setoran: d.id_detail_setoran, beratMasukFisik: d.beratMasukFisik }))
-    });
+    return this.http.put(`${this.apiUrl}/setoran/terima/${idSetoran}`, payload);
   }
 
   // ================= PENJUALAN MATERIAL & RETUR (T06 - ZAAFRANS) =================
   getDaftarPenjualan(idMitra?: number | null): Observable<any> {
     const query = idMitra ? `?id_mitra=${idMitra}` : '';
-    if (environment.demoMode) return this.http.get(`${this.apiUrl}/penjualan${query}`);
-    return this.http.get<any>(`${this.apiUrl}/penjualan${query}`).pipe(switchMap(res => {
-      const sales: any[] = res.data || [];
-      if (!sales.length) return of({...res, data: []});
-      return forkJoin(sales.map(s => this.http.get<any>(`${this.apiUrl}/penjualan/${s.id_penjualan}`).pipe(map(detailRes => {
-        const raw = detailRes.data;
-        const details = (raw.detail || []).map((d: any) => ({...d,
-          nama_jenis: d.nama_jenis || `Material #${d.id_jenis_sampah}`,
-          berat_dikirim_kg: Number(d.berat_dikirim_kg),
-          berat_diterima_kg: d.berat_diterima_kg === null ? null : Number(d.berat_diterima_kg),
-          berat_ditolak_kg: d.berat_ditolak_kg === null ? null : Number(d.berat_ditolak_kg),
-          harga_per_kg_snapshot: Number(d.harga_per_kg_snapshot),
-          berat_retur_kembali_kg: Number(d.berat_retur_kembali_kg || 0),
-          perlu_retur: Number(d.berat_ditolak_kg || 0) > Number(d.berat_retur_kembali_kg || 0)
-        }));
-        return {...raw, kode_penjualan: `PJL-${raw.id_penjualan}`,
-          status_pelunasan: raw.status === 'DIBATALKAN' ? 'DIBATALKAN' : ['DRAFT','DIKIRIM'].includes(raw.status) ? 'MENUNGGU_KONFIRMASI' : 'BELUM_LUNAS',
-          detailPenjualan: details,
-          total_dikirim_kg: details.reduce((a: number,d: any) => a+d.berat_dikirim_kg,0),
-          total_diterima_kg: details.reduce((a: number,d: any) => a+Number(d.berat_diterima_kg || 0),0),
-          total_ditolak_kg: details.reduce((a: number,d: any) => a+Number(d.berat_ditolak_kg || 0),0),
-          total_retur_kg: details.reduce((a: number,d: any) => a+d.berat_retur_kembali_kg,0),
-          total_tagihan_rp: Number(raw.total_tagihan || 0),
-          ada_retur_tertunda: details.some((d: any) => d.perlu_retur)
-        };
-      })))).pipe(map(data => ({...res, data})));
-    }));
+    return this.http.get(`${this.apiUrl}/penjualan${query}`);
   }
 
   buatPenjualan(payload: {
@@ -272,19 +231,15 @@ export class ApiService {
       harga_per_kg_snapshot: number;
     }>;
   }): Observable<any> {
-    if (environment.demoMode) return this.http.post(`${this.apiUrl}/penjualan`, payload);
-    const { mode_simpan, dibuat_oleh, ...body } = payload;
-    return this.http.post<any>(`${this.apiUrl}/penjualan`, { ...body, request_key: body.request_key || crypto.randomUUID() }).pipe(
-      switchMap(res => mode_simpan === 'DIKIRIM' ? this.kirimDraftPenjualan(res.data.id_penjualan) : of(res))
-    );
+    return this.http.post(`${this.apiUrl}/penjualan`, payload);
   }
 
   kirimDraftPenjualan(idPenjualan: number): Observable<any> {
-    return environment.demoMode ? this.http.put(`${this.apiUrl}/penjualan/${idPenjualan}/kirim`, {}) : this.http.patch(`${this.apiUrl}/penjualan/${idPenjualan}/kirim`, {});
+    return this.http.put(`${this.apiUrl}/penjualan/${idPenjualan}/kirim`, {});
   }
 
   batalkanDraftPenjualan(idPenjualan: number): Observable<any> {
-    return environment.demoMode ? this.http.put(`${this.apiUrl}/penjualan/${idPenjualan}/batal`, {}) : this.http.patch(`${this.apiUrl}/penjualan/${idPenjualan}/batal`, {});
+    return this.http.put(`${this.apiUrl}/penjualan/${idPenjualan}/batal`, {});
   }
 
   konfirmasiPenerimaanMitra(idPenjualan: number, payload: {
@@ -298,7 +253,7 @@ export class ApiService {
       catatan_selisih_timbang?: string | null;
     }>;
   }): Observable<any> {
-    return this.http.put(`${this.apiUrl}/penjualan/konfirmasi/${idPenjualan}`, environment.demoMode ? payload : { detail: payload.detailKonfirmasi });
+    return this.http.put(`${this.apiUrl}/penjualan/konfirmasi/${idPenjualan}`, payload);
   }
 
   catatReturFisikKembali(idDetailPenjualan: number, beratReturKembaliKg: number): Observable<any> {

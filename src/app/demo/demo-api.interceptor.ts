@@ -19,15 +19,21 @@ export class DemoApiInterceptor implements HttpInterceptor {
 
     if (request.method === 'POST' && path === '/auth/login') {
       const body = request.body as { email?: string; password?: string } | null;
-      const user = DEMO_ACCOUNTS.find(item => item.email === body?.email?.trim().toLowerCase());
-      if (!user || body?.password !== DEMO_PASSWORD) return error(401, 'Email atau kata sandi demo salah.');
-      return of(new HttpResponse({ status: 200, body: {
-        status: 'success', message: 'Login demo berhasil.', token: `demo-${user.id_pengguna}`, data: user,
-      } }));
+      const emailInput = body?.email?.trim().toLowerCase() || '';
+      const user = DEMO_ACCOUNTS.find(item => item.email === emailInput);
+      if (user) {
+        if (body?.password !== DEMO_PASSWORD) return error(401, 'Email atau kata sandi demo salah.');
+        return of(new HttpResponse({ status: 200, body: {
+          status: 'success', message: 'Login demo berhasil.', token: `demo-${user.id_pengguna}`, data: user,
+        } }));
+      }
+      // Jika bukan akun demo (.pilahin.local), teruskan ke Backend asli (SQL Server)
+      return next.handle(request);
     }
 
     const actor = this.currentDemoUser();
-    if (!actor) return error(401, 'Sesi demo tidak ada. Masuk kembali dari halaman login.');
+    // Jika sedang tidak memakai akun demo (.pilahin.local), teruskan semua request ke Backend asli (SQL Server)
+    if (!actor) return next.handle(request);
     const isAdmin = actor.peran === 4;
     const customer = actor.peran >= 1 && actor.peran <= 3;
 
@@ -61,12 +67,7 @@ export class DemoApiInterceptor implements HttpInterceptor {
       const id = Number(history[2]);
       return isAdmin || actor.id_pengguna === id ? ok([]) : error(403, 'Riwayat ini bukan milik Anda.');
     }
-    if (request.method === 'GET' && path === '/mitra') return ok([{ id_mitra: 1, nama_mitra: 'Mitra Demo', alamat_mitra: 'Yogyakarta', aktif: 1 }]);
-    if (request.method === 'GET' && path === '/drop-points') return ok([{ id_drop_point: 1, nama_drop_point: 'Drop Point Demo', alamat: 'Yogyakarta', jam_operasional: '08.00–16.00', aktif: 1 }]);
-    if (request.method === 'GET' && path === '/jenis-sampah') return ok([]);
-    if (request.method === 'GET' && path === '/slot-jemput') return ok([]);
-
-    return error(501, 'Mode demo hanya untuk melihat layar. Perubahan data memerlukan Supabase.');
+    return next.handle(request);
   }
 
   private currentDemoUser(): Pengguna | null {
