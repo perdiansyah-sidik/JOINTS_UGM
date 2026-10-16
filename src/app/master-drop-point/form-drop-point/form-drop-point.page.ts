@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular';
 import * as L from 'leaflet';
-import { HttpClient } from '@angular/common/http';
+import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -12,48 +12,110 @@ import { environment } from '../../../environments/environment';
   standalone: false
 })
 export class FormDropPointPage implements OnInit {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private loadingCtrl = inject(LoadingController);
+  private toastCtrl = inject(ToastController);
+  private api = inject(ApiService);
+
   isEdit: boolean = false;
+  idDropPoint: number | null = null;
+  idPengelolaLogin: number = 1;
+
   map: L.Map | undefined;
   marker: L.Marker | undefined;
-  
+
   formData = {
-    id: null,
-    nama: '',
+    id_drop_point: null as number | null,
+    nama_drop_point: '',
     alamat: '',
-    jamOperasional: '',
-    status: 'aktif',
+    jam_operasional: 'Senin - Sabtu (08.00 - 16.00 WIB)',
+    nama_komunitas: '',
+    kontak_komunitas: '',
+    aktif: 1,
     latitude: null as number | null,
     longitude: null as number | null
   };
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private loadingCtrl: LoadingController,
-    private http: HttpClient
-  ) { }
+  private readonly STORAGE_KEY = 'pilahin_cache_drop_points';
 
   ngOnInit() {
-    // Mengecek apakah halaman dibuka untuk mengedit data lama
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id > 0) this.http.get<any>(`${environment.apiUrl}/drop-points/${id}`).subscribe({next:r=>{const d=r.data;this.isEdit=true;this.formData={id:d.id_drop_point,nama:d.nama_drop_point,alamat:d.alamat,jamOperasional:d.jam_operasional,status:d.aktif===1?'aktif':'nonaktif',latitude:d.latitude===null?null:Number(d.latitude),longitude:d.longitude===null?null:Number(d.longitude)};},error:e=>alert(e.error?.message||'Data drop point gagal dimuat.')});
-    this.route.queryParams.subscribe(params => {
-      if (this.router.getCurrentNavigation()?.extras.state) {
-        const data = this.router.getCurrentNavigation()?.extras.state?.['dataDropPoint'];
-        if (data) {
-          this.isEdit = true;
-          this.formData = { ...data };
+    this.ambilSesiPengguna();
+
+    // 1. Cek jika dikirim via Router state
+    const navState = this.router.getCurrentNavigation()?.extras.state || history.state;
+    if (navState && navState['dataDropPoint']) {
+      this.isiFormDariObjek(navState['dataDropPoint']);
+    }
+
+    // 2. Cek parameter rute /:id
+    const paramId = this.route.snapshot.paramMap.get('id');
+    if (paramId && !Number.isNaN(Number(paramId))) {
+      this.isEdit = true;
+      this.idDropPoint = Number(paramId);
+      this.muatDetailDariApiAtauCache(this.idDropPoint);
+    }
+  }
+
+  ionViewDidEnter() {
+    this.inisialisasiPeta();
+  }
+
+  ambilSesiPengguna() {
+    const sesi = localStorage.getItem('ecoapp_user');
+    if (sesi) {
+      try {
+        const user = JSON.parse(sesi);
+        if (user.id_pengguna) this.idPengelolaLogin = Number(user.id_pengguna);
+      } catch (e) {}
+    }
+  }
+
+  isiFormDariObjek(data: any) {
+    if (!data) return;
+    this.isEdit = true;
+    this.idDropPoint = Number(data.id_drop_point || data.id);
+    this.formData = {
+      id_drop_point: this.idDropPoint,
+      nama_drop_point: data.nama_drop_point || data.nama || '',
+      alamat: data.alamat || '',
+      jam_operasional: data.jam_operasional || data.jamOperasional || '',
+      nama_komunitas: data.nama_komunitas || '',
+      kontak_komunitas: data.kontak_komunitas || '',
+      aktif: data.aktif !== undefined ? (Number(data.aktif) === 0 ? 0 : 1) : 1,
+      latitude: data.latitude !== null && data.latitude !== undefined ? Number(data.latitude) : null,
+      longitude: data.longitude !== null && data.longitude !== undefined ? Number(data.longitude) : null
+    };
+    this.perbaruiPinPeta();
+  }
+
+  muatDetailDariApiAtauCache(id: number) {
+    this.api.getDropPointDetail(id).subscribe({
+      next: (res: any) => {
+        if (res && res.status === 'success' && res.data) {
+          this.isiFormDariObjek(res.data);
+        }
+      },
+      error: () => {
+        if (!environment.demoMode) return;
+        const cached = localStorage.getItem(this.STORAGE_KEY);
+        if (cached) {
+          try {
+            const list = JSON.parse(cached);
+            const found = list.find((d: any) => Number(d.id_drop_point) === id);
+            if (found) this.isiFormDariObjek(found);
+          } catch (e) {}
         }
       }
     });
   }
 
-  // ionViewDidEnter dipanggil saat HTML selesai dimuat. Wajib untuk inisialisasi peta di Ionic.
-  ionViewDidEnter() {
-    this.inisialisasiPeta();
-  }
-
   inisialisasiPeta() {
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+    }
+
     const iconDefault = L.icon({
       iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -64,8 +126,8 @@ export class FormDropPointPage implements OnInit {
     });
     L.Marker.prototype.options.icon = iconDefault;
 
-    const startLat = this.formData.latitude || -6.2235;
-    const startLng = this.formData.longitude || 107.0466;
+    const startLat = this.formData.latitude ?? -6.259124;
+    const startLng = this.formData.longitude ?? 106.797215;
 
     this.map = L.map('mapId').setView([startLat, startLng], 14);
 
@@ -73,30 +135,27 @@ export class FormDropPointPage implements OnInit {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-    if (this.formData.latitude && this.formData.longitude) {
+    if (this.formData.latitude !== null && this.formData.longitude !== null) {
       this.marker = L.marker([this.formData.latitude, this.formData.longitude]).addTo(this.map);
     }
 
-    // EVENT KLIK PETA (Sekarang ditambah Reverse Geocoding)
     this.map.on('click', async (e: any) => {
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
+      const lat = Number(e.latlng.lat.toFixed(6));
+      const lng = Number(e.latlng.lng.toFixed(6));
 
       if (this.marker) {
         this.map?.removeLayer(this.marker);
       }
       this.marker = L.marker([lat, lng]).addTo(this.map!);
-      
+
       this.formData.latitude = lat;
       this.formData.longitude = lng;
 
-      // Fitur Canggih: Mengambil teks alamat dari koordinat yang diklik
       try {
         const respon = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
         const data = await respon.json();
-        if (data && data.display_name) {
-          // Otomatis isi kotak Alamat Lengkap
-          this.formData.alamat = data.display_name;
+        if (data && data.display_name && !this.formData.alamat) {
+          this.formData.alamat = String(data.display_name).slice(0, 255);
         }
       } catch (error) {
         console.error('Gagal mengambil nama jalan:', error);
@@ -104,68 +163,74 @@ export class FormDropPointPage implements OnInit {
     });
   }
 
-  // FUNGSI BARU: Menerjemahkan Teks Alamat menjadi Pin di Peta
+  perbaruiPinPeta() {
+    if (!this.map) return;
+    if (this.formData.latitude !== null && this.formData.longitude !== null) {
+      const lat = Number(this.formData.latitude);
+      const lng = Number(this.formData.longitude);
+      this.map.setView([lat, lng], 15);
+      if (this.marker) this.map.removeLayer(this.marker);
+      this.marker = L.marker([lat, lng]).addTo(this.map);
+    }
+  }
+
+  resetKoordinat() {
+    this.formData.latitude = null;
+    this.formData.longitude = null;
+    if (this.marker && this.map) {
+      this.map.removeLayer(this.marker);
+      this.marker = undefined;
+    }
+  }
+
   async cariAlamatKePeta() {
-    if (!this.formData.alamat) return;
+    if (!this.formData.alamat || !this.formData.alamat.trim()) {
+      this.tampilToast('Masukkan teks alamat terlebih dahulu untuk dicari di peta.', 'warning');
+      return;
+    }
 
     try {
-      // Mencari koordinat berdasarkan teks alamat
-      const respon = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${this.formData.alamat}`);
+      const respon = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.formData.alamat)}`);
       const data = await respon.json();
 
       if (data && data.length > 0) {
-        // Ambil hasil pencarian pertama yang paling relevan
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
+        const lat = Number(parseFloat(data[0].lat).toFixed(6));
+        const lon = Number(parseFloat(data[0].lon).toFixed(6));
 
-        // Terbang ke lokasi baru dengan animasi zoom level 16
         this.map?.setView([lat, lon], 16);
 
-        // Pindahkan pin marker
         if (this.marker) {
           this.map?.removeLayer(this.marker);
         }
         this.marker = L.marker([lat, lon]).addTo(this.map!);
 
-        // Simpan koordinatnya
         this.formData.latitude = lat;
         this.formData.longitude = lon;
+        this.tampilToast('Titik koordinat berhasil ditemukan di peta!', 'success');
       } else {
-        alert('Alamat tidak ditemukan di peta. Coba gunakan nama kota atau jalan yang lebih umum.');
+        this.tampilToast('Alamat tidak ditemukan di peta. Coba gunakan nama jalan/kecamatan yang lebih umum.', 'warning');
       }
     } catch (error) {
       console.error('Gagal mencari alamat:', error);
     }
   }
 
-  simpanData() {
-    const b={nama_drop_point:this.formData.nama.trim(),alamat:this.formData.alamat.trim(),jam_operasional:this.formData.jamOperasional.trim(),latitude:this.formData.latitude,longitude:this.formData.longitude,aktif:this.formData.status==='aktif'?1:0};
-    if(!b.nama_drop_point||!b.alamat||!b.jam_operasional){alert('Nama, alamat, dan jam operasional wajib diisi.');return;}
-    const id=Number(this.route.snapshot.paramMap.get('id'));
-    const request=id?this.http.put(`${environment.apiUrl}/drop-points/${id}`,b):this.http.post<any>(`${environment.apiUrl}/drop-points`,(({aktif,...data})=>data)(b));
-    request.subscribe({next:(response:any)=>{
-      if (!id && b.aktif===0) {
-        this.http.patch(`${environment.apiUrl}/drop-points/${response.data.id_drop_point}/status`,{aktif:0}).subscribe({next:()=>this.router.navigate(['/master-drop-point']),error:(e:any)=>alert(e.error?.message||'Drop point tersimpan, tetapi status belum berhasil diubah.')});
-      } else this.router.navigate(['/master-drop-point']);
-    },error:(e:any)=>alert(e.error?.message||'Gagal menyimpan drop point.')});
-  }
-
-  // FUNGSI BARU: Mendapatkan lokasi GPS terkini dari perangkat pengguna
-  // FUNGSI BARU: Mendapatkan lokasi GPS dengan Loading Animation
   async dapatkanLokasiTerkini() {
-    if (navigator.geolocation) {
-      
-      // 1. Munculkan buletan loading
-      const loading = await this.loadingCtrl.create({
-        message: 'Mencari lokasi Anda...',
-        spinner: 'crescent' // Gaya buletan muter (bisa juga 'circles' atau 'dots')
-      });
-      await loading.present();
+    if (!navigator.geolocation) {
+      this.tampilToast('Browser atau perangkat tidak mendukung fitur lokasi GPS.', 'danger');
+      return;
+    }
 
-      // 2. Mulai cari GPS
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+    const loading = await this.loadingCtrl.create({
+      message: 'Mencari koordinat GPS Anda...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = Number(position.coords.latitude.toFixed(6));
+        const lng = Number(position.coords.longitude.toFixed(6));
 
         this.map?.setView([lat, lng], 16);
 
@@ -181,26 +246,176 @@ export class FormDropPointPage implements OnInit {
           const respon = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
           const data = await respon.json();
           if (data && data.display_name) {
-            this.formData.alamat = data.display_name;
+            this.formData.alamat = String(data.display_name).slice(0, 255);
           }
         } catch (error) {
           console.error('Gagal mengambil nama jalan dari GPS:', error);
         } finally {
-          // 3. Matikan loading saat berhasil
-          loading.dismiss(); 
+          loading.dismiss();
         }
-        
-      }, (error) => {
-        // 4. Matikan loading jika GPS gagal/ditolak, lalu beri peringatan
+      },
+      () => {
         loading.dismiss();
-        alert('Gagal mendapatkan lokasi. Pastikan GPS/Location menyala dan aplikasi diizinkan mengaksesnya.');
-      }, {
-        enableHighAccuracy: true, // Memaksa browser mencari koordinat paling akurat
-        timeout: 10000 // Batas waktu pencarian 10 detik agar loading tidak nyangkut selamanya
-      });
+        this.tampilToast('Gagal mendapatkan GPS. Pastikan izin lokasi diaktifkan.', 'warning');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
-    } else {
-      alert('Browser atau perangkat kamu tidak mendukung fitur lokasi GPS.');
+  validasiSesuaiKamusData(): string | null {
+    const nama = (this.formData.nama_drop_point || '').trim();
+    const alamat = (this.formData.alamat || '').trim();
+    const jam = (this.formData.jam_operasional || '').trim();
+    const komp = (this.formData.nama_komunitas || '').trim();
+    const kontak = (this.formData.kontak_komunitas || '').trim();
+
+    if (!nama || !alamat || !jam) {
+      return 'Nama Drop Point, Alamat Lengkap, dan Jam Operasional wajib diisi!';
     }
+    if (nama.length > 100) {
+      return 'Nama Drop Point maksimal 100 karakter (NVARCHAR(100))!';
+    }
+    if (alamat.length > 255) {
+      return 'Alamat Lengkap maksimal 255 karakter (NVARCHAR(255))!';
+    }
+    if (jam.length > 200) {
+      return 'Jam Operasional maksimal 200 karakter (NVARCHAR(200))!';
+    }
+    if (komp.length > 20) {
+      return 'Nama Komunitas maksimal 20 karakter (VARCHAR(20)) sesuai kamus data!';
+    }
+    if (kontak.length > 20) {
+      return 'Kontak Komunitas maksimal 20 karakter (VARCHAR(20)) sesuai kamus data!';
+    }
+    // Constraint Kamus Data Tabel 3: "Kontak tidak boleh terisi tanpa nama"
+    if (kontak && !komp) {
+      return 'Kontak Komunitas tidak boleh diisi jika Nama Komunitas kosong!';
+    }
+
+    // Constraint Kamus Data Tabel 3: "Latitude [-90..90], Longitude [-180..180]. Keduanya NULL atau keduanya terisi."
+    const hasLat = this.formData.latitude !== null && this.formData.latitude !== undefined && String(this.formData.latitude).trim() !== '';
+    const hasLng = this.formData.longitude !== null && this.formData.longitude !== undefined && String(this.formData.longitude).trim() !== '';
+
+    if (hasLat !== hasLng) {
+      return 'Koordinat Latitude dan Longitude harus diisi berpasangan (keduanya terisi atau keduanya dikosongkan)!';
+    }
+    if (hasLat && hasLng) {
+      const lat = Number(this.formData.latitude);
+      const lng = Number(this.formData.longitude);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        return 'Koordinat Latitude dan Longitude harus berupa angka desimal yang valid!';
+      }
+      if (lat < -90 || lat > 90) {
+        return 'Latitude harus berada pada rentang -90 hingga 90!';
+      }
+      if (lng < -180 || lng > 180) {
+        return 'Longitude harus berada pada rentang -180 hingga 180!';
+      }
+    }
+
+    return null;
+  }
+
+  async simpanData() {
+    const errorMsg = this.validasiSesuaiKamusData();
+    if (errorMsg) {
+      this.tampilToast(errorMsg, 'warning');
+      return;
+    }
+
+    const hasCoord = this.formData.latitude !== null && this.formData.latitude !== undefined && String(this.formData.latitude).trim() !== '';
+
+    const payload = {
+      nama_drop_point: this.formData.nama_drop_point.trim(),
+      alamat: this.formData.alamat.trim(),
+      jam_operasional: this.formData.jam_operasional.trim(),
+      nama_komunitas: this.formData.nama_komunitas.trim() || null,
+      kontak_komunitas: this.formData.kontak_komunitas.trim() || null,
+      latitude: hasCoord ? Number(Number(this.formData.latitude).toFixed(6)) : null,
+      longitude: hasCoord ? Number(Number(this.formData.longitude).toFixed(6)) : null,
+      aktif: Number(this.formData.aktif) === 0 ? 0 : 1,
+      dibuat_oleh: this.idPengelolaLogin,
+      diubah_oleh: this.idPengelolaLogin
+    };
+
+    const loading = await this.loadingCtrl.create({
+      message: this.isEdit ? 'Menyimpan perubahan Drop Point...' : 'Menambahkan Drop Point baru...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    if (this.isEdit && this.idDropPoint) {
+      this.api.updateDropPoint(this.idDropPoint, payload).subscribe({
+        next: async (res: any) => {
+          await loading.dismiss();
+          if (environment.demoMode) this.sinkronKeCacheLokal(this.idDropPoint!, payload, false);
+          await this.tampilToast(res?.message || 'Data Drop Point berhasil diperbarui!', 'success');
+          this.router.navigate(['/master-drop-point']);
+        },
+        error: async (err) => {
+          await loading.dismiss();
+          if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
+            this.sinkronKeCacheLokal(this.idDropPoint!, payload, false);
+            await this.tampilToast('Data Drop Point berhasil diperbarui!', 'success');
+            this.router.navigate(['/master-drop-point']);
+          } else {
+            await this.tampilToast(err?.error?.message || 'Gagal memperbarui Drop Point.', 'danger');
+          }
+        }
+      });
+    } else {
+      this.api.tambahDropPoint(payload).subscribe({
+        next: async (res: any) => {
+          await loading.dismiss();
+          const newId = res?.data?.id_drop_point || Date.now();
+          if (environment.demoMode) this.sinkronKeCacheLokal(newId, payload, true);
+          await this.tampilToast(res?.message || 'Drop Point baru berhasil ditambahkan!', 'success');
+          this.router.navigate(['/master-drop-point']);
+        },
+        error: async (err) => {
+          await loading.dismiss();
+          if (environment.demoMode && (!err?.status || err.status === 0 || err.status === 404 || err.status >= 500)) {
+            const newId = Math.floor(Math.random() * 900) + 10;
+            this.sinkronKeCacheLokal(newId, payload, true);
+            await this.tampilToast('Drop Point baru berhasil ditambahkan!', 'success');
+            this.router.navigate(['/master-drop-point']);
+          } else {
+            await this.tampilToast(err?.error?.message || 'Gagal menambahkan Drop Point.', 'danger');
+          }
+        }
+      });
+    }
+  }
+
+  private sinkronKeCacheLokal(id: number, payload: any, isNew: boolean) {
+    if (!environment.demoMode) return;
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      if (isNew) {
+        list.unshift({
+          id_drop_point: id,
+          ...payload,
+          is_deleted: 0,
+          dibuat_pada: new Date().toISOString()
+        });
+      } else {
+        const idx = list.findIndex((x: any) => Number(x.id_drop_point) === Number(id));
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...payload, diubah_pada: new Date().toISOString() };
+        }
+      }
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  async tampilToast(message: string, color: 'success' | 'warning' | 'danger' = 'success') {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2600,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 }

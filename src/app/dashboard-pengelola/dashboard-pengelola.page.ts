@@ -113,6 +113,45 @@ export class DashboardPengelolaPage implements OnInit {
         if (res && Array.isArray(res.data)) {
           this.jumlahMitraAktif = res.data.filter((m: any) => Number(m.aktif) === 1).length;
         }
+      },
+      error: () => {}
+    });
+
+    this.api.getRingkasanPengelola().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          if (res.data.lokasi_drop_point) this.pengelola.lokasi = res.data.lokasi_drop_point;
+          this.tindakanHariIni[0].count = Number(res.data.menunggu_verifikasi ?? this.tindakanHariIni[0].count);
+          this.tindakanHariIni[1].count = Number(res.data.belum_ditugaskan ?? this.tindakanHariIni[1].count);
+          this.tindakanHariIni[2].count = Number(res.data.pengajuan_pencairan ?? this.tindakanHariIni[2].count);
+          this.tindakanHariIni[3].count = Number(res.data.selisih_kedatangan ?? this.tindakanHariIni[3].count);
+        }
+      },
+      error: () => {}
+    });
+
+    this.api.getLaporanStokPenjualan().subscribe({
+      next: (res) => {
+        if (res && res.status === 'success' && Array.isArray(res.data)) {
+          const totalStok = Number(res.ringkasan?.total_stok_tersedia_kg || 0);
+          const warnaMap: Record<string, string> = {
+            Plastik: '#2563EB',
+            Kardus: '#D97706',
+            Kaca: '#16A34A',
+            Logam: '#64748B'
+          };
+          this.stok.total = totalStok;
+          this.stok.items = res.data.map((m: any) => {
+            const brt = Number(m.stok_tersedia_kg || 0);
+            const pct = totalStok > 0 ? Math.round((brt / totalStok) * 100) : 0;
+            return {
+              nama: m.nama_jenis,
+              berat: brt,
+              persentase: pct,
+              warna: warnaMap[m.nama_jenis] || '#15803D'
+            };
+          });
+        }
         if (event?.target) event.target.complete();
       },
       error: () => {
@@ -168,6 +207,13 @@ export class DashboardPengelolaPage implements OnInit {
     this.router.navigate(['/master-drop-point']);
   }
 
+  bukaTindakan(item: any) {
+    if (item.route === '/terima-di-titik') {
+      this.router.navigate(['/terima-di-titik']);
+      return;
+    }
+    this.bukaMenu(item.title);
+  }
   // Navigasi ke Modul Master Jenis Sampah (M04)
   goToJenisSampah() {
     this.router.navigate(['/jenis-sampah']);

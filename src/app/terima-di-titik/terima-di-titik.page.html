@@ -1,69 +1,323 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard-pengelola" color="success"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center"><strong>Penerimaan Fisik</strong></ion-title>
-    <ion-buttons slot="end">
-      <div style="width: 48px;"></div>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="t05-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="muatDaftarKedatangan($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-<ion-content class="ion-padding eco-bg">
-  
-  <div class="search-container">
-    <ion-searchbar [(ngModel)]="nomorSetoran" placeholder="Cari No. Setoran (Ketik: ST-001)" (keyup.enter)="cariSetoran()" mode="ios"></ion-searchbar>
-  </div>
+  <div class="t05-container">
 
-  <div *ngIf="dataSetoran">
-    <ion-card class="eco-card">
-      <ion-card-content>
-        <h2 style="color: #2e7d32; font-weight: bold; margin-top: 0;">{{ dataSetoran.nomor }}</h2>
-        <p><strong>Pelanggan:</strong> {{ dataSetoran.pelanggan }}</p>
-        <p><strong>Waktu Timbang:</strong> {{ dataSetoran.waktuTimbang }}</p>
-        <ion-badge color="primary">Status Verifikasi: FINAL</ion-badge>
-      </ion-card-content>
-    </ion-card>
+    <!-- 1. TOP BAR NAVIGASI -->
+    <div class="top-nav-bar">
+      <button type="button" class="back-btn" routerLink="/dashboard-pengelola">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
 
-    <h3 style="font-size: 16px; font-weight: bold; margin-top: 20px;">Catat Berat Aktual Masuk</h3>
-    <p style="font-size: 12px; color: gray;">Isi berat fisik yang benar-benar tiba di lokasi. Jika berbeda dengan hasil timbang awal, status akan otomatis menjadi SELISIH.</p>
+      <div class="top-title-group">
+        <span class="eyebrow-badge">TRANSAKSI OPERASIONAL &bull; T05</span>
+        <h1>Penerimaan Fisik Drop Point</h1>
+      </div>
 
-    <ion-card class="eco-card" *ngFor="let item of dataSetoran.detailMaterial; let i = index">
-      <ion-card-content>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <strong style="font-size: 16px;">{{ item.jenis }}</strong>
-          <ion-text color="medium">Timbang Awal: {{ item.beratDiterimaAwal }} kg</ion-text>
-        </div>
-        
-        <div class="input-group">
-          <ion-item lines="none" class="eco-input-item">
-            <ion-input type="number" [(ngModel)]="item.beratMasukFisik" placeholder="Input berat aktual (kg)" (ionChange)="cekSelisih()"></ion-input>
-            <ion-text slot="end" style="font-weight: bold;">kg</ion-text>
-          </ion-item>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <div class="input-group" style="margin-top: 15px;" *ngIf="adaSelisih">
-      <ion-label color="danger" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; display: block;">
-        <ion-icon name="warning-outline"></ion-icon> Terdapat Selisih Timbangan!
-      </ion-label>
-      <ion-item lines="none" class="eco-input-item" style="border: 1px solid #eb445a;">
-        <ion-textarea [(ngModel)]="catatanPenerimaan" rows="2" placeholder="Wajib tulis alasan selisih (misal: ada barang yang jatuh di jalan)..."></ion-textarea>
-      </ion-item>
+      <button type="button" class="refresh-top-btn" (click)="muatDaftarKedatangan()" title="Muat Ulang">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </button>
     </div>
-  </div>
 
-  <div class="ion-text-center" style="margin-top: 50px;" *ngIf="!dataSetoran">
-    <ion-icon name="search-circle-outline" style="font-size: 80px; color: #ccc;"></ion-icon>
-    <p style="color: gray;">Silakan cari Nomor Setoran untuk mulai mencatat penerimaan fisik.</p>
-  </div>
+    <!-- 2. HERO BANNER RINGKASAN KEDATANGAN FISIK -->
+    <div class="t05-hero-card">
+      <div class="hero-decor"></div>
+      <div class="hero-top">
+        <div>
+          <span class="hero-label">PEMISAHAN VERIFIKASI POIN & STOK FISIK</span>
+          <h2>Serah Terima Material di Titik</h2>
+          <p>Stok baru tersedia dijual bila setoran <strong>FINAL</strong> &amp; penerimaan <strong>DITERIMA</strong>. Status <strong>SELISIH</strong> belum masuk stok.</p>
+        </div>
+      </div>
 
+      <div class="stats-grid-4">
+        <div class="stat-box">
+          <span class="num">{{ jmlMenunggu }}</span>
+          <span class="lbl">Menunggu (1)</span>
+        </div>
+        <div class="stat-box warn-stat">
+          <span class="num">{{ jmlSelisih }}</span>
+          <span class="lbl">Selisih (2)</span>
+        </div>
+        <div class="stat-box ok-stat">
+          <span class="num">{{ jmlDiterima }}</span>
+          <span class="lbl">Diterima (3)</span>
+        </div>
+        <div class="stat-box">
+          <span class="num">{{ jmlMasukStok }}</span>
+          <span class="lbl">Masuk Stok</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PENCARIAN NOMOR SETORAN & FILTER STATUS DROP POINT -->
+    <div class="search-panel-card">
+      <div class="search-row">
+        <div class="search-box">
+          <ion-icon name="barcode-outline"></ion-icon>
+          <input
+            type="text"
+            placeholder="Cari Nomor Label Wadah (cth: STR-101 atau 101)..."
+            [(ngModel)]="nomorSetoran"
+            (input)="terapkanFilterAntrean()"
+            (keyup.enter)="cariSetoran()" />
+          @if (nomorSetoran) {
+            <ion-icon name="close-circle" class="clear-ic" (click)="nomorSetoran = ''; terapkanFilterAntrean()"></ion-icon>
+          }
+        </div>
+        <button type="button" class="btn-cari-nomor" (click)="cariSetoran()">
+          Periksa
+        </button>
+      </div>
+
+      <div class="filter-pills-row">
+        <button type="button" class="f-pill" [class.active]="filterStatusDp === 'SEMUA'" (click)="pilihFilterStatus('SEMUA')">
+          Semua ({{ daftarAntrean.length }})
+        </button>
+        <button type="button" class="f-pill" [class.active]="filterStatusDp === 'MENUNGGU'" (click)="pilihFilterStatus('MENUNGGU')">
+          Menunggu ({{ jmlMenunggu }})
+        </button>
+        <button type="button" class="f-pill warn-pill" [class.active]="filterStatusDp === 'SELISIH'" (click)="pilihFilterStatus('SELISIH')">
+          Selisih ({{ jmlSelisih }})
+        </button>
+        <button type="button" class="f-pill ok-pill" [class.active]="filterStatusDp === 'DITERIMA'" (click)="pilihFilterStatus('DITERIMA')">
+          Diterima ({{ jmlDiterima }})
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. FORM PEMERIKSAAN & PENCATATAN BERAT MASUK FISIK (AKTIF SAAT SETORAN DIPILIH) -->
+    @if (dataSetoran) {
+    <div class="inspection-card">
+      <div class="insp-header">
+        <div>
+          <span class="insp-eyebrow">FORM SERAH TERIMA FISIK &bull; {{ dataSetoran.metode_setor }}</span>
+          <h3>Label Wadah: {{ dataSetoran.nomor }}</h3>
+        </div>
+        <button type="button" class="btn-close-insp" (click)="tutupDetailPemeriksaan()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="insp-meta-grid">
+        <div class="meta-item">
+          <span class="m-lbl">Pemilik Sampah</span>
+          <strong>{{ dataSetoran.pelanggan }} {{ dataSetoran.nama_usaha ? '(' + dataSetoran.nama_usaha + ')' : '' }}</strong>
+        </div>
+        <div class="meta-item">
+          <span class="m-lbl">Status Verifikasi Poin</span>
+          <span class="badge-verif" [class.final]="dataSetoran.status_label === 'FINAL'">
+            {{ dataSetoran.status_label }} (Dasar poin terkunci)
+          </span>
+        </div>
+        <div class="meta-item">
+          <span class="m-lbl">Status Titik Saat Ini</span>
+          <span class="badge-dp"
+            [class.dp-menunggu]="dataSetoran.status_drop_point_label === 'MENUNGGU'"
+            [class.dp-selisih]="dataSetoran.status_drop_point_label === 'SELISIH'"
+            [class.dp-diterima]="dataSetoran.status_drop_point_label === 'DITERIMA'">
+            {{ dataSetoran.status_drop_point_label }}
+          </span>
+        </div>
+        <div class="meta-item">
+          <span class="m-lbl">Penerima Fisik (Pengelola)</span>
+          <strong>{{ namaPengelolaLogin }}</strong>
+        </div>
+      </div>
+
+      <div class="material-section-head">
+        <div>
+          <h4>Rincian Berat Masuk per Material</h4>
+          <p>Isi berat aktual yang tiba di Drop Point (DECIMAL(12,3)). Tidak mengubah poin pelanggan.</p>
+        </div>
+        <button type="button" class="btn-match-all" (click)="samakanSemuaBeratAwal()">
+          <ion-icon name="checkmark-done-outline"></ion-icon>
+          <span>Samakan Timbang Awal</span>
+        </button>
+      </div>
+
+      <div class="material-inputs-stack">
+        @for (item of dataSetoran.detailMaterial; track item.id_detail_setoran) {
+        <div class="mat-item-box" [class.mat-diff]="getSelisihItem(item) !== 0">
+          <div class="mat-top-row">
+            <div class="mat-name-badge">
+              <ion-icon name="cube-outline"></ion-icon>
+              <strong>{{ item.jenis }}</strong>
+            </div>
+            <div class="mat-initial-info">
+              <span>Timbang Diterima Awal: <strong>{{ item.beratDiterimaAwal }} kg</strong></span>
+              @if (item.beratDitolakAwal > 0) {
+                <span class="rejected-tag">Ditolak: {{ item.beratDitolakAwal }} kg</span>
+              }
+            </div>
+          </div>
+
+          <div class="mat-input-row">
+            <div class="input-col">
+              <label>Berat Masuk Drop Point (kg) <span class="req">*</span></label>
+              <div class="kg-input-wrap">
+                <input
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  placeholder="0.000"
+                  [(ngModel)]="item.beratMasukFisik"
+                  (input)="cekSelisih()"
+                  (change)="cekSelisih()" />
+                <span class="unit">kg</span>
+              </div>
+            </div>
+
+            <div class="diff-col">
+              <span class="diff-lbl">Selisih Kedatangan</span>
+              @if (getSelisihItem(item) === 0) {
+                <span class="diff-val ok">Sesuai (0 kg)</span>
+              } @else {
+                <span class="diff-val warn">
+                  {{ getSelisihItem(item) > 0 ? '+' : '' }}{{ getSelisihItem(item) }} kg
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Ringkasan Total Berat & Status Otomatis -->
+      <div class="summary-strip" [class.strip-selisih]="adaSelisih" [class.strip-diterima]="!adaSelisih">
+        <div>
+          <span class="s-title">Status Penerimaan yang Akan Disimpan:</span>
+          <strong>{{ adaSelisih ? '2 - SELISIH (Tertahan / Belum Masuk Stok)' : '3 - DITERIMA (Siap Masuk Stok bila Setoran FINAL)' }}</strong>
+        </div>
+        <div class="s-totals">
+          <span>Awal: {{ totalBeratAwalDetail }} kg</span>
+          <span>&rarr;</span>
+          <strong>Fisik Tiba: {{ totalBeratFisikDetail }} kg</strong>
+        </div>
+      </div>
+
+      <!-- Catatan Serah Terima (Wajib jika SELISIH, opsional jika DITERIMA) -->
+      <div class="catatan-box" [class.wajib-error]="adaSelisih && !catatanPenerimaan.trim()">
+        <label>
+          Catatan Serah Terima di Drop Point
+          @if (adaSelisih) {
+            <span class="req">(WAJIB DIISI KARENA ADA SELISIH TIMBANGAN)</span>
+          } @else {
+            <span class="opt">(Opsional, maks. 500 karakter)</span>
+          }
+        </label>
+        <textarea
+          rows="2"
+          maxlength="500"
+          [(ngModel)]="catatanPenerimaan"
+          [placeholder]="adaSelisih ? 'Jelaskan penyebab selisih berat antara timbang awal dan fisik yang tiba di titik...' : 'Catatan tambahan penerimaan fisik di Drop Point (opsional)...'"></textarea>
+      </div>
+
+      <div class="insp-actions">
+        <button type="button" class="btn-batal-insp" (click)="tutupDetailPemeriksaan()">
+          Batal
+        </button>
+        <button
+          type="button"
+          class="btn-simpan-insp"
+          [class.btn-warn]="adaSelisih"
+          [disabled]="adaSelisih && !catatanPenerimaan.trim()"
+          (click)="simpanPenerimaan()">
+          <ion-icon [name]="adaSelisih ? 'alert-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          <span>{{ adaSelisih ? 'Simpan Status SELISIH' : 'Konfirmasi DITERIMA di Titik' }}</span>
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- 5. DAFTAR ANTREAN & RIWAYAT KEDATANGAN SETORAN -->
+    <div class="list-section-header">
+      <span>ANTREAN &amp; RIWAYAT KEDATANGAN ({{ daftarAntreanTampil.length }})</span>
+      <span class="hint">Klik kartu untuk periksa / perbarui</span>
+    </div>
+
+    @if (loadingList) {
+      <div class="empty-box">
+        <ion-spinner name="crescent" color="success"></ion-spinner>
+        <p>Memuat daftar kedatangan setoran di Drop Point...</p>
+      </div>
+    } @else if (daftarAntreanTampil.length === 0) {
+      <div class="empty-box">
+        <ion-icon name="cube-outline"></ion-icon>
+        <h4>Tidak Ada Setoran pada Filter Ini</h4>
+        <p>Gunakan kotak pencarian nomor wadah atau ubah filter status di atas.</p>
+      </div>
+    } @else {
+      <div class="queue-cards-stack">
+        @for (s of daftarAntreanTampil; track s.id_setoran) {
+        <div class="queue-item-card" (click)="cariSetoran(s.id_setoran)">
+          <div class="q-top">
+            <div class="q-id-group">
+              <span class="nomor-pill">{{ s.nomor }}</span>
+              <span class="metode-pill">{{ s.metode_setor === 'DIJEMPUT' ? 'Dijemput Kurir' : 'Antar Sendiri' }}</span>
+            </div>
+
+            <span class="status-dp-pill"
+              [class.pill-menunggu]="s.status_drop_point_label === 'MENUNGGU'"
+              [class.pill-selisih]="s.status_drop_point_label === 'SELISIH'"
+              [class.pill-diterima]="s.status_drop_point_label === 'DITERIMA'">
+              {{ s.status_drop_point_label }}
+            </span>
+          </div>
+
+          <h3 class="cust-name">{{ s.pelanggan }} {{ s.nama_usaha ? '• ' + s.nama_usaha : '' }}</h3>
+
+          <div class="q-info-grid">
+            <div>
+              <span class="lbl">Verifikasi Poin</span>
+              <strong>{{ s.status_label }}</strong>
+            </div>
+            <div>
+              <span class="lbl">Berat Timbang Awal</span>
+              <strong>{{ s.total_berat_awal_kg || 0 }} kg</strong>
+            </div>
+            <div>
+              <span class="lbl">Berat Tiba di Titik</span>
+              <strong>{{ s.total_berat_masuk_kg !== null && s.total_berat_masuk_kg !== undefined ? (s.total_berat_masuk_kg + ' kg') : 'Belum dicatat' }}</strong>
+            </div>
+          </div>
+
+          @if (s.catatan_serah_terima) {
+            <div class="catatan-preview">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>{{ s.catatan_serah_terima }}</span>
+            </div>
+          }
+
+          <div class="q-bottom">
+            @if (s.masuk_stok) {
+              <span class="stok-flag ready">
+                <ion-icon name="checkmark-done-circle"></ion-icon>
+                Tersedia di Stok Drop Point
+              </span>
+            } @else if (s.status_drop_point_label === 'SELISIH') {
+              <span class="stok-flag hold">
+                <ion-icon name="warning"></ion-icon>
+                Tertahan (Selisih belum masuk stok)
+              </span>
+            } @else {
+              <span class="stok-flag wait">
+                <ion-icon name="time-outline"></ion-icon>
+                Belum masuk stok tersedia
+              </span>
+            }
+
+            <button type="button" class="btn-periksa-card" (click)="cariSetoran(s.id_setoran); $event.stopPropagation()">
+              <span>{{ s.status_drop_point_label === 'MENUNGGU' ? 'Catat Kedatangan' : 'Periksa / Ubah' }}</span>
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    }
+
+  </div>
 </ion-content>
-
-<ion-footer class="ion-no-border ion-padding" *ngIf="dataSetoran">
-  <ion-button expand="block" class="btn-submit-eco" (click)="simpanPenerimaan()" [disabled]="adaSelisih && !catatanPenerimaan">
-    Konfirmasi Penerimaan
-  </ion-button>
-</ion-footer>

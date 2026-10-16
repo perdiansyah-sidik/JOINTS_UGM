@@ -486,4 +486,230 @@
       }
     }
   }
+
+  .coord-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+    background: #DCFCE7;
+    color: #15803D;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+
+    &.muted-chip {
+      background: #F1F5F9;
+      color: #64748B;
+    }
+  }
+
+  .muted-val {
+    color: #94A3B8 !important;
+    font-weight: 600 !important;
+  }
+
+  .map-detail-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    .btn-map-nav {
+      flex: 1;
+      height: 36px;
+      border-radius: 11px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: #1D4ED8;
+      font-size: 11.5px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+
+    .btn-view-detail {
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 11px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      color: #334155;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+  }
+}
+
+/* MODAL DETAIL DROP POINT */
+.custom-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 41, 30, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.custom-modal-sheet {
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  background: #FFFFFF;
+  border-radius: 26px 26px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.16);
+
+  .modal-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #E2ECE7;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    .modal-eyebrow {
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #15803D;
+      margin-bottom: 3px;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F291E;
+      margin: 0;
+    }
+
+    .close-modal-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  }
+
+  .modal-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+
+    .detail-summary-box {
+      background: #F8FAF9;
+      border: 1px solid #E2ECE7;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+
+      .detail-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 12.5px;
+        border-bottom: 1px dashed #E2E8F0;
+        padding-bottom: 8px;
+
+        &:last-child {
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+
+        span {
+          color: #64748B;
+          font-weight: 600;
+          flex-shrink: 0;
+        }
+
+        strong {
+          color: #0F291E;
+          font-weight: 800;
+          text-align: right;
+        }
+      }
+    }
+
+    .btn-full-maps {
+      width: 100%;
+      height: 44px;
+      border-radius: 14px;
+      background: #EFF6FF;
+      border: 1px solid #93C5FD;
+      color: #1D4ED8;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: 14px 20px 20px;
+    border-top: 1px solid #E2ECE7;
+    display: flex;
+    gap: 10px;
+
+    .btn-batal {
+      flex: 1;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-simpan {
+      flex: 1.5;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: #15803D;
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+  }
 }

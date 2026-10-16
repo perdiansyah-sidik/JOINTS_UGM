@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" class="master-bg">
-  <ion-refresher slot="fixed" (ionRefresh)="muatData()">
+  <ion-refresher slot="fixed" (ionRefresh)="muatData($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
@@ -7,19 +7,22 @@
 
     <!-- 1. TOP BAR NAVIGASI -->
     <div class="top-nav-bar">
-      <button type="button" class="back-btn" routerLink="/dashboard-pengelola">
+      <button type="button" class="back-btn" [routerLink]="isPengelola ? '/dashboard-pengelola' : '/dashboard'">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </button>
 
       <div class="top-title-group">
         <span class="eyebrow-badge">MASTER DATA &bull; M03</span>
-        <h1>Kelola Drop Point</h1>
+        <h1>{{ isPengelola ? 'Kelola Drop Point' : 'Lokasi Drop Point' }}</h1>
       </div>
 
-      <!-- Tombol ini langsung buka halaman Form Tambah -->
-      <button type="button" class="add-top-btn" routerLink="/form-drop-point">
-        <ion-icon name="add-outline"></ion-icon>
-      </button>
+      @if (isPengelola) {
+        <button type="button" class="add-top-btn" (click)="bukaHalamanTambah()" title="Tambah Drop Point">
+          <ion-icon name="add-outline"></ion-icon>
+        </button>
+      } @else {
+        <div style="width: 42px;"></div>
+      }
     </div>
 
     <!-- 2. HERO BANNER RINGKASAN DROP POINT -->
@@ -29,10 +32,13 @@
       <div class="hero-top-row">
         <div>
           <span class="hero-label">FASILITAS PENGUMPULAN SAMPAH</span>
-          <h2>Lokasi Operasional</h2>
-          <p>Kelola titik penimbangan dan penyimpanan sementara.</p>
+          <h2>Lokasi Operasional Pilahin</h2>
+          <p>Titik serah terima, penimbangan, dan penyimpanan 4 material anorganik.</p>
         </div>
-        
+        <div class="mvp-pill">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>MVP 1 Titik Aktif</span>
+        </div>
       </div>
 
       <div class="stats-mini-grid">
@@ -48,8 +54,9 @@
           <span class="stat-num">{{ totalDPNonaktif }}</span>
           <span class="stat-lbl">Nonaktif</span>
         </div>
-        <div class="stat-box" style="background: transparent; border: none;">
-          <!-- Kosongkan untuk menyeimbangkan grid 4 kolom, atau tambahkan info lain -->
+        <div class="stat-box">
+          <span class="stat-num">{{ totalKomunitasTerdaftar }}</span>
+          <span class="stat-lbl">Area Komunitas</span>
         </div>
       </div>
     </div>
@@ -60,7 +67,7 @@
         <ion-icon name="search-outline"></ion-icon>
         <input
           type="text"
-          placeholder="Cari nama lokasi atau alamat..."
+          placeholder="Cari nama lokasi, alamat, jam layanan, atau komunitas..."
           [(ngModel)]="kataKunci"
           (input)="terapkanFilter()" />
         @if (kataKunci) {
@@ -84,10 +91,12 @@
     <!-- 4. DAFTAR DROP POINT -->
     <div class="list-header-row">
       <span>DAFTAR LOKASI ({{ daftarDropPointTampil.length }})</span>
-      <button type="button" class="btn-tambah-inline" routerLink="/form-drop-point">
-        <ion-icon name="add-circle-outline"></ion-icon>
-        <span>Tambah Lokasi</span>
-      </button>
+      @if (isPengelola) {
+        <button type="button" class="btn-tambah-inline" (click)="bukaHalamanTambah()">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          <span>Tambah Lokasi</span>
+        </button>
+      }
     </div>
 
     @if (loading) {
@@ -100,12 +109,14 @@
         <div class="empty-icon-box">
           <ion-icon name="storefront-outline"></ion-icon>
         </div>
-        <h3>Belum Ada Drop Point</h3>
-        <p>Tambahkan lokasi pengumpulan sampah dan jam operasionalnya di sini.</p>
-        <button type="button" class="btn-primary-pilahin" routerLink="/form-drop-point">
-          <ion-icon name="add-outline"></ion-icon>
-          <span>Tambah Drop Point Pertama</span>
-        </button>
+        <h3>Belum Ada Drop Point Sesuai Filter</h3>
+        <p>Tambahkan lokasi pengumpulan sampah, jam operasional, koordinat peta, serta komunitas penyedia area di sini.</p>
+        @if (isPengelola) {
+          <button type="button" class="btn-primary-pilahin" (click)="bukaHalamanTambah()">
+            <ion-icon name="add-outline"></ion-icon>
+            <span>Tambah Drop Point Baru</span>
+          </button>
+        }
       </div>
     } @else {
       <div class="master-cards-stack">
@@ -141,29 +152,53 @@
             </div>
 
             <div class="info-row">
-              <ion-icon name="map-outline"></ion-icon>
+              <ion-icon name="location-outline"></ion-icon>
               <div>
                 <span class="lbl">Alamat Lokasi</span>
-                <a *ngIf="dp.latitude && dp.longitude; else noMap" [href]="'https://maps.google.com/?q=' + dp.latitude + ',' + dp.longitude" target="_blank" style="text-decoration: none;">
-                  <p style="color: #15803D; text-decoration: underline;">{{ dp.alamat }}</p>
-                </a>
-                <ng-template #noMap><p>{{ dp.alamat }}</p></ng-template>
+                <p>{{ dp.alamat }}</p>
+                @if (dp.latitude !== null && dp.longitude !== null) {
+                  <span class="coord-chip">
+                    <ion-icon name="compass-outline"></ion-icon>
+                    Pin GPS: {{ dp.latitude }}, {{ dp.longitude }}
+                  </span>
+                } @else {
+                  <span class="coord-chip muted-chip">
+                    <ion-icon name="map-outline"></ion-icon>
+                    Navigasi via pencarian alamat
+                  </span>
+                }
               </div>
             </div>
 
-            <div class="info-row" *ngIf="dp.nama_komunitas">
+            <div class="info-row">
               <ion-icon name="people-outline"></ion-icon>
               <div>
-                <span class="lbl">Komunitas / Penyedia Area (Dana 10%)</span>
-                <p>{{ dp.nama_komunitas }} {{ dp.kontak_komunitas ? '— ' + dp.kontak_komunitas : '' }}</p>
+                <span class="lbl">Komunitas Penyedia Area (Alokasi 10%)</span>
+                @if (dp.nama_komunitas) {
+                  <p>{{ dp.nama_komunitas }} {{ dp.kontak_komunitas ? '• ' + dp.kontak_komunitas : '(Tanpa kontak)' }}</p>
+                } @else {
+                  <p class="muted-val">Belum ditentukan (Dana 10% ditahan di pos komunitas)</p>
+                }
               </div>
             </div>
           </div>
 
-          <!-- Tombol Aksi CRUD -->
+          <!-- Bar Navigasi Peta & Lihat Detail -->
+          <div class="map-detail-banner">
+            <button type="button" class="btn-map-nav" (click)="bukaTautanPeta(dp, $event)">
+              <ion-icon name="navigate-circle-outline"></ion-icon>
+              <span>Buka di Google Maps</span>
+            </button>
+            <button type="button" class="btn-view-detail" (click)="bukaDetailDropPoint(dp)">
+              <span>Lihat Detail</span>
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+
+          <!-- Tombol Aksi CRUD (Khusus Pengelola) -->
+          @if (isPengelola) {
           <div class="crud-actions-row">
-            <!-- Edit langsung mengarah ke halaman form sesuai rute -->
-            <button type="button" class="btn-crud btn-edit" [routerLink]="['/form-drop-point', dp.id_drop_point]">
+            <button type="button" class="btn-crud btn-edit" (click)="bukaHalamanEdit(dp)">
               <ion-icon name="create-outline"></ion-icon>
               <span>Ubah Data</span>
             </button>
@@ -178,14 +213,86 @@
               <span>{{ dp.aktif === 1 ? 'Nonaktifkan' : 'Aktifkan' }}</span>
             </button>
 
-            <button type="button" class="btn-crud btn-delete" (click)="konfirmasiSoftDelete(dp)" title="Hapus Permanen">
+            <button type="button" class="btn-crud btn-delete" (click)="konfirmasiSoftDelete(dp)" title="Soft Delete (Nonaktifkan)">
               <ion-icon name="trash-outline"></ion-icon>
             </button>
           </div>
+          }
 
         </div>
         }
       </div>
     }
   </div>
+
+  <!-- MODAL DETAIL DROP POINT & AUDIT -->
+  @if (tampilModalDetail && dropPointTerpilih) {
+  <div class="custom-modal-backdrop" (click)="tutupModalDetail()">
+    <div class="custom-modal-sheet" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow">DETAIL MASTER M03 &bull; ID #{{ dropPointTerpilih.id_drop_point }}</span>
+          <h3>{{ dropPointTerpilih.nama_drop_point }}</h3>
+        </div>
+        <button type="button" class="close-modal-btn" (click)="tutupModalDetail()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-summary-box">
+          <div class="detail-line">
+            <span>Status Operasional</span>
+            <strong [style.color]="dropPointTerpilih.aktif === 1 ? '#15803D' : '#B91C1C'">
+              {{ dropPointTerpilih.aktif === 1 ? 'Aktif (Menerima Setoran)' : 'Nonaktif' }}
+            </strong>
+          </div>
+          <div class="detail-line">
+            <span>Jam Layanan</span>
+            <strong>{{ dropPointTerpilih.jam_operasional }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Alamat Lengkap</span>
+            <strong>{{ dropPointTerpilih.alamat }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Koordinat GPS (Lat, Lng)</span>
+            <strong>
+              {{ (dropPointTerpilih.latitude !== null && dropPointTerpilih.longitude !== null)
+                  ? (dropPointTerpilih.latitude + ', ' + dropPointTerpilih.longitude)
+                  : 'Belum disematkan (Opsional)' }}
+            </strong>
+          </div>
+          <div class="detail-line">
+            <span>Nama Komunitas (10%)</span>
+            <strong>{{ dropPointTerpilih.nama_komunitas || 'Belum ditetapkan' }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Kontak Komunitas</span>
+            <strong>{{ dropPointTerpilih.kontak_komunitas || '-' }}</strong>
+          </div>
+          <div class="detail-line">
+            <span>Audit Dibuat Pada</span>
+            <strong>{{ dropPointTerpilih.dibuat_pada ? (dropPointTerpilih.dibuat_pada | date:'dd MMM yyyy HH:mm') : 'Tercatat' }}</strong>
+          </div>
+        </div>
+
+        <button type="button" class="btn-full-maps" (click)="bukaTautanPeta(dropPointTerpilih)">
+          <ion-icon name="map-outline"></ion-icon>
+          <span>Buka Navigasi Lokasi di Google Maps</span>
+        </button>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-batal" (click)="tutupModalDetail()">Tutup</button>
+        @if (isPengelola) {
+          <button type="button" class="btn-simpan" (click)="tutupModalDetail(); bukaHalamanEdit(dropPointTerpilih!)">
+            <ion-icon name="create-outline"></ion-icon>
+            <span>Ubah Data Titik</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+  }
 </ion-content>
