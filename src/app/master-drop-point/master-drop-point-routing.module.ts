@@ -7,7 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: MasterDropPointPage
+  },  {
+    path: 'form-drop-point',
+    loadChildren: () => import('./form-drop-point/form-drop-point.module').then( m => m.FormDropPointPageModule)
   }
+
 ];
 
 @NgModule({
