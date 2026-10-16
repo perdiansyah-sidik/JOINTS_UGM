@@ -8,11 +8,19 @@
 </ion-header>
 
 <ion-content class="profile-content">
+  <div class="profile-state" *ngIf="memuat" role="status">
+    <ion-spinner name="crescent"></ion-spinner><p>Memuat profil…</p>
+  </div>
+  <div class="profile-state profile-error" *ngIf="!memuat && pesanError" role="status">
+    <p>{{ pesanError }}</p>
+    <ion-button *ngIf="pengguna" fill="outline" size="small" (click)="muatUlang()">Coba lagi</ion-button>
+    <ion-button *ngIf="!pengguna" fill="outline" size="small" (click)="keLogin()">Ke halaman masuk</ion-button>
+  </div>
   <ng-container *ngIf="pengguna as user">
     <div class="profile-hero">
       <label class="avatar-picker" for="profile-photo" title="Pilih foto profil">
         <img *ngIf="fotoProfil; else avatarInitial" [src]="fotoProfil" alt="Foto profil" />
-        <ng-template #avatarInitial><span>{{ user.nama.charAt(0).toUpperCase() }}</span></ng-template>
+        <ng-template #avatarInitial><span>{{ user.nama?.charAt(0)?.toUpperCase() || '?' }}</span></ng-template>
         <span class="camera-icon"><ion-icon name="camera-outline"></ion-icon></span>
       </label>
       <input id="profile-photo" type="file" accept="image/jpeg,image/png,image/webp" [disabled]="busy" (change)="pilihFoto($event)" aria-label="Unggah foto profil" />
@@ -40,6 +48,7 @@
         <p *ngIf="!demoMode">Untuk mengganti email atau password, masukkan password saat ini.</p>
         <ion-input *ngIf="!demoMode" label="Password saat ini" labelPlacement="stacked" fill="outline" type="password" autocomplete="current-password" [(ngModel)]="draft.password_lama"></ion-input>
         <ion-input *ngIf="!demoMode" label="Password baru (opsional, minimal 8 karakter)" labelPlacement="stacked" fill="outline" type="password" autocomplete="new-password" maxlength="128" [(ngModel)]="draft.password_baru"></ion-input>
+        <p *ngIf="demoMode" class="demo-note">Mode demo hanya menyimpan perubahan lokal. Untuk mengganti password akun Supabase, jalankan aplikasi dalam mode live dan pastikan backend berjalan.</p>
         <div class="edit-actions">
           <ion-button [disabled]="busy" fill="outline" color="medium" (click)="sedangEdit = false">Batal</ion-button>
           <ion-button [disabled]="busy" color="success" (click)="simpanEdit()">Simpan</ion-button>

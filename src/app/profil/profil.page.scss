@@ -1,5 +1,8 @@
 .profile-toolbar { --background: #135c48; --color: #fff; }
 .profile-content { --background: #f3f8f4; }
+.profile-state { max-width: 600px; margin: 24px auto; padding: 16px 20px; text-align: center; color: #285c46; }
+.profile-state p { margin: 8px 0; }
+.profile-error { margin-top: 18px; border-radius: 14px; background: #fff5e9; color: #704318; }
 .profile-hero {
   background: linear-gradient(145deg, #146448, #269568);
   color: #fff;
@@ -31,6 +34,7 @@
 .info-row small { display: block; color: #6c8176; margin-bottom: 3px; }
 .info-row strong { display: block; color: #203d30; overflow-wrap: anywhere; }
 .edit-card ion-input { margin-top: 12px; }
+.demo-note { margin: 12px 0 0; padding: 12px; border-radius: 12px; background: #fff5e9; color: #704318; font-size: .85rem; line-height: 1.45; }
 .edit-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
 .storage-note { color: #658072; font-size: .8rem; line-height: 1.4; margin: 4px 3px 17px; }
 .edit-button { --background: #177c54; --background-hover: #116845; --border-radius: 12px; font-weight: 650; }

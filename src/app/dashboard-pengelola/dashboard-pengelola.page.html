@@ -17,10 +17,15 @@
         </h1>
       </div>
 
-      <button type="button" class="bell-btn" (click)="bukaMenu('Notifikasi Pengelola')">
-        <ion-icon name="notifications-outline"></ion-icon>
-        <span class="notif-dot"></span>
-      </button>
+      <div class="header-actions">
+        <button type="button" class="bell-btn" (click)="bukaMenu('Notifikasi Pengelola')" aria-label="Notifikasi">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <span class="notif-dot"></span>
+        </button>
+        <button type="button" class="bell-btn" (click)="bukaProfil()" aria-label="Profil saya" title="Profil saya">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </button>
+      </div>
     </div>
 
     <!-- 2. KARTU UTAMA CADANGAN POIN & KAS -->

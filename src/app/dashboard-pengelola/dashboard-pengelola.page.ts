@@ -41,6 +41,8 @@ export class DashboardPengelolaPage implements OnInit {
   countMenungguVerifikasi = 0;
   idPenggunaAktif = 1;
 
+  bukaProfil() { void this.router.navigate(['/profil']); }
+
   // State Modal Buku Kas (T08)
   modalKasTerbuka = false;
   sedangMuatKas = false;
