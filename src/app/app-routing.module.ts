@@ -80,6 +80,10 @@ const routes: Routes = [
   {
     path: 'dashboard-mitra',
     loadChildren: () => import('./dashboard-mitra/dashboard-mitra.module').then(m => m.DashboardMitraPageModule)
+  },
+  {
+    path: 'laporan-penyetoran',
+    loadChildren: () => import('./laporan-penyetoran/laporan-penyetoran.module').then(m => m.LaporanPenyetoranPageModule)
   }
 ];
 

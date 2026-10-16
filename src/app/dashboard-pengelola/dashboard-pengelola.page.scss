@@ -551,6 +551,62 @@
   }
 }
 
+/* LAPORAN & ANALITIK PENYETORAN */
+.laporan-promo-panel {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1.5px solid #bbf7d0;
+  transition: all 0.2s ease;
+
+  &:hover, &:active {
+    border-color: #16a34a;
+    transform: translateY(-2px);
+  }
+
+  .laporan-panel-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .laporan-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #15803d;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+    }
+
+    .laporan-panel-text {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #0f291e;
+      }
+
+      p {
+        margin: 0;
+        font-size: 11.5px;
+        color: #64748b;
+        line-height: 1.4;
+      }
+    }
+
+    .arrow-icon {
+      color: #15803d;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+  }
+}
+
 /* 7. KELOLA MASTER DATA */
 .master-grid-card {
   background: #FFFFFF;

@@ -163,7 +163,16 @@ export class DashboardPengelolaPage implements OnInit {
     this.router.navigate(['/penimbangan-verifikasi']);
   }
 
+  // Navigasi ke Laporan Penyetoran (Tugas Perdi)
+  goToLaporanPenyetoran() {
+    this.router.navigate(['/laporan-penyetoran']);
+  }
+
   async bukaMenu(namaFitur: string) {
+    if (namaFitur === 'Laporan Penyetoran') {
+      this.goToLaporanPenyetoran();
+      return;
+    }
     if (namaFitur === 'Timbang & Verifikasi' || namaFitur === 'Setoran menunggu verifikasi') {
       this.goToTimbang();
       return;
