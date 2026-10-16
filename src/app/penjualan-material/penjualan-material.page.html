@@ -1,0 +1,81 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard-pengelola" color="success"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center"><strong>Jual Material</strong></ion-title>
+    <ion-buttons slot="end">
+      <div style="width: 48px;"></div>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding eco-bg">
+  
+  <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">Pilih Mitra Tujuan</h3>
+  <ion-card class="eco-card" style="margin-bottom: 20px;">
+    <ion-item lines="none">
+      <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
+      <ion-select [(ngModel)]="idMitraPilih" placeholder="Pilih Organisasi Mitra" interface="action-sheet" style="width: 100%;">
+        <ion-select-option *ngFor="let mitra of listMitra" [value]="mitra.id_mitra">
+          {{ mitra.nama_mitra }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card>
+
+  <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">Tambahkan Material</h3>
+  <ion-card class="eco-card">
+    <ion-card-content>
+      <!-- Pilih Jenis Sampah -->
+      <ion-item lines="none" class="eco-input-item" style="margin-bottom: 10px;">
+        <ion-select [(ngModel)]="itemBaru.id_jenis_sampah" placeholder="Pilih Jenis (cth: Plastik)" style="width: 100%;">
+          <ion-select-option *ngFor="let sampah of listJenisSampah" [value]="sampah.id_jenis_sampah">
+            {{ sampah.nama_jenis }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <div style="display: flex; gap: 10px;">
+        <!-- Input Berat -->
+        <ion-item lines="none" class="eco-input-item" style="flex: 1;">
+          <ion-label position="floating" style="font-size: 12px;">Berat (kg)</ion-label>
+          <ion-input type="number" [(ngModel)]="itemBaru.berat_dikirim_kg"></ion-input>
+        </ion-item>
+        
+        <!-- Input Harga -->
+        <ion-item lines="none" class="eco-input-item" style="flex: 1;">
+          <ion-label position="floating" style="font-size: 12px;">Harga/kg (Rp)</ion-label>
+          <ion-input type="number" [(ngModel)]="itemBaru.harga_per_kg_snapshot"></ion-input>
+        </ion-item>
+      </div>
+
+      <ion-button expand="block" color="light" style="margin-top: 15px;" (click)="tambahKeKeranjang()">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Tambah ke Daftar
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <h3 style="font-size: 16px; font-weight: bold; margin-top: 25px;" *ngIf="keranjangJual.length > 0">Daftar Pengiriman</h3>
+  
+  <!-- Looping Keranjang -->
+  <ion-card class="eco-card" *ngFor="let item of keranjangJual; let i = index">
+    <ion-item lines="none">
+      <ion-label>
+        <h2><strong>{{ getNamaSampah(item.id_jenis_sampah) }}</strong></h2>
+        <p>{{ item.berat_dikirim_kg }} kg x Rp {{ item.harga_per_kg_snapshot | number }}</p>
+      </ion-label>
+      <ion-button fill="clear" color="danger" (click)="hapusItem(i)">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-card>
+
+</ion-content>
+
+<ion-footer class="ion-no-border ion-padding">
+  <ion-button expand="block" class="btn-submit-eco" (click)="simpanPenjualan()" [disabled]="!idMitraPilih || keranjangJual.length === 0">
+    Kirim & Simpan Penjualan
+  </ion-button>
+</ion-footer>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { JenisSampah, JenisSampahService } from '../services/jenis-sampah.service';
 import { finalize } from 'rxjs/operators';
@@ -17,10 +17,11 @@ const IKON: Record<string, string> = {
   styleUrls: ['./jenis-sampah.page.scss'],
   standalone: false,
 })
-export class JenisSampahPage {
+export class JenisSampahPage implements OnInit {
   private layanan = inject(JenisSampahService);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private cdr = inject(ChangeDetectorRef);
 
   daftar: JenisSampah[] = [];
   memuat = true;
@@ -32,6 +33,11 @@ export class JenisSampahPage {
   idDiubah: number | null = null;
   menyimpan = false;
   form = { nama_jenis: '', ketentuan: '', poin_per_kg: null as number | string | null };
+
+  ngOnInit() {
+    this.bolehUbah = this.penggunaPengelola();
+    this.muat();
+  }
 
   ionViewWillEnter() {
     this.bolehUbah = this.penggunaPengelola();
@@ -73,18 +79,25 @@ export class JenisSampahPage {
   muat(event?: any) {
     this.memuat = !event && this.daftar.length === 0;
     this.gagal = false;
+    this.cdr.detectChanges();
 
     this.layanan.daftar().pipe(
       finalize(() => {
         this.memuat = false;
         event?.target?.complete();
+        this.cdr.detectChanges();
       })
     ).subscribe({
       next: (d) => {
         this.daftar = Array.isArray(d) ? d : [];
+        this.memuat = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (e) => {
+        console.error('Gagal memuat jenis sampah:', e);
         this.gagal = true;
+        this.memuat = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -94,6 +107,7 @@ export class JenisSampahPage {
     this.idDiubah = null;
     this.form = { nama_jenis: this.belumAda[0] ?? '', ketentuan: '', poin_per_kg: null };
     this.modalTerbuka = true;
+    this.cdr.detectChanges();
   }
 
   bukaUbah(j: JenisSampah) {
@@ -101,6 +115,7 @@ export class JenisSampahPage {
     this.idDiubah = j.id_jenis_sampah;
     this.form = { nama_jenis: j.nama_jenis, ketentuan: j.ketentuan, poin_per_kg: j.poin_per_kg };
     this.modalTerbuka = true;
+    this.cdr.detectChanges();
   }
 
   simpan() {
@@ -109,21 +124,27 @@ export class JenisSampahPage {
     const poin = Number(this.form.poin_per_kg);
     
     if (this.mode === 'tambah' && !nama) {
-      this.toast('Nama / kategori jenis sampah wajib dipilih', 'warning');
+      this.toast('Kategori material harus salah satu dari: Plastik, Kardus, Kaca, Logam', 'warning');
       return;
     }
 
     if (!ketentuan) {
-      this.toast('Ketentuan penerimaan wajib diisi', 'warning');
+      this.toast('Ketentuan penerimaan material wajib diisi', 'warning');
+      return;
+    }
+
+    if (ketentuan.length > 500) {
+      this.toast('Ketentuan penerimaan maksimal 500 karakter', 'warning');
       return;
     }
     
-    if (!poin || poin <= 0) {
-      this.toast('Tarif poin per kg harus lebih dari 0', 'warning');
+    if (this.form.poin_per_kg === null || this.form.poin_per_kg === '' || isNaN(poin) || poin < 0) {
+      this.toast('Tarif poin per kg tidak boleh negatif (boleh 0 jika layanan tanpa imbalan poin)', 'warning');
       return;
     }
 
     this.menyimpan = true;
+    this.cdr.detectChanges();
     const permintaan =
       this.mode === 'tambah'
         ? this.layanan.tambah({ nama_jenis: nama, ketentuan, poin_per_kg: poin })
@@ -138,6 +159,7 @@ export class JenisSampahPage {
       },
       error: (e) => {
         this.menyimpan = false;
+        this.cdr.detectChanges();
         this.toast(e.error?.message || 'Gagal menyimpan', 'danger');
       },
     });
@@ -156,7 +178,10 @@ export class JenisSampahPage {
         this.toast(aktifkan ? 'Diaktifkan' : 'Dinonaktifkan', 'success');
         this.muat();
       },
-      error: (e) => this.toast(e.error?.message || 'Gagal mengubah status', 'danger'),
+      error: (e) => {
+        this.toast(e.error?.message || 'Gagal mengubah status', 'danger');
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -172,7 +197,10 @@ export class JenisSampahPage {
         this.toast('Dihapus dari daftar', 'success');
         this.muat();
       },
-      error: (e) => this.toast(e.error?.message || 'Gagal menghapus', 'danger'),
+      error: (e) => {
+        this.toast(e.error?.message || 'Gagal menghapus', 'danger');
+        this.cdr.detectChanges();
+      },
     });
   }
 

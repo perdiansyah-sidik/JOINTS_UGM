@@ -26,9 +26,16 @@
 
   <!-- Konten Utama -->
   <div class="js-container" *ngIf="!memuat && !gagal">
-    <p class="intro">
-      Empat material yang diterima Pilahin, lengkap dengan ketentuan penerimaan dan tarif poin per kilogram.
-    </p>
+    <div class="header-section">
+      <div class="location-badge">
+        <ion-icon name="extension-puzzle-outline"></ion-icon>
+        <span>Master Data &bull; Pilahin</span>
+      </div>
+      <h2 class="page-title">Master Jenis Sampah</h2>
+      <p class="intro">
+        Empat material anorganik yang diterima Pilahin, lengkap dengan ketentuan pemilahan dan tarif poin per kilogram.
+      </p>
+    </div>
 
     <div class="empty" *ngIf="daftar.length === 0">Belum ada jenis sampah.</div>
 
@@ -42,8 +49,14 @@
           <span class="badge-off" *ngIf="j.aktif === 0">Nonaktif</span>
         </div>
         <div class="tarif">
-          <strong>{{ fmt(j.poin_per_kg) }}</strong>
-          <span>poin/kg</span>
+          <ng-container *ngIf="j.poin_per_kg > 0; else tanpaImbalan">
+            <strong>{{ fmt(j.poin_per_kg) }}</strong>
+            <span>poin/kg</span>
+          </ng-container>
+          <ng-template #tanpaImbalan>
+            <span class="badge-zero">Tanpa imbalan</span>
+            <span class="zero-rate">0 poin/kg</span>
+          </ng-template>
         </div>
       </div>
 
@@ -85,24 +98,26 @@
 
     <ion-content class="ion-padding">
       <div class="form">
-        <ion-select *ngIf="mode === 'tambah'" label="Jenis" labelPlacement="stacked" fill="outline"
+        <ion-select *ngIf="mode === 'tambah'" label="Kategori Material (4 Jenis MVP)" labelPlacement="stacked" fill="outline"
           [(ngModel)]="form.nama_jenis">
           <ion-select-option *ngFor="let n of belumAda" [value]="n">{{ n }}</ion-select-option>
         </ion-select>
 
-        <ion-input *ngIf="mode === 'ubah'" label="Jenis" labelPlacement="stacked" fill="outline"
+        <ion-input *ngIf="mode === 'ubah'" label="Kategori Material" labelPlacement="stacked" fill="outline"
           [value]="form.nama_jenis" [disabled]="true"></ion-input>
 
-        <ion-textarea label="Ketentuan penerimaan" labelPlacement="stacked" fill="outline"
+        <ion-textarea label="Ketentuan penerimaan (maks. 500 karakter)" labelPlacement="stacked" fill="outline"
           [counter]="true" maxlength="500" [autoGrow]="true" rows="4"
-          placeholder="Contoh: botol plastik bersih, tanpa sisa isi"
+          placeholder="Contoh: botol plastik bersih, tanpa cairan/sisa isi"
           [(ngModel)]="form.ketentuan"></ion-textarea>
 
-        <ion-input label="Tarif poin per kg" labelPlacement="stacked" fill="outline"
-          type="number" inputmode="decimal" placeholder="Contoh: 10"
+        <ion-input label="Tarif poin per kg (0 jika tanpa imbalan poin)" labelPlacement="stacked" fill="outline"
+          type="number" inputmode="decimal" min="0" placeholder="Contoh: 10 atau 0"
           [(ngModel)]="form.poin_per_kg"></ion-input>
 
-        <ion-note>Tarif baru hanya berlaku untuk setoran berikutnya. Setoran lama tetap memakai tarif saat itu.</ion-note>
+        <ion-note>
+          Tarif 0 berarti layanan penyaluran tanpa imbalan poin. Perubahan tarif hanya berlaku untuk setoran baru berikutnya (data historis transaksi lama tetap aman tersimpan).
+        </ion-note>
 
         <ion-button expand="block" class="btn-simpan" [disabled]="menyimpan" (click)="simpan()">
           Simpan

@@ -660,3 +660,331 @@
     margin: 0;
   }
 }
+
+/* --- STYLES MODAL KAS & ALOKASI DANA (T08) --- */
+.toolbar-kas {
+  --background: #1fa048;
+  --color: #ffffff;
+}
+
+.toolbar-segment {
+  --background: #1fa048;
+  ion-segment {
+    --background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 3px;
+    margin: 0 12px 10px;
+
+    ion-segment-button {
+      --color: rgba(255, 255, 255, 0.9);
+      --color-checked: #1fa048;
+      --indicator-color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      min-height: 36px;
+      border-radius: 10px;
+    }
+  }
+}
+
+.kas-modal-content {
+  --background: #f8f9fa;
+}
+
+.kas-container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-balance-card {
+  background: linear-gradient(135deg, #1fa048, #0e7a32) !important;
+  border-radius: 20px;
+  padding: 20px;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(31, 160, 72, 0.22);
+
+  .bal-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    opacity: 0.95;
+    font-weight: 600;
+    color: #ffffff !important;
+  }
+
+  .total-amount {
+    margin: 10px 0 16px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff !important;
+  }
+
+  .pos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+
+    .pos-item {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      color: #ffffff !important;
+
+      .persen-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(255, 255, 255, 0.35);
+        font-size: 9px;
+        font-weight: 800;
+        padding: 1px 5px;
+        border-radius: 4px;
+        color: #ffffff !important;
+      }
+
+      .label {
+        font-size: 10px;
+        opacity: 0.9;
+        font-weight: 600;
+        color: #ffffff !important;
+      }
+
+      strong {
+        font-size: 12px;
+        font-weight: 800;
+        color: #ffffff !important;
+      }
+
+      small {
+        font-size: 9px;
+        opacity: 0.8;
+        color: #ffffff !important;
+      }
+    }
+  }
+}
+
+.btn-tambah-kas {
+  --background: #1fa048;
+  --border-radius: 14px;
+  height: 48px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.kas-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+
+  h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    color: #475569;
+    letter-spacing: 0.5px;
+  }
+
+  span {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #64748b;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 48px;
+    color: #94a3b8;
+  }
+}
+
+.mutasi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .mutasi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .metode-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+  }
+
+  .mutasi-mid {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+
+    .keterangan-col {
+      flex: 1;
+
+      strong {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      p {
+        margin: 2px 0 4px;
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.4;
+      }
+
+      .waktu {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+    }
+
+    .nominal-col {
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+
+      &.masuk {
+        color: #1fa048;
+      }
+
+      &.keluar {
+        color: #dc2626;
+      }
+    }
+  }
+
+  .mutasi-bottom {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #f8fafc;
+    padding-top: 8px;
+
+    .btn-bukti {
+      border: none;
+      background: transparent;
+      color: #0284c7;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+  }
+}
+
+.modal-form {
+  .form-hint {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.5;
+    background: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .alokasi-preview {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 12px;
+    padding: 12px;
+
+    h5 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #065f46;
+    }
+
+    .alo-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: #047857;
+
+      strong {
+        font-weight: 800;
+      }
+    }
+  }
+
+  .bukti-upload-box {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 12px;
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      font-size: 12px;
+    }
+
+    .preview-img {
+      margin-top: 8px;
+      img {
+        width: 100%;
+        max-height: 160px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+    }
+  }
+
+  .btn-submit {
+    margin-top: 10px;
+    --background: #1fa048;
+    --border-radius: 14px;
+    height: 48px;
+    font-weight: 700;
+    text-transform: none;
+  }
+}

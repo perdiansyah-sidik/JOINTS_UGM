@@ -9,6 +9,7 @@ export interface JenisSampah {
   nama_jenis: string;
   ketentuan: string;
   poin_per_kg: number;
+  estimasi_hemat_co2_per_kg?: number;
   aktif?: number; // hanya dikirim untuk pengelola
 }
 
@@ -39,7 +40,20 @@ export class JenisSampahService {
   }
 
   daftar(): Observable<JenisSampah[]> {
-    return this.http.get<Balasan<JenisSampah[]>>(this.url, this.opsi()).pipe(map((r) => r.data));
+    return this.http.get<any>(this.url, this.opsi()).pipe(
+      map((r) => {
+        const raw = Array.isArray(r) ? r : Array.isArray(r?.data) ? r.data : [];
+        return raw.map((item: any) => ({
+          ...item,
+          id_jenis_sampah: item.id_jenis_sampah ?? item.id ?? 0,
+          nama_jenis: item.nama_jenis ?? item.nama ?? '',
+          ketentuan: item.ketentuan ?? item.deskripsi ?? item.keterangan ?? '',
+          poin_per_kg: Number(item.poin_per_kg ?? item.poin ?? item.tarif_poin ?? 0),
+          estimasi_hemat_co2_per_kg: Number(item.estimasi_hemat_co2_per_kg ?? 0),
+          aktif: item.aktif !== undefined ? Number(item.aktif) : 1,
+        }));
+      })
+    );
   }
 
   tambah(body: { nama_jenis: string; ketentuan: string; poin_per_kg: number }): Observable<unknown> {

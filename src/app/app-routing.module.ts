@@ -37,13 +37,50 @@ const routes: Routes = [
     loadChildren: () => import('./dashboard-pengelola/dashboard-pengelola.module').then(m => m.DashboardPengelolaPageModule)
   },
   {
+    path: 'master-drop-point',
+    loadChildren: () => import('./master-drop-point/master-drop-point.module').then(m => m.MasterDropPointPageModule)
+  },
+  {
+    path: 'master-pengguna',
+    loadChildren: () => import('./master-pengguna/master-pengguna.module').then(m => m.MasterPenggunaPageModule)
+  },
+  {
+    path: 'jenis-sampah',
+    loadChildren: () => import('./jenis-sampah/jenis-sampah.module').then(m => m.JenisSampahPageModule)
+  },
+  {
+    path: 'penimbangan-verifikasi',
+    loadChildren: () => import('./penimbangan-verifikasi/penimbangan-verifikasi.module').then(m => m.PenimbanganVerifikasiPageModule)
+  },
+  {
+    path: 'home',
+    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
+  },
+  {
     path: 'master-mitra',
     loadChildren: () => import('./master-mitra/master-mitra.module').then(m => m.MasterMitraPageModule)
   },
   {
+    path: 'terima-di-titik',
+    loadChildren: () => import('./terima-di-titik/terima-di-titik.module').then( m => m.TerimaDiTitikPageModule)
+  },
+  {
+    path: 'penjualan-material',
+    loadChildren: () => import('./penjualan-material/penjualan-material.module').then( m => m.PenjualanMaterialPageModule)
+  },
+  // Tambahan Rute M03 (Tambah & Edit)
+  {
+    path: 'form-drop-point',
+    loadChildren: () => import('./master-drop-point/form-drop-point/form-drop-point.module').then( m => m.FormDropPointPageModule)
+  },
+  {
+    path: 'form-drop-point/:id',
+    loadChildren: () => import('./master-drop-point/form-drop-point/form-drop-point.module').then( m => m.FormDropPointPageModule)
+  },
+  {
     path: 'dashboard-mitra',
     loadChildren: () => import('./dashboard-mitra/dashboard-mitra.module').then(m => m.DashboardMitraPageModule)
-  },
+  }
 ];
 
 @NgModule({
