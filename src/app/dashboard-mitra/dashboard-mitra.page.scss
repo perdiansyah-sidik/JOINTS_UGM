@@ -1,467 +1,743 @@
-.kurir-bg {
-  --background: #F4F7F6 !important;
-  --color: #0F291E !important;
+/* ====== DASHBOARD MITRA — PILAHIN ====== */
+
+.mitra-dash-bg {
+  --background: #F0F5F1 !important;
 }
 
-.kurir-wrapper {
-  max-width: 460px;
+.mitra-dash-wrapper {
+  max-width: 480px;
   margin: 0 auto;
-  padding: 16px 16px 40px;
+  padding: 16px 16px 100px;
 }
 
-/* 1. TOP BAR */
-.kurir-top-bar {
+/* 1. TOP BRAND BAR */
+.top-brand-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 
-  .back-btn,
-  .profile-circle-btn {
+  .brand-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .brand-logo-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #16A34A, #0F6E38);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .brand-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0F291E;
+      margin: 0;
+    }
+  }
+
+  .active-dot-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #DCFCE7;
+    color: #15803D;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #16A34A;
+      display: inline-block;
+    }
+  }
+
+  p {
+    font-size: 12px;
+    color: #64748B;
+    margin: 2px 0 0;
+  }
+
+  .brand-right {
+    display: flex;
+    gap: 8px;
+  }
+
+  .icon-circle-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #FFFFFF;
     border: 1px solid #E2ECE7;
+    background: #fff;
     color: #0F291E;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
     cursor: pointer;
+    position: relative;
+
+    .red-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+      border: 2px solid #fff;
+    }
   }
 
-  .profile-circle-btn {
-    background: #0F6E38;
-    color: #FFFFFF;
-    border-color: #0F6E38;
-  }
-
-  .center-logo-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #E8F5EE;
-    color: #0F6E38;
-    padding: 6px 13px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 800;
-
-    ion-icon { font-size: 16px; }
+  .logout-btn {
+    background: #FEE2E2;
+    border-color: #FECACA;
+    color: #DC2626;
   }
 }
 
-/* 2. PROFIL KURIR */
-.courier-profile-card {
-  background: #FFFFFF;
+/* 2. ORGANISASI STRIP */
+.org-profile-strip {
+  background: #fff;
   border: 1px solid #E2ECE7;
-  border-radius: 22px;
+  border-radius: 20px;
   padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 20px rgba(15, 41, 30, 0.04);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px rgba(15, 41, 30, 0.04);
 
-  .cp-top {
+  .org-avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #E6F4EC;
+    color: #0F6E38;
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
 
-    .cp-avatar {
-      position: relative;
-      width: 50px;
-      height: 50px;
-      border-radius: 16px;
-      background: #E6F4EC;
-      color: #0F6E38;
+    .verified-check {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #16A34A;
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 17px;
-      font-weight: 800;
-      flex-shrink: 0;
+      font-size: 11px;
+      border: 2px solid #fff;
+    }
+  }
 
-      .online-dot {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #16A34A;
-        border: 2px solid #FFFFFF;
+  .org-meta {
+    flex: 1;
+    min-width: 0;
+
+    h2 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F291E;
+      margin: 0 0 3px;
+    }
+
+    p {
+      font-size: 12px;
+      color: #475569;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      ion-icon {
+        font-size: 14px;
+        color: #0F6E38;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .operational-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #DCFCE7;
+    color: #15803D;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16A34A;
+      display: inline-block;
+      animation: pulse-anim 1.5s infinite;
+    }
+  }
+}
+
+@keyframes pulse-anim {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* 3. HERO MITRA CARD */
+.hero-mitra-card {
+  background: linear-gradient(135deg, #0F6E38 0%, #16A34A 50%, #22C55E 100%);
+  border-radius: 24px;
+  padding: 20px 18px 16px;
+  margin-bottom: 20px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 110, 56, 0.3);
+
+  .hero-bg-ring {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 30px solid rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+  }
+
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+
+    .hero-caption {
+      font-size: 12px;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    .hero-big-rp {
+      font-size: 28px;
+      font-weight: 900;
+      margin: 4px 0 2px;
+    }
+
+    .hero-period {
+      font-size: 11px;
+      opacity: 0.75;
+    }
+  }
+
+  .id-mitra-pill {
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  .courier-dispatch-box {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+
+    .dispatch-info {
+      flex: 1;
+
+      .dispatch-lbl {
+        font-size: 11px;
+        opacity: 0.8;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      strong {
+        font-size: 13px;
+        font-weight: 800;
       }
     }
 
-    .cp-identity {
-      flex: 1;
-      min-width: 0;
+    .btn-buka-kurir {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff;
+      color: #0F6E38;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+  }
 
-      .cp-name-row {
+  .hero-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    .h-stat-item {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .h-stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.18);
         display: flex;
         align-items: center;
-        gap: 5px;
-
-        h2 {
-          font-size: 16px;
-          font-weight: 800;
-          color: #0F291E;
-          margin: 0;
-        }
-
-        .verified-ic {
-          color: #0F6E38;
-          font-size: 16px;
-        }
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
       }
 
-      .cp-org {
-        font-size: 12px;
-        font-weight: 700;
-        color: #334155;
-        margin: 2px 0;
-      }
-
-      .cp-sub {
+      .lbl {
         font-size: 11px;
+        opacity: 0.8;
+        display: block;
+      }
+
+      strong {
+        font-size: 14px;
+        font-weight: 800;
+      }
+    }
+  }
+}
+
+/* 4. SECTION TITLE ROW */
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0F291E;
+    margin: 0;
+  }
+
+  span {
+    font-size: 11px;
+    color: #64748B;
+    font-weight: 600;
+  }
+
+  .title-with-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .count-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #0F6E38;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .link-btn {
+    background: none;
+    border: none;
+    color: #0F6E38;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .live-pill {
+    background: #E6F4EC;
+    color: #0F6E38;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+}
+
+/* 5. QUICK ACTIONS 4 */
+.quick-actions-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+
+  .q-item {
+    background: #fff;
+    border: 1px solid #E2ECE7;
+    border-radius: 18px;
+    padding: 14px 8px 12px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(15, 41, 30, 0.04);
+    transition: transform 0.15s;
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    .q-floating-badge {
+      position: absolute;
+      top: -6px;
+      right: -4px;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: #fff;
+
+      &.badge-blue {
+        background: #2563EB;
+      }
+      &.badge-green {
+        background: #16A34A;
+      }
+    }
+
+    .q-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+
+      &.box-blue { background: #DBEAFE; color: #2563EB; }
+      &.box-green { background: #DCFCE7; color: #16A34A; }
+      &.box-teal { background: #CCFBF1; color: #0D9488; }
+      &.box-emerald { background: #D1FAE5; color: #059669; }
+    }
+
+    span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.3;
+    }
+  }
+}
+
+/* 6. WHITE CARD GENERIC */
+.white-card {
+  background: #fff;
+  border: 1px solid #E2ECE7;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(15, 41, 30, 0.04);
+
+  .card-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+
+    .head-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .head-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: #E6F4EC;
+        color: #0F6E38;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      h4 {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0F291E;
+        margin: 0;
+      }
+
+      p {
+        font-size: 11px;
+        color: #64748B;
+        margin: 2px 0 0;
+      }
+    }
+
+    .cap-pill {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+  }
+}
+
+/* CAPACITY MONITORING */
+.capacity-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  span {
+    font-size: 12px;
+    color: #64748B;
+  }
+
+  strong {
+    font-size: 13px;
+    font-weight: 800;
+    color: #0F291E;
+
+    small {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 600;
+    }
+  }
+}
+
+.multi-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #E2E8F0;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  margin-bottom: 12px;
+
+  .seg-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+
+    &:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+    &:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+  }
+}
+
+.material-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+
+  .legend-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    span {
+      font-size: 11.5px;
+      color: #475569;
+    }
+
+    strong {
+      font-weight: 800;
+      color: #0F291E;
+    }
+  }
+}
+
+/* 7. EMPTY QUEUE */
+.empty-queue-card {
+  text-align: center;
+  padding: 28px 18px;
+
+  .empty-ic {
+    ion-icon {
+      font-size: 44px;
+      color: #16A34A;
+    }
+    margin-bottom: 10px;
+  }
+
+  h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0F291E;
+    margin: 0 0 6px;
+  }
+
+  p {
+    font-size: 12px;
+    color: #64748B;
+    margin: 0 0 14px;
+    line-height: 1.45;
+  }
+
+  .btn-outline-green {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 2px solid #0F6E38;
+    background: transparent;
+    color: #0F6E38;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+}
+
+/* QUEUE STACK */
+.queue-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.queue-card {
+  .q-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    .q-cust-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+      .q-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #E0F2FE;
+        color: #0284C7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      h4 {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0F291E;
+        margin: 0 0 2px;
+      }
+
+      p {
+        font-size: 12px;
         color: #64748B;
         margin: 0;
       }
     }
 
-    .duty-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #DCFCE7;
-      color: #15803D;
-      font-size: 10.5px;
-      font-weight: 800;
-      padding: 5px 10px;
-      border-radius: 20px;
-
-      .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #16A34A;
-      }
-    }
-  }
-
-  .cp-stats-row {
-    background: #F8FAF9;
-    border: 1px solid #E8F0EC;
-    border-radius: 16px;
-    padding: 12px 10px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    text-align: center;
-
-    .cp-stat {
-      border-right: 1px solid #E2E8F0;
-
-      &:last-child { border-right: none; }
-
-      strong {
-        display: block;
-        font-size: 17px;
-        font-weight: 800;
-        color: #0F291E;
-
-        small { font-size: 11px; font-weight: 700; color: #64748B; }
-      }
-
-      span {
-        font-size: 10.5px;
-        color: #64748B;
-        font-weight: 600;
-      }
-
-      &.green-stat strong {
-        color: #16A34A;
-      }
-    }
-  }
-}
-
-/* 3. PRIORITY BANNER */
-.priority-banner {
-  background: linear-gradient(90deg, #E6F4EC 0%, #D1FAE5 100%);
-  border: 1px solid #A7F3D0;
-  border-radius: 18px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-
-  .prio-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: #0F6E38;
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .prio-text {
-    flex: 1;
-    h4 { font-size: 13.5px; font-weight: 800; color: #065F46; margin: 0 0 2px; }
-    p { font-size: 11px; color: #047857; margin: 0; }
-  }
-
-  .prio-pill {
-    background: #0F6E38;
-    color: #FFFFFF;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 5px 10px;
-    border-radius: 16px;
-  }
-}
-
-/* 4. SEGMENT TABS */
-.segment-tabs {
-  background: #E8EEF2;
-  border-radius: 14px;
-  padding: 4px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 16px;
-
-  .seg-btn {
-    height: 38px;
-    border-radius: 11px;
-    border: none;
-    background: transparent;
-    color: #64748B;
-    font-size: 12.5px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    cursor: pointer;
-
-    .count-badge {
-      font-style: normal;
-      background: #0F6E38;
-      color: #FFFFFF;
-      font-size: 10.5px;
-      padding: 2px 7px;
-      border-radius: 10px;
-
-      &.muted {
-        background: #CBD5E1;
-        color: #334155;
-      }
-    }
-
-    &.active {
-      background: #FFFFFF;
-      color: #0F291E;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-    }
-  }
-}
-
-/* 5. TASK CARDS */
-.empty-task-card {
-  background: #FFFFFF;
-  border: 1px dashed #CBD5E1;
-  border-radius: 20px;
-  padding: 28px 18px;
-  text-align: center;
-  margin-bottom: 16px;
-
-  ion-icon {
-    font-size: 36px;
-    color: #0F6E38;
-    margin-bottom: 8px;
-  }
-
-  h3 { font-size: 15px; font-weight: 800; color: #0F291E; margin: 0 0 4px; }
-  p { font-size: 12px; color: #64748B; margin: 0; line-height: 1.45; }
-}
-
-.task-card {
-  background: #FFFFFF;
-  border: 1px solid #E2ECE7;
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 18px rgba(15, 41, 30, 0.04);
-
-  .task-top-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-
-    .status-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #EFF6FF;
+    .q-status-badge {
+      background: #DBEAFE;
       color: #1D4ED8;
       font-size: 10.5px;
       font-weight: 800;
       padding: 4px 10px;
       border-radius: 12px;
-
-      .dot { width: 6px; height: 6px; border-radius: 50%; background: #2563EB; }
-
-      &.in-transit {
-        background: #E0F2FE;
-        color: #0369A1;
-      }
-
-      &.done-tag {
-        background: #DCFCE7;
-        color: #15803D;
-        .dot { background: #16A34A; }
-      }
+      white-space: nowrap;
     }
+  }
 
-    .str-code {
+  .q-meta-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #F1F5F9;
+      color: #475569;
       font-size: 11px;
-      font-weight: 800;
-      color: #64748B;
-    }
-  }
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 10px;
 
-  .customer-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 12px;
-
-    .loc-pin-box {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      background: #E0F2FE;
-      color: #0284C7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 19px;
-      flex-shrink: 0;
-
-      &.done-pin {
-        background: #DCFCE7;
-        color: #16A34A;
-      }
-    }
-
-    .cust-detail {
-      flex: 1;
-
-      .cust-name-line {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 3px;
-
-        h3 { font-size: 15px; font-weight: 800; color: #0F291E; margin: 0; }
-
-        .role-chip {
-          background: #F1F5F9;
-          color: #475569;
-          font-size: 10px;
-          font-weight: 700;
-          padding: 2px 8px;
-          border-radius: 8px;
-        }
-      }
-
-      .address-text {
-        font-size: 12px;
-        color: #475569;
-        margin: 0 0 8px;
-        line-height: 1.4;
-      }
-
-      .note-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #FFFBEB;
-        border: 1px solid #FDE68A;
-        color: #92400E;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 5px 10px;
-        border-radius: 10px;
+      ion-icon {
+        font-size: 13px;
       }
     }
   }
 
-  .drop-target-box {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 14px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-
-    .dt-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      ion-icon { color: #0F6E38; font-size: 18px; }
-      .lbl { display: block; font-size: 10px; color: #64748B; }
-      strong { font-size: 12.5px; color: #0F291E; }
-    }
-
-    .fee-tag {
-      background: #EEF2FF;
-      color: #4338CA;
-      font-size: 10.5px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 8px;
-    }
-  }
-
-  .task-actions-row {
-    display: flex;
-    gap: 10px;
-
-    .btn-navigasi {
-      flex: 1;
-      height: 42px;
-      border-radius: 12px;
-      border: 1px solid #CBD5E1;
-      background: #F8FAFC;
-      color: #1E293B;
-      font-size: 12.5px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .btn-aksi-utama {
-      flex: 1.5;
+  .q-card-actions {
+    .btn-q-primary {
+      width: 100%;
       height: 42px;
       border-radius: 12px;
       border: none;
       background: #0F6E38;
-      color: #FFFFFF;
-      font-size: 12.5px;
+      color: #fff;
+      font-size: 13px;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -473,50 +749,109 @@
   }
 }
 
-/* 6. FIELD INFO CARD */
-.field-info-card {
-  background: #FFFFFF;
-  border: 1px solid #E2ECE7;
-  border-radius: 20px;
-  padding: 16px;
-
-  .fi-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-
-    h4 { font-size: 13.5px; font-weight: 800; color: #0F291E; margin: 0; }
-    .connected-tag { font-size: 11px; font-weight: 800; color: #16A34A; }
+/* 8. CATALOG CARD */
+.catalog-card {
+  .empty-text {
+    text-align: center;
+    color: #94A3B8;
+    font-size: 13px;
+    padding: 12px 0;
   }
 
-  .fi-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  .catalog-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F1F5F9;
 
-    .fi-box {
-      background: #F8FAF9;
-      border: 1px solid #E8F0EC;
-      border-radius: 14px;
-      padding: 12px;
+    &:last-child {
+      border-bottom: none;
+    }
 
-      .fi-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        margin-bottom: 8px;
+    .cat-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #E6F4EC;
+      color: #0F6E38;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
 
-        &.green { background: #DCFCE7; color: #15803D; }
-        &.blue { background: #DBEAFE; color: #1D4ED8; }
+    .cat-info {
+      flex: 1;
+      min-width: 0;
+
+      h4 {
+        font-size: 13.5px;
+        font-weight: 800;
+        color: #0F291E;
+        margin: 0 0 2px;
       }
 
-      h5 { font-size: 12.5px; font-weight: 800; color: #0F291E; margin: 0 0 3px; }
-      p { font-size: 10.5px; color: #64748B; margin: 0; line-height: 1.35; }
+      p {
+        font-size: 11px;
+        color: #94A3B8;
+        margin: 0;
+      }
+    }
+
+    .cat-price {
+      text-align: right;
+
+      strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
+        color: #0F6E38;
+      }
+
+      span {
+        font-size: 11px;
+        color: #64748B;
+      }
+    }
+  }
+}
+
+/* 9. BOTTOM NAV MITRA */
+.mitra-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #fff;
+  border-top: 1px solid #E2ECE7;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  box-shadow: 0 -4px 16px rgba(15, 41, 30, 0.06);
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: #94A3B8;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 6px 0;
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 22px;
+    }
+
+    &.active {
+      color: #0F6E38;
     }
   }
 }
