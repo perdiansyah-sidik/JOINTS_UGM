@@ -288,6 +288,66 @@
 }
 
 .bottom-register-text {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #475569;
+}
+
+.demo-accounts {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid #b7ddc5;
+  border-radius: 16px;
+  background: #f1faf4;
+  color: #174b2b;
+  font-size: 13px;
+
+  p { margin: 8px 0; line-height: 1.4; }
+  code { font-weight: 700; }
+}
+
+.demo-account-list {
+  display: grid;
+  gap: 7px;
+
+  button {
+    padding: 9px 11px;
+    border: 1px solid #d3e9d9;
+    border-radius: 10px;
+    background: white;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  span, small { display: block; }
+  small { margin-top: 2px; opacity: .72; }
+}
+
+.bottom-action-area {
+  margin-top: 24px;
+}
+
+.btn-masuk-eco {
+  --background: #22AD5C;
+  --background-activated: #1B8F4B;
+  --color: #FFFFFF;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 16px rgba(34, 173, 92, 0.28);
+  height: 48px;
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.bottom-register-link {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #475569;
+}
   text-align: center;
   font-size: 12.5px;
   color: #475569;

@@ -156,7 +156,7 @@ export class MasterPenggunaPage {
     aksi.pipe(timeout(20000), finalize(() => { this.sedangUbahStatus = false; this.cdr.markForCheck(); })).subscribe({
       next: () => {
         pengguna.aktif = menjadiAktif ? 1 : 0;
-        pengguna.is_deleted = menjadiAktif ? 0 : 1;
+        pengguna.is_deleted = 0;
         this.cdr.markForCheck();
         void this.tampilToast(menjadiAktif ? 'Akun aktif kembali.' : 'Akun dinonaktifkan sementara.', 'success');
         this.muatDaftar(undefined, true);

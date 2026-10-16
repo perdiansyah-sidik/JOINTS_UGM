@@ -1,0 +1,41 @@
+.profile-toolbar { --background: #135c48; --color: #fff; }
+.profile-content { --background: #f3f8f4; }
+.profile-state { max-width: 600px; margin: 24px auto; padding: 16px 20px; text-align: center; color: #285c46; }
+.profile-state p { margin: 8px 0; }
+.profile-error { margin-top: 18px; border-radius: 14px; background: #fff5e9; color: #704318; }
+.profile-hero {
+  background: linear-gradient(145deg, #146448, #269568);
+  color: #fff;
+  text-align: center;
+  padding: 30px 20px 46px;
+  border-radius: 0 0 30px 30px;
+}
+.profile-hero h1 { margin: 13px 0 8px; font-size: 1.5rem; font-weight: 750; }
+.profile-hero p { font-size: .8rem; opacity: .86; margin: 12px 0 0; }
+.role-pill { display: inline-block; padding: 5px 13px; border-radius: 999px; background: rgba(255,255,255,.18); font-size: .8rem; }
+.avatar-picker {
+  width: 112px; height: 112px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  position: relative; background: #e8f6ee; color: #196b4a; border: 4px solid rgba(255,255,255,.85);
+  box-shadow: 0 8px 24px rgba(0,0,0,.16); cursor: pointer; overflow: visible;
+}
+.avatar-picker img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.avatar-picker > span:first-child { font-size: 2.9rem; font-weight: 750; }
+.camera-icon {
+  position: absolute; right: -3px; bottom: -2px; width: 33px; height: 33px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; background: #ffc76b; color: #215239; border: 2px solid #fff;
+}
+#profile-photo { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.profile-body { max-width: 600px; margin: -22px auto 0; padding: 0 18px 28px; position: relative; }
+.profile-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 8px 25px rgba(20,77,56,.09); margin-bottom: 16px; }
+.profile-card h2 { font-size: 1rem; margin: 0 0 13px; color: #154f3c; }
+.info-row { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid #edf2ed; }
+.info-row ion-icon { color: #27885e; font-size: 21px; flex: none; }
+.info-row div { min-width: 0; }
+.info-row small { display: block; color: #6c8176; margin-bottom: 3px; }
+.info-row strong { display: block; color: #203d30; overflow-wrap: anywhere; }
+.edit-card ion-input { margin-top: 12px; }
+.demo-note { margin: 12px 0 0; padding: 12px; border-radius: 12px; background: #fff5e9; color: #704318; font-size: .85rem; line-height: 1.45; }
+.edit-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
+.storage-note { color: #658072; font-size: .8rem; line-height: 1.4; margin: 4px 3px 17px; }
+.edit-button { --background: #177c54; --background-hover: #116845; --border-radius: 12px; font-weight: 650; }
+.logout-button { --color: #b14444; --border-color: #dca7a7; --border-radius: 12px; margin-top: 10px; font-weight: 650; }

@@ -134,14 +134,14 @@
         <span>Tugas<br>Jemput</span>
       </div>
 
-      <div class="q-item" (click)="bukaHalamanPembelian()">
+      <div class="q-item" (click)="bukaHalamanPembelian()" routerLink="/penjualan-material" [queryParams]="{ tab: 'riwayat' }">
         <div class="q-icon-box box-teal">
           <ion-icon name="swap-horizontal-outline"></ion-icon>
         </div>
-        <span>Pembelian<br>& Retur</span>
+        <span>Pembelian<br>&amp; Retur</span>
       </div>
 
-      <div class="q-item" (click)="bukaHalamanSerahTerima()">
+      <div class="q-item" (click)="bukaHalamanSerahTerima()" routerLink="/penjualan-material" [queryParams]="{ tab: 'laporan' }">
         <div class="q-icon-box box-emerald">
           <ion-icon name="document-text-outline"></ion-icon>
         </div>

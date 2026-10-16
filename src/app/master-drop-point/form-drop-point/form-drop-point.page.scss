@@ -1,49 +1,182 @@
 .eco-bg {
-  --background: #F0FBF3;
+  --background: #F4F8F5;
+}
+
+.pilahin-toolbar {
+  --background: #FFFFFF;
+  --color: #0F291E;
 }
 
 .form-container {
+  max-width: 520px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 10px;
+  padding-bottom: 24px;
+}
+
+.info-banner-m03 {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #DCFCE7;
+  border: 1px solid #86EFAC;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #14532D;
+
+  ion-icon {
+    font-size: 22px;
+    color: #15803D;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+
+  p {
+    font-size: 11.5px;
+    margin: 0;
+    line-height: 1.4;
+    color: #166534;
+  }
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+
+  .label-row-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .btn-clear-coord {
+    background: #FEE2E2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    cursor: pointer;
+  }
 
   .eco-label {
     font-size: 13px;
-    font-weight: 700;
-    color: #1B2B22;
-    margin-left: 4px;
+    font-weight: 800;
+    color: #0F291E;
+    margin-left: 2px;
+
+    .req {
+      color: #DC2626;
+    }
   }
 
   .eco-input-item {
     --background: #FFFFFF;
     --border-radius: 12px;
     --padding-start: 14px;
-    border: 1px solid #EAF3EC;
+    border: 1.5px solid #DCE8E0;
     box-shadow: 0 2px 8px rgba(20, 83, 45, 0.03);
-    
+
     ion-input, ion-textarea, ion-select {
       font-size: 14px;
-      --color: #1B2B22;
-      --placeholder-color: #98A39D;
+      --color: #0F291E;
+      --placeholder-color: #94A3B8;
+    }
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: #64748B;
+    margin-left: 4px;
+  }
+}
+
+.coord-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+
+  .coord-field {
+    background: #FFFFFF;
+    border: 1px solid #DCE8E0;
+    border-radius: 11px;
+    padding: 8px 10px;
+
+    label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #64748B;
+      margin-bottom: 3px;
+    }
+
+    input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F291E;
+      background: transparent;
+    }
+  }
+}
+
+.komunitas-box {
+  background: #FFFFFF;
+  border: 1.5px solid #E2ECE7;
+  border-radius: 16px;
+  padding: 14px;
+
+  .komunitas-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #E2ECE7;
+
+    ion-icon {
+      font-size: 24px;
+      color: #15803D;
+      flex-shrink: 0;
+    }
+
+    h4 {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0F291E;
+      margin: 0 0 2px;
+    }
+
+    p {
+      font-size: 11.5px;
+      color: #64748B;
+      margin: 0;
     }
   }
 }
 
 .btn-submit-eco {
-  --background: #34B24E;
-  --background-activated: #2A9A41;
+  --background: #15803D;
+  --background-activated: #14532D;
   --color: #FFFFFF;
   --border-radius: 14px;
-  --box-shadow: 0 6px 16px rgba(52, 178, 78, 0.28);
+  --box-shadow: 0 6px 16px rgba(21, 128, 61, 0.25);
   height: 48px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: none;
   font-size: 15px;
   margin: 0;

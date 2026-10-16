@@ -16,10 +16,8 @@ export class HomePage implements OnInit {
 
   // Penampung inputan form dari user
   formSetoran = {
-    id_pelanggan: 2, // Default pelanggan dummy (Bapak Zafrans)
-    id_drop_point: null,
-    catatan_serah_terima: '',
-    id_dibuat_oleh: 2
+    id_pengguna: null as number | null,
+    id_drop_point: null as number | null,
   };
 
   ngOnInit() {
@@ -37,16 +35,16 @@ export class HomePage implements OnInit {
   }
 
   kirimSetoranUser() {
-    if (!this.formSetoran.id_drop_point || !this.formSetoran.catatan_serah_terima) {
-      alert('Pilih lokasi Drop Point dan isi catatan terlebih dahulu!');
+    if (!this.formSetoran.id_pengguna || !this.formSetoran.id_drop_point) {
+      alert('Pilih pelanggan dan lokasi Drop Point terlebih dahulu!');
       return;
     }
 
     this.api.kirimSetoran(this.formSetoran).subscribe({
       next: (res) => {
         alert('✅ Setoran berhasil masuk ke database!');
+        this.formSetoran.id_pengguna = null;
         this.formSetoran.id_drop_point = null;
-        this.formSetoran.catatan_serah_terima = '';
       },
       error: (err) => {
         alert('❌ Gagal mengirim setoran!');

@@ -1,81 +1,606 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard-pengelola" color="success"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center"><strong>Jual Material</strong></ion-title>
-    <ion-buttons slot="end">
-      <div style="width: 48px;"></div>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="t06-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="muatSemuaData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-<ion-content class="ion-padding eco-bg">
-  
-  <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">Pilih Mitra Tujuan</h3>
-  <ion-card class="eco-card" style="margin-bottom: 20px;">
-    <ion-item lines="none">
-      <ion-icon name="business-outline" slot="start" color="primary"></ion-icon>
-      <ion-select [(ngModel)]="idMitraPilih" placeholder="Pilih Organisasi Mitra" interface="action-sheet" style="width: 100%;">
-        <ion-select-option *ngFor="let mitra of listMitra" [value]="mitra.id_mitra">
-          {{ mitra.nama_mitra }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
-  </ion-card>
+  <div class="t06-container">
 
-  <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">Tambahkan Material</h3>
-  <ion-card class="eco-card">
-    <ion-card-content>
-      <!-- Pilih Jenis Sampah -->
-      <ion-item lines="none" class="eco-input-item" style="margin-bottom: 10px;">
-        <ion-select [(ngModel)]="itemBaru.id_jenis_sampah" placeholder="Pilih Jenis (cth: Plastik)" style="width: 100%;">
-          <ion-select-option *ngFor="let sampah of listJenisSampah" [value]="sampah.id_jenis_sampah">
-            {{ sampah.nama_jenis }}
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
+    <!-- 1. TOP BAR NAVIGASI -->
+    <div class="top-nav-bar">
+      <button type="button" class="back-btn" [routerLink]="isMitraRole ? '/dashboard-mitra' : '/dashboard-pengelola'">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
 
-      <div style="display: flex; gap: 10px;">
-        <!-- Input Berat -->
-        <ion-item lines="none" class="eco-input-item" style="flex: 1;">
-          <ion-label position="floating" style="font-size: 12px;">Berat (kg)</ion-label>
-          <ion-input type="number" [(ngModel)]="itemBaru.berat_dikirim_kg"></ion-input>
-        </ion-item>
-        
-        <!-- Input Harga -->
-        <ion-item lines="none" class="eco-input-item" style="flex: 1;">
-          <ion-label position="floating" style="font-size: 12px;">Harga/kg (Rp)</ion-label>
-          <ion-input type="number" [(ngModel)]="itemBaru.harga_per_kg_snapshot"></ion-input>
-        </ion-item>
+      <div class="top-title-group">
+        <span class="eyebrow-badge">FITUR T06 &bull; LAPORAN KELOMPOK 3</span>
+        <h1>Penjualan, Retur &amp; Stok</h1>
       </div>
 
-      <ion-button expand="block" color="light" style="margin-top: 15px;" (click)="tambahKeKeranjang()">
-        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Tambah ke Daftar
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+      <button type="button" class="refresh-top-btn" (click)="muatSemuaData()" title="Muat Ulang Data">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </button>
+    </div>
 
-  <h3 style="font-size: 16px; font-weight: bold; margin-top: 25px;" *ngIf="keranjangJual.length > 0">Daftar Pengiriman</h3>
-  
-  <!-- Looping Keranjang -->
-  <ion-card class="eco-card" *ngFor="let item of keranjangJual; let i = index">
-    <ion-item lines="none">
-      <ion-label>
-        <h2><strong>{{ getNamaSampah(item.id_jenis_sampah) }}</strong></h2>
-        <p>{{ item.berat_dikirim_kg }} kg x Rp {{ item.harga_per_kg_snapshot | number }}</p>
-      </ion-label>
-      <ion-button fill="clear" color="danger" (click)="hapusItem(i)">
-        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-item>
-  </ion-card>
+    <!-- 2. HERO BANNER STOK REAL-TIME & PENJUALAN -->
+    <div class="t06-hero-card">
+      <div class="hero-decor"></div>
+
+      <div class="hero-top">
+        <div>
+          <span class="hero-label">STOK FISIK SIap JUAL &bull; DROP POINT</span>
+          <h2>{{ ringkasanStok.total_stok_tersedia_kg }} kg Material Tersedia</h2>
+          <p>Rumus Stok: Masuk (FINAL &amp; DITERIMA) &minus; Dikirim + Retur Kembali</p>
+        </div>
+        <span class="role-badge">{{ isMitraRole ? 'Mode Mitra' : 'Mode Pengelola' }}</span>
+      </div>
+
+      <div class="stok-mini-grid-4">
+        @for (st of rekapStokMaterial; track st.id_jenis_sampah) {
+        <div class="mat-stok-pill">
+          <span class="m-name">{{ st.nama_jenis }}</span>
+          <strong class="m-kg">{{ st.stok_tersedia_kg }} kg</strong>
+          @if (st.berat_tertahan_selisih_kg > 0) {
+            <small class="m-hold">Selisih: {{ st.berat_tertahan_selisih_kg }} kg</small>
+          }
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- 3. NAVIGASI TAB UTAMA (BUAT PENJUALAN | RIWAYAT & RETUR | LAPORAN STOK) -->
+    <div class="main-tabs-bar">
+      @if (!isMitraRole) {
+      <button type="button" class="m-tab" [class.active]="tabAktif === 'buat'" (click)="pilihTab('buat')">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <span>Buat Penjualan</span>
+      </button>
+      }
+      <button type="button" class="m-tab" [class.active]="tabAktif === 'riwayat'" (click)="pilihTab('riwayat')">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Transaksi &amp; Retur ({{ daftarPenjualan.length }})</span>
+      </button>
+      <button type="button" class="m-tab" [class.active]="tabAktif === 'laporan'" (click)="pilihTab('laporan')">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        <span>Laporan Stok</span>
+      </button>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: FORM BUAT DRAFT / KIRIM PENJUALAN MATERIAL (T06 PENGELOLA)     -->
+    <!-- ===================================================================== -->
+    @if (tabAktif === 'buat' && !isMitraRole) {
+    <div class="tab-panel">
+
+      <div class="form-card">
+        <div class="card-sec-head">
+          <ion-icon name="business-outline"></ion-icon>
+          <div>
+            <h3>1. Pilih Organisasi Mitra Tujuan</h3>
+            <p>MVP melayani penjualan ke 1 organisasi mitra pengolah aktif.</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Drop Point Asal <span class="req">*</span></label>
+          <ion-item lines="none" class="clean-select-item">
+            <ion-select [(ngModel)]="idDropPointPilih" (ionChange)="muatStokDanLaporan()" placeholder="Pilih Drop Point" interface="popover">
+              @for (dp of listDropPoint; track dp.id_drop_point) {
+                <ion-select-option [value]="dp.id_drop_point">{{ dp.nama_drop_point }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="field-group">
+          <label>Organisasi Mitra Pembeli <span class="req">*</span></label>
+          <ion-item lines="none" class="clean-select-item">
+            <ion-select [(ngModel)]="idMitraPilih" placeholder="Pilih Organisasi Mitra" interface="popover">
+              @for (mitra of listMitra; track mitra.id_mitra) {
+                <ion-select-option [value]="mitra.id_mitra">{{ mitra.nama_mitra }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="field-group" style="margin-top: 10px;">
+          <label>Catatan Pengiriman <span class="opt">(Opsional, maks. 500 karakter)</span></label>
+          <input
+            type="text"
+            class="clean-text-input"
+            maxlength="500"
+            placeholder="Contoh: Pengiriman rutin pekan ke-2 menggunakan truk mitra..."
+            [(ngModel)]="catatanPenjualan" />
+        </div>
+      </div>
+
+      <!-- Form Baris Detail Penjualan -->
+      <div class="form-card">
+        <div class="card-sec-head">
+          <ion-icon name="cube-outline"></ion-icon>
+          <div>
+            <h3>2. Rincian Material &amp; Harga Historis</h3>
+            <p>Satu baris per jenis material (UQ gabungan). Kirim tidak boleh melebihi stok tersedia.</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Pilih Jenis Sampah (Material) <span class="req">*</span></label>
+          <ion-item lines="none" class="clean-select-item">
+            <ion-select
+              [(ngModel)]="itemBaru.id_jenis_sampah"
+              (ionChange)="saatPilihMaterialBaru()"
+              placeholder="Pilih Material (Plastik / Kardus / Kaca / Logam)"
+              interface="popover">
+              @for (sampah of listJenisSampah; track sampah.id_jenis_sampah) {
+                <ion-select-option [value]="sampah.id_jenis_sampah">
+                  {{ sampah.nama_jenis }} (Stok Tersedia: {{ getStokTersedia(sampah.id_jenis_sampah) }} kg)
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        </div>
+
+        @if (itemBaru.id_jenis_sampah) {
+          <div class="stok-info-banner">
+            <span>Stok <strong>{{ getNamaSampah(itemBaru.id_jenis_sampah) }}</strong> tersedia di Drop Point:</span>
+            <strong>{{ getStokTersedia(itemBaru.id_jenis_sampah) }} kg</strong>
+          </div>
+        }
+
+        <div class="two-col-inputs">
+          <div class="field-group">
+            <label>Berat Dikirim (kg) <span class="req">*</span></label>
+            <input
+              type="number"
+              step="0.001"
+              min="0.001"
+              class="clean-text-input"
+              placeholder="Contoh: 15.5"
+              [(ngModel)]="itemBaru.berat_dikirim_kg" />
+          </div>
+
+          <div class="field-group">
+            <label>Harga Jual / kg (Rp) <span class="req">*</span></label>
+            <input
+              type="number"
+              step="100"
+              min="0"
+              class="clean-text-input"
+              placeholder="Contoh: 4200"
+              [(ngModel)]="itemBaru.harga_per_kg_snapshot" />
+          </div>
+        </div>
+
+        <button type="button" class="btn-add-cart" (click)="tambahKeKeranjang()">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          <span>Tambahkan ke Daftar Rincian Material</span>
+        </button>
+      </div>
+
+      <!-- Keranjang Rincian Material -->
+      <div class="form-card">
+        <div class="card-sec-head">
+          <ion-icon name="list-outline"></ion-icon>
+          <div>
+            <h3>3. Daftar Rincian Material ({{ keranjangJual.length }} Jenis)</h3>
+            <p>Total Berat: <strong>{{ totalBeratKeranjangKg }} kg</strong> &bull; Estimasi Nilai: <strong>Rp {{ totalEstimasiTagihanKeranjangRp | number }}</strong></p>
+          </div>
+        </div>
+
+        @if (keranjangJual.length === 0) {
+          <div class="empty-cart-note">
+            Belum ada baris material yang ditambahkan. Pilih jenis material di atas terlebih dahulu.
+          </div>
+        } @else {
+          <div class="cart-list">
+            @for (item of keranjangJual; track item.id_jenis_sampah; let i = $index) {
+            <div class="cart-row" [class.over-stok]="item.berat_dikirim_kg > getStokTersedia(item.id_jenis_sampah)">
+              <div class="c-left">
+                <h4>{{ getNamaSampah(item.id_jenis_sampah) }}</h4>
+                <p>
+                  Kirim: <strong>{{ item.berat_dikirim_kg }} kg</strong> &times; Rp {{ item.harga_per_kg_snapshot | number }}/kg
+                  = <strong>Rp {{ (item.berat_dikirim_kg * item.harga_per_kg_snapshot) | number }}</strong>
+                </p>
+                @if (item.berat_dikirim_kg > getStokTersedia(item.id_jenis_sampah)) {
+                  <small class="warn-over">Melebihi stok tersedia ({{ getStokTersedia(item.id_jenis_sampah) }} kg)! Hanya bisa disimpan DRAFT.</small>
+                }
+              </div>
+              <button type="button" class="btn-del-cart" (click)="hapusItem(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            }
+          </div>
+
+          <div class="submit-actions-2">
+            <button type="button" class="btn-save-draft" (click)="simpanPenjualan('DRAFT')">
+              <ion-icon name="document-outline"></ion-icon>
+              <span>Simpan DRAFT</span>
+            </button>
+            <button type="button" class="btn-send-now" (click)="simpanPenjualan('DIKIRIM')">
+              <ion-icon name="paper-plane-outline"></ion-icon>
+              <span>Kirim Sekarang (Potong Stok)</span>
+            </button>
+          </div>
+        }
+      </div>
+
+    </div>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: DAFTAR TRANSAKSI PENJUALAN, KONFIRMASI MITRA, & RETUR FISIK    -->
+    <!-- ===================================================================== -->
+    @if (tabAktif === 'riwayat') {
+    <div class="tab-panel">
+
+      <div class="filter-status-bar">
+        @for (st of ['SEMUA', 'DRAFT', 'DIKIRIM', 'DITERIMA', 'SELESAI']; track st) {
+          <button
+            type="button"
+            class="st-chip"
+            [class.active]="filterStatusRiwayat === st"
+            (click)="pilihFilterRiwayat($any(st))">
+            {{ st }}
+          </button>
+        }
+      </div>
+
+      @if (daftarPenjualanTampil.length === 0) {
+        <div class="empty-state-box">
+          <ion-icon name="receipt-outline"></ion-icon>
+          <h4>Belum Ada Transaksi Penjualan pada Status Ini</h4>
+          <p>Transaksi penjualan material ke organisasi mitra beserta status konfirmasi dan returnya akan tampil di sini.</p>
+        </div>
+      } @else {
+        <div class="penjualan-stack">
+          @for (p of daftarPenjualanTampil; track p.id_penjualan) {
+          <div class="pjl-card">
+
+            <div class="pjl-top">
+              <div>
+                <div class="code-row">
+                  <span class="kode-badge">{{ p.kode_penjualan }}</span>
+                  <span class="tgl-badge">{{ p.tanggal_penjualan | date:'dd MMM yyyy' }}</span>
+                </div>
+                <h3 class="mitra-title">{{ p.nama_mitra }}</h3>
+              </div>
+
+              <span class="pjl-status-pill"
+                [class.st-draft]="p.status === 'DRAFT'"
+                [class.st-dikirim]="p.status === 'DIKIRIM'"
+                [class.st-diterima]="p.status === 'DITERIMA'"
+                [class.st-selesai]="p.status === 'SELESAI'"
+                [class.st-batal]="p.status === 'DIBATALKAN'">
+                {{ p.status }}
+              </span>
+            </div>
+
+            <!-- Bar Info Pelunasan & Tagihan -->
+            <div class="summary-3-cols">
+              <div>
+                <span class="lbl">Berat Dikirim</span>
+                <strong>{{ p.total_dikirim_kg }} kg</strong>
+              </div>
+              <div>
+                <span class="lbl">Diterima / Ditolak</span>
+                <strong>
+                  {{ p.status === 'DITERIMA' || p.status === 'SELESAI' ? (p.total_diterima_kg + ' / ' + p.total_ditolak_kg + ' kg') : 'Menunggu Mitra' }}
+                </strong>
+              </div>
+              <div>
+                <span class="lbl">Nilai Tagihan</span>
+                <strong class="rp-val">Rp {{ p.total_tagihan_rp | number }}</strong>
+              </div>
+            </div>
+
+            <div class="pelunasan-strip">
+              <span>Status Pelunasan Kas (T08):</span>
+              <span class="lunas-badge"
+                [class.ok]="p.status_pelunasan === 'LUNAS' || p.status_pelunasan === 'TAGIHAN_NOL'"
+                [class.wait]="p.status_pelunasan === 'BELUM_LUNAS' || p.status_pelunasan === 'MENUNGGU_KONFIRMASI'">
+                {{ p.status_pelunasan }}
+              </span>
+            </div>
+
+            <!-- Tabel Detail Material per Penjualan -->
+            <div class="detail-items-box">
+              <span class="box-title">RINCIAN MATERIAL &amp; STATUS RETUR:</span>
+              @for (d of p.detailPenjualan; track d.id_detail_penjualan) {
+              <div class="d-item-row">
+                <div class="d-main">
+                  <div class="d-head">
+                    <strong>{{ d.nama_jenis }}</strong>
+                    <span class="d-price">Rp {{ d.harga_per_kg_snapshot | number }}/kg</span>
+                  </div>
+                  <div class="d-weights">
+                    <span>Kirim: <strong>{{ d.berat_dikirim_kg }} kg</strong></span>
+                    @if (d.berat_diterima_kg !== null) {
+                      <span>&bull; Terima: <strong class="txt-green">{{ d.berat_diterima_kg }} kg</strong></span>
+                      <span>&bull; Tolak: <strong class="txt-red">{{ d.berat_ditolak_kg }} kg</strong></span>
+                    }
+                  </div>
+                  @if (d.alasan_penolakan) {
+                    <small class="note-reject">Alasan tolak: {{ d.alasan_penolakan }}</small>
+                  }
+                  @if (d.catatan_selisih_timbang) {
+                    <small class="note-diff">Selisih timbang ({{ d.selisih_timbang_kg }} kg): {{ d.catatan_selisih_timbang }}</small>
+                  }
+                  @if (d.waktu_retur_kembali) {
+                    <small class="note-retur-ok">
+                      <ion-icon name="checkmark-circle"></ion-icon>
+                      Retur Fisik Kembali ke Stok: {{ d.berat_retur_kembali_kg }} kg ({{ d.waktu_retur_kembali | date:'dd/MM HH:mm' }})
+                    </small>
+                  }
+                </div>
+
+                <!-- Tombol Catat Retur Fisik (Khusus jika ada berat ditolak > 0 dan belum diretur) -->
+                @if (d.perlu_retur && !isMitraRole) {
+                  <button type="button" class="btn-retur-item" (click)="bukaModalRetur(p, d)">
+                    <ion-icon name="return-down-back-outline"></ion-icon>
+                    <span>Catat Retur Fisik</span>
+                  </button>
+                }
+              </div>
+              }
+            </div>
+
+            <!-- Tombol Aksi Status Penjualan -->
+            <div class="pjl-actions-row">
+              @if (p.status === 'DRAFT' && !isMitraRole) {
+                <button type="button" class="btn-act btn-batal" (click)="batalkanPenjualanDraft(p)">
+                  Batalkan Draft
+                </button>
+                <button type="button" class="btn-act btn-kirim" (click)="kirimPenjualanDraft(p)">
+                  <ion-icon name="paper-plane-outline"></ion-icon>
+                  <span>Kirim ke Mitra</span>
+                </button>
+              }
+
+              @if (p.status === 'DIKIRIM') {
+                <button type="button" class="btn-act btn-konfirmasi" (click)="bukaModalKonfirmasiMitra(p)">
+                  <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                  <span>Konfirmasi Penerimaan &amp; Timbang Mitra</span>
+                </button>
+              }
+            </div>
+
+          </div>
+          }
+        </div>
+      }
+
+    </div>
+    }
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: LAPORAN STOK DAN PENJUALAN (KELOMPOK LAPORAN 3 - ZAAFRANS)     -->
+    <!-- ===================================================================== -->
+    @if (tabAktif === 'laporan') {
+    <div class="tab-panel">
+
+      <div class="report-summary-card">
+        <div class="rep-head">
+          <span class="eyebrow">LAPORAN KELOMPOK 3 &bull; QUERY TANPA DUPLIKASI JOIN</span>
+          <h3>Rekapitulasi Stok Fisik &amp; Penjualan Material</h3>
+          <p>Menampilkan stok tersedia, berat tertahan selisih, kirim/terima/tolak mitra, retur kembali, dan nilai penjualan.</p>
+        </div>
+
+        <div class="rep-kpi-grid">
+          <div class="kpi-box">
+            <span class="lbl">Total Masuk (FINAL &amp; DITERIMA)</span>
+            <strong>{{ ringkasanStok.total_masuk_final_kg }} kg</strong>
+          </div>
+          <div class="kpi-box">
+            <span class="lbl">Total Dikirim Penjualan</span>
+            <strong>{{ ringkasanStok.total_dikirim_kg }} kg</strong>
+          </div>
+          <div class="kpi-box">
+            <span class="lbl">Total Retur Fisik Kembali</span>
+            <strong class="txt-green">+{{ ringkasanStok.total_retur_kembali_kg }} kg</strong>
+          </div>
+          <div class="kpi-box highlight">
+            <span class="lbl">Stok Tersedia Saat Ini</span>
+            <strong>{{ ringkasanStok.total_stok_tersedia_kg }} kg</strong>
+          </div>
+          <div class="kpi-box">
+            <span class="lbl">Tertahan Selisih (T05)</span>
+            <strong class="txt-warn">{{ ringkasanStok.total_tertahan_selisih_kg }} kg</strong>
+          </div>
+          <div class="kpi-box">
+            <span class="lbl">Total Nilai Penjualan (Diterima)</span>
+            <strong class="txt-green">Rp {{ ringkasanStok.total_nilai_penjualan_rp | number }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rincian Laporan Per Jenis Sampah (4 Material MVP) -->
+      <div class="report-table-stack">
+        @for (row of rekapStokMaterial; track row.id_jenis_sampah) {
+        <div class="rep-mat-card">
+          <div class="rm-top">
+            <div>
+              <h4>{{ row.nama_jenis }}</h4>
+              <span>Tarif Setoran: {{ row.poin_per_kg }} Poin/kg</span>
+            </div>
+            <div class="rm-stok-badge">
+              <span>Stok Tersedia</span>
+              <strong>{{ row.stok_tersedia_kg }} kg</strong>
+            </div>
+          </div>
+
+          <div class="rm-metrics-grid">
+            <div class="m-cell">
+              <span>Masuk Titik (FINAL)</span>
+              <strong>{{ row.berat_masuk_final_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Tertahan Selisih</span>
+              <strong>{{ row.berat_tertahan_selisih_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Dikirim ke Mitra</span>
+              <strong>{{ row.berat_dikirim_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Diterima Mitra</span>
+              <strong class="txt-green">{{ row.berat_diterima_mitra_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Ditolak Mitra</span>
+              <strong class="txt-red">{{ row.berat_ditolak_mitra_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Selisih Timbang Mitra</span>
+              <strong>{{ row.selisih_timbang_mitra_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Retur Fisik Kembali</span>
+              <strong class="txt-green">{{ row.berat_retur_kembali_kg }} kg</strong>
+            </div>
+            <div class="m-cell">
+              <span>Nilai Penjualan</span>
+              <strong>Rp {{ row.nilai_penjualan_rp | number }}</strong>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+
+    </div>
+    }
+
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: KONFIRMASI PENERIMAAN & TIMBANG OLEH ORGANISASI MITRA (T06)  -->
+  <!-- ===================================================================== -->
+  @if (tampilModalKonfirmasiMitra && penjualanDikonfirmasi) {
+  <div class="custom-modal-backdrop" (click)="tutupModalKonfirmasiMitra()">
+    <div class="custom-modal-sheet" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow">KONFIRMASI ORGANISASI MITRA &bull; {{ penjualanDikonfirmasi.kode_penjualan }}</span>
+          <h3>Catat Berat Diterima &amp; Ditolak Mitra</h3>
+        </div>
+        <button type="button" class="close-btn" (click)="tutupModalKonfirmasiMitra()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-note">
+          Sesuai aturan T06: Penolakan wajib disertai alasan. Jika <strong>Berat Diterima + Berat Ditolak &ne; Berat Dikirim</strong>, catatan selisih timbang wajib diisi!
+        </p>
+
+        @for (item of formDetailKonfirmasi; track item.id_detail_penjualan) {
+        <div class="konf-item-box">
+          <div class="k-head">
+            <strong>{{ item.nama_jenis }}</strong>
+            <span>Berat Dikirim: <strong>{{ item.berat_dikirim_kg }} kg</strong> (Rp {{ item.harga_per_kg_snapshot | number }}/kg)</span>
+          </div>
+
+          <div class="k-inputs-2">
+            <div>
+              <label>Berat Diterima (kg) *</label>
+              <input type="number" step="0.001" min="0" [(ngModel)]="item.berat_diterima_kg" />
+            </div>
+            <div>
+              <label>Berat Ditolak (kg) *</label>
+              <input type="number" step="0.001" min="0" [(ngModel)]="item.berat_ditolak_kg" />
+            </div>
+          </div>
+
+          @if ((item.berat_ditolak_kg || 0) > 0) {
+          <div class="k-extra-field">
+            <label class="req-lbl">Alasan Penolakan (Wajib karena ditolak > 0 kg) *</label>
+            <input
+              type="text"
+              maxlength="255"
+              placeholder="Contoh: Kontaminasi minyak / plastik PVC..."
+              [(ngModel)]="item.alasan_penolakan" />
+          </div>
+          }
+
+          @if (hitungSelisihKonfirmasiItem(item) !== 0) {
+          <div class="k-extra-field">
+            <label class="warn-lbl">
+              Catatan Selisih Timbang ({{ hitungSelisihKonfirmasiItem(item) }} kg) — Wajib Diisi *
+            </label>
+            <input
+              type="text"
+              maxlength="255"
+              placeholder="Contoh: Penyusutan kadar air selama perjalanan..."
+              [(ngModel)]="item.catatan_selisih_timbang" />
+          </div>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="tutupModalKonfirmasiMitra()">Batal</button>
+        <button type="button" class="btn-confirm" (click)="simpanKonfirmasiMitra()">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>Simpan Konfirmasi Mitra</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: CATAT RETUR FISIK KEMBALI KE STOK DROP POINT (T06)           -->
+  <!-- ===================================================================== -->
+  @if (tampilModalRetur && detailReturTerpilih) {
+  <div class="custom-modal-backdrop" (click)="tutupModalRetur()">
+    <div class="custom-modal-sheet" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow">PENERIMAAN RETUR FISIK &bull; {{ kodePenjualanRetur }}</span>
+          <h3>Retur Material {{ detailReturTerpilih.nama_jenis }}</h3>
+        </div>
+        <button type="button" class="close-btn" (click)="tutupModalRetur()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="retur-info-box">
+          <div>
+            <span>Berat Ditolak oleh Mitra:</span>
+            <strong>{{ detailReturTerpilih.berat_ditolak_kg }} kg</strong>
+          </div>
+          <div>
+            <span>Alasan Penolakan Mitra:</span>
+            <strong>{{ detailReturTerpilih.alasan_penolakan || '-' }}</strong>
+          </div>
+        </div>
+
+        <p class="modal-note">
+          Sesuai aturan T06: Material ditolak baru menambah stok Drop Point ketika fisiknya benar-benar diterima kembali. MVP mengizinkan <strong>1 kali retur aktual per detail</strong> dan tidak boleh melebihi berat ditolak ({{ detailReturTerpilih.berat_ditolak_kg }} kg).
+        </p>
+
+        <div class="retur-input-group">
+          <label>Berat Fisik Retur yang Kembali ke Drop Point (kg) *</label>
+          <input
+            type="number"
+            step="0.001"
+            min="0.001"
+            [max]="detailReturTerpilih.berat_ditolak_kg || 0"
+            [(ngModel)]="inputBeratReturKg" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="tutupModalRetur()">Batal</button>
+        <button type="button" class="btn-confirm" (click)="simpanReturFisik()">
+          <ion-icon name="return-down-back-outline"></ion-icon>
+          <span>Terima Retur &amp; Tambah Stok</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  }
 
 </ion-content>
-
-<ion-footer class="ion-no-border ion-padding">
-  <ion-button expand="block" class="btn-submit-eco" (click)="simpanPenjualan()" [disabled]="!idMitraPilih || keranjangJual.length === 0">
-    Kirim & Simpan Penjualan
-  </ion-button>
-</ion-footer>

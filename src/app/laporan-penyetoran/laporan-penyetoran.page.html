@@ -1,0 +1,412 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="toolbar-laporan">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard-pengelola" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Laporan Penyetoran</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="eksporCSV()" title="Unduh CSV / Excel">
+        <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="filterModalTerbuka = true" title="Buka Filter">
+        <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search & Filter Quick Bar -->
+  <ion-toolbar class="toolbar-search">
+    <ion-searchbar 
+      [(ngModel)]="kataKunci" 
+      (ionInput)="cdr.detectChanges()" 
+      placeholder="Cari ID, warga, drop point, material..." 
+      class="custom-searchbar">
+    </ion-searchbar>
+  </ion-toolbar>
+
+  <!-- Quick Filter Chips -->
+  <div class="quick-filter-scroll">
+    <button type="button" class="chip-btn" [class.active]="filterPeriodeCepat === 'SEMUA'" (click)="setPeriodeCepat('SEMUA')">
+      Semua Waktu
+    </button>
+    <button type="button" class="chip-btn" [class.active]="filterPeriodeCepat === 'HARI_INI'" (click)="setPeriodeCepat('HARI_INI')">
+      Hari Ini
+    </button>
+    <button type="button" class="chip-btn" [class.active]="filterPeriodeCepat === '7_HARI'" (click)="setPeriodeCepat('7_HARI')">
+      7 Hari Terakhir
+    </button>
+    <button type="button" class="chip-btn" [class.active]="filterPeriodeCepat === 'BULAN_INI'" (click)="setPeriodeCepat('BULAN_INI')">
+      Bulan Ini
+    </button>
+    <button type="button" class="chip-filter-more" (click)="filterModalTerbuka = true">
+      <ion-icon name="options-outline"></ion-icon>
+      <span>Filter Lanjutan</span>
+    </button>
+  </div>
+</ion-header>
+
+<ion-content class="laporan-content">
+  <ion-refresher slot="fixed" (ionRefresh)="muatData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="laporan-container">
+    <!-- Active Filters Summary Banner -->
+    <div class="filter-indicator-bar" *ngIf="sumberPilih !== 'SEMUA' || metodePilih !== 'SEMUA' || materialPilih !== 'SEMUA' || tanggalMulai">
+      <div class="filter-tags">
+        <span class="active-tag" *ngIf="tanggalMulai">
+          {{ tanggalMulai }} s.d {{ tanggalSelesai || 'Sekarang' }}
+        </span>
+        <span class="active-tag" *ngIf="sumberPilih !== 'SEMUA'">
+          Sumber: {{ labelSumber(sumberPilih) }}
+        </span>
+        <span class="active-tag" *ngIf="metodePilih !== 'SEMUA'">
+          Metode: {{ labelMetode(metodePilih) }}
+        </span>
+        <span class="active-tag" *ngIf="materialPilih !== 'SEMUA'">
+          Material: {{ materialPilih }}
+        </span>
+      </div>
+      <button type="button" class="btn-clear-filter" (click)="resetFilter()">Reset</button>
+    </div>
+
+    <!-- Ringkasan Metrik / KPI Cards Sesuai Probis -->
+    <div class="kpi-grid">
+      <!-- Total Berat Diterima -->
+      <div class="kpi-card green-kpi">
+        <div class="kpi-icon-wrap">
+          <ion-icon name="scale-outline"></ion-icon>
+        </div>
+        <div class="kpi-text">
+          <span class="kpi-label">Berat Diterima</span>
+          <h3 class="kpi-val">{{ fmt(totalBeratDiterima) }} <span>kg</span></h3>
+          <small class="kpi-sub">Total material layak olah</small>
+        </div>
+      </div>
+
+      <!-- Total Berat Ditolak -->
+      <div class="kpi-card amber-kpi">
+        <div class="kpi-icon-wrap">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+        </div>
+        <div class="kpi-text">
+          <span class="kpi-label">Berat Ditolak</span>
+          <h3 class="kpi-val">{{ fmt(totalBeratDitolak) }} <span>kg</span></h3>
+          <small class="kpi-sub">Rasio penolakan {{ rasioPenolakan }}%</small>
+        </div>
+      </div>
+
+      <!-- Total Poin Bersih -->
+      <div class="kpi-card blue-kpi">
+        <div class="kpi-icon-wrap">
+          <ion-icon name="wallet-outline"></ion-icon>
+        </div>
+        <div class="kpi-text">
+          <span class="kpi-label">Poin Disalurkan</span>
+          <h3 class="kpi-val">{{ fmt(totalPoinBersih) }} <span>poin</span></h3>
+          <small class="kpi-sub">Kotor: {{ fmt(totalPoinKotor) }} | Pot: {{ fmt(totalPoinPotongan) }}</small>
+        </div>
+      </div>
+
+      <!-- Estimasi Reduksi Emisi CO2 -->
+      <div class="kpi-card teal-kpi">
+        <div class="kpi-icon-wrap">
+          <ion-icon name="leaf-outline"></ion-icon>
+        </div>
+        <div class="kpi-text">
+          <span class="kpi-label">Hemat Emisi CO2</span>
+          <h3 class="kpi-val">{{ fmt(totalEstimasiCo2) }} <span>kg CO2e</span></h3>
+          <small class="kpi-sub">Dari {{ laporanTersaring.length }} setoran</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Header List -->
+    <div class="section-heading">
+      <div>
+        <h3>Rincian Transaksi Penyetoran</h3>
+        <p>Menampilkan {{ laporanTersaring.length }} transaksi sesuai kriteria filter</p>
+      </div>
+      <button type="button" class="btn-export-text" (click)="eksporCSV()">
+        <ion-icon name="document-text-outline"></ion-icon>
+        Ekspor Excel
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!sedangMemuat && laporanTersaring.length === 0">
+      <ion-icon name="receipt-outline"></ion-icon>
+      <h3>Tidak Ada Data Penyetoran</h3>
+      <p>Tidak ada transaksi setoran yang cocok dengan rentang tanggal atau filter yang dipilih.</p>
+      <ion-button size="small" class="btn-reset" (click)="resetFilter()">Reset Semua Filter</ion-button>
+    </div>
+
+    <!-- List Cards Penyetoran -->
+    <div class="laporan-list" *ngIf="!sedangMemuat && laporanTersaring.length > 0">
+      <div class="laporan-card" *ngFor="let s of laporanTersaring">
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="code-and-date">
+            <span class="code-pill">#{{ s.kode_setoran }}</span>
+            <span class="date-text">{{ s.tanggal }} &bull; {{ s.waktu }}</span>
+          </div>
+
+          <span class="status-badge" [class.badge-final]="s.status === 'FINAL'" [class.badge-diajukan]="s.status === 'DIAJUKAN'" [class.badge-tolak]="s.status === 'DITOLAK'">
+            {{ s.status }}
+          </span>
+        </div>
+
+        <!-- Pelanggan & Sumber -->
+        <div class="pelanggan-info-row">
+          <div class="pelanggan-avatar">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="pelanggan-meta">
+            <h4>{{ s.nama_pelanggan }}</h4>
+            <div class="pills-meta">
+              <span class="sub-pill source-pill">
+                <ion-icon name="storefront-outline"></ion-icon>
+                {{ labelSumber(s.sumber_pelanggan) }}
+              </span>
+              <span class="sub-pill method-pill" [class.jemput]="s.metode === 'JEMPUT'">
+                <ion-icon [name]="s.metode === 'JEMPUT' ? 'car-outline' : 'business-outline'"></ion-icon>
+                {{ labelMetode(s.metode) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Drop Point -->
+        <div class="dp-tag">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>{{ s.nama_drop_point }}</span>
+        </div>
+
+        <!-- Material Breakdown Chips -->
+        <div class="material-chips-wrap">
+          <div class="mat-chip" *ngFor="let m of s.items">
+            <span class="mat-name">{{ m.nama_jenis }}:</span>
+            <strong class="mat-kg">{{ m.berat_diterima_kg }} kg</strong>
+            <span class="mat-rej" *ngIf="m.berat_ditolak_kg > 0">(Tolak {{ m.berat_ditolak_kg }} kg)</span>
+          </div>
+        </div>
+
+        <!-- Metric Grid per Setoran -->
+        <div class="setoran-summary-box">
+          <div class="sum-col">
+            <span class="label">Berat Diterima</span>
+            <strong class="val green">{{ s.total_berat_diterima }} kg</strong>
+            <small *ngIf="s.total_berat_ditolak > 0" class="sub-warn">Ditolak: {{ s.total_berat_ditolak }} kg</small>
+          </div>
+
+          <div class="sum-col divider">
+            <span class="label">Poin Bersih</span>
+            <strong class="val blue">{{ fmt(s.poin_bersih) }} poin</strong>
+            <small *ngIf="s.potongan_persen > 0" class="sub-gray">Pot. jemput {{ s.potongan_persen }}%</small>
+          </div>
+
+          <div class="sum-col">
+            <span class="label">Reduksi Emisi</span>
+            <strong class="val teal">{{ s.estimasi_hemat_co2 }} kg</strong>
+            <small class="sub-gray">CO2e</small>
+          </div>
+        </div>
+
+        <!-- Card Footer Action -->
+        <div class="card-footer">
+          <button type="button" class="btn-detail-link" (click)="bukaDetail(s)">
+            <span>Lihat Rincian Penimbangan & Verifikasi</span>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- MODAL FILTER LANJUTAN (FILTER TANGGAL & SUMBER SESUAI PROBIS) -->
+<ion-modal [isOpen]="filterModalTerbuka" (didDismiss)="filterModalTerbuka = false">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="toolbar-modal">
+        <ion-title>Filter Laporan Penyetoran</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="filterModalTerbuka = false">Tutup</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding modal-filter-content">
+      <div class="modal-filter-wrapper">
+        <!-- 1. Rentang Tanggal -->
+        <div class="filter-block">
+          <label class="block-label">
+            <ion-icon name="calendar-outline"></ion-icon>
+            Rentang Tanggal Penyetoran
+          </label>
+          <div class="date-range-inputs">
+            <div class="date-box">
+              <label>Dari Tanggal</label>
+              <input type="date" [(ngModel)]="tanggalMulai" />
+            </div>
+            <div class="date-box">
+              <label>Sampai Tanggal</label>
+              <input type="date" [(ngModel)]="tanggalSelesai" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Sumber Penyetor (Kategori Pelanggan) -->
+        <div class="filter-block">
+          <label class="block-label">
+            <ion-icon name="people-outline"></ion-icon>
+            Sumber Penyetor (Kategori Warga)
+          </label>
+          <ion-item lines="outline" class="select-item">
+            <ion-select [(ngModel)]="sumberPilih" interface="popover">
+              <ion-select-option value="SEMUA">Semua Sumber Pelanggan</ion-select-option>
+              <ion-select-option value="RUMAH_TANGGA">Rumah Tangga</ion-select-option>
+              <ion-select-option value="UMKM_KULINER">UMKM Kuliner</ion-select-option>
+              <ion-select-option value="PEDAGANG_PASAR">Pedagang Pasar</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <!-- 3. Metode Penyetoran -->
+        <div class="filter-block">
+          <label class="block-label">
+            <ion-icon name="car-outline"></ion-icon>
+            Metode Penyetoran
+          </label>
+          <ion-item lines="outline" class="select-item">
+            <ion-select [(ngModel)]="metodePilih" interface="popover">
+              <ion-select-option value="SEMUA">Semua Metode</ion-select-option>
+              <ion-select-option value="JEMPUT">Penjemputan Kurir Mitra (Pick-up)</ion-select-option>
+              <ion-select-option value="ANTAR_SENDIRI">Antar Sendiri ke Drop Point</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <!-- 4. Material Sampah -->
+        <div class="filter-block">
+          <label class="block-label">
+            <ion-icon name="cube-outline"></ion-icon>
+            Jenis Material Sampah
+          </label>
+          <ion-item lines="outline" class="select-item">
+            <ion-select [(ngModel)]="materialPilih" interface="popover">
+              <ion-select-option value="SEMUA">Semua Jenis Material</ion-select-option>
+              <ion-select-option *ngFor="let m of listMaterialUnik" [value]="m">{{ m }}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <!-- 5. Status Setoran -->
+        <div class="filter-block">
+          <label class="block-label">
+            <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+            Status Verifikasi
+          </label>
+          <ion-item lines="outline" class="select-item">
+            <ion-select [(ngModel)]="statusPilih" interface="popover">
+              <ion-select-option value="SEMUA">Semua Status</ion-select-option>
+              <ion-select-option value="FINAL">FINAL (Disahkan Pengelola)</ion-select-option>
+              <ion-select-option value="DIAJUKAN">DIAJUKAN (Menunggu Verifikasi)</ion-select-option>
+              <ion-select-option value="DITOLAK">DITOLAK</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="modal-filter-actions">
+          <ion-button expand="block" fill="outline" class="btn-reset-modal" (click)="resetFilter()">
+            Reset Filter
+          </ion-button>
+          <ion-button expand="block" class="btn-apply-modal" (click)="filterModalTerbuka = false">
+            Terapkan Filter
+          </ion-button>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- MODAL DETAIL RINCIAN PENYETORAN -->
+<ion-modal [isOpen]="detailModalTerbuka" (didDismiss)="detailModalTerbuka = false">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="toolbar-modal">
+        <ion-title>Detail Setoran #{{ itemDetailTerpilih?.kode_setoran }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="detailModalTerbuka = false">Tutup</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding detail-modal-content">
+      <div class="detail-wrapper" *ngIf="itemDetailTerpilih as d">
+        <!-- Header Info -->
+        <div class="detail-header-card">
+          <div class="card-head-line">
+            <span class="status-pill-big">{{ d.status }}</span>
+            <span class="date-stamp">{{ d.tanggal }} &bull; {{ d.waktu }}</span>
+          </div>
+
+          <h3>{{ d.nama_pelanggan }}</h3>
+          <p class="loc-text"><ion-icon name="location"></ion-icon> {{ d.nama_drop_point }}</p>
+
+          <div class="info-badges-row">
+            <span class="badge-item">Sumber: {{ labelSumber(d.sumber_pelanggan) }}</span>
+            <span class="badge-item">Metode: {{ labelMetode(d.metode) }}</span>
+            <span class="badge-item" *ngIf="d.potongan_persen > 0">Potongan Jemput: {{ d.potongan_persen }}%</span>
+          </div>
+        </div>
+
+        <!-- Tabel / Rincian Material -->
+        <h4 class="sub-title">Rincian Material Hasil Timbang</h4>
+        <div class="material-table-card">
+          <div class="mat-table-row" *ngFor="let item of d.items">
+            <div class="mat-left">
+              <strong>{{ item.nama_jenis }}</strong>
+              <small>Tarif: Rp {{ fmt(item.poin_per_kg_snapshot) }}/kg</small>
+              <div class="rejection-note" *ngIf="item.berat_ditolak_kg > 0">
+                <ion-icon name="alert-circle"></ion-icon>
+                <span>Ditolak {{ item.berat_ditolak_kg }} kg: "{{ item.alasan_penolakan || 'Tidak layak olah' }}"</span>
+              </div>
+            </div>
+
+            <div class="mat-right">
+              <span class="kg-text">{{ item.berat_diterima_kg }} kg</span>
+              <strong class="point-text">+{{ fmt(item.subtotal_poin) }} poin</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rekapitulasi Perolehan Poin -->
+        <h4 class="sub-title">Kalkulasi Poin Pelanggan</h4>
+        <div class="calc-card">
+          <div class="calc-row">
+            <span>Poin Kotor:</span>
+            <strong>{{ fmt(d.poin_kotor) }} poin</strong>
+          </div>
+          <div class="calc-row" *ngIf="d.potongan_persen > 0">
+            <span>Potongan Jasa Jemput ({{ d.potongan_persen }}%):</span>
+            <span class="text-danger">-{{ fmt(d.potongan_poin) }} poin</span>
+          </div>
+          <div class="divider"></div>
+          <div class="calc-row total-row">
+            <span>Poin Bersih Diterima:</span>
+            <strong class="text-success">{{ fmt(d.poin_bersih) }} poin</strong>
+          </div>
+        </div>
+
+        <!-- Audit Trail -->
+        <div class="audit-box">
+          <p><ion-icon name="checkmark-circle-outline"></ion-icon> Ditimbang oleh: <strong>{{ d.petugas_timbang || 'Petugas Mitra' }}</strong></p>
+          <p><ion-icon name="shield-checkmark-outline"></ion-icon> Diverifikasi oleh: <strong>{{ d.pengelola_verifikasi || 'Pengelola Drop Point' }}</strong></p>
+          <p><ion-icon name="leaf-outline"></ion-icon> Kontribusi Reduksi Emisi: <strong>{{ d.estimasi_hemat_co2 }} kg CO2e</strong></p>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -2,6 +2,9 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+  { path: 'setoran', loadChildren: () => import('./transaksi/transaksi.module').then(m => m.TransaksiModule) },
+  { path: 'pencairan', data: { payout: true }, loadChildren: () => import('./transaksi/transaksi.module').then(m => m.TransaksiModule) },
+  { path: 'profil', loadChildren: () => import('./profil/profil.module').then(m => m.ProfilPageModule) },
   {
     path: '',
     redirectTo: 'welcome',
@@ -53,10 +56,6 @@ const routes: Routes = [
     loadChildren: () => import('./penimbangan-verifikasi/penimbangan-verifikasi.module').then(m => m.PenimbanganVerifikasiPageModule)
   },
   {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
-  },
-  {
     path: 'master-mitra',
     loadChildren: () => import('./master-mitra/master-mitra.module').then(m => m.MasterMitraPageModule)
   },
@@ -83,11 +82,16 @@ const routes: Routes = [
   },
   {
     path: 'penugasan-jemput',
-    loadChildren: () => import('./penugasan-jemput/penugasan-jemput.module').then(m => m.PenugasanJemputPageModule)
+    loadChildren: () => import('./penugasan-jemput/penugasan-penugasan.module').then(m => m.PenugasanJemputPageModule)
   },
   {
     path: 'kurir-mitra',
     loadChildren: () => import('./kurir-mitra/kurir-mitra.module').then(m => m.KurirMitraPageModule)
+  },
+  {
+    path: 'laporan-penyetoran',
+    loadChildren: () => import('./laporan-penyetoran/laporan-penyetoran.module').then(m => m.LaporanPenyetoranPageModule)
+  }
   }
 ];
 

@@ -79,8 +79,8 @@ export class RegisterPage {
   }
 
   async simpanPendaftaran() {
-    if (!this.formDaftar.password || this.formDaftar.password.length < 6) {
-      this.tampilPesan('Password minimal 6 karakter!', 'warning');
+    if (!this.formDaftar.password || this.formDaftar.password.length < 8) {
+      this.tampilPesan('Password minimal 8 karakter!', 'warning');
       return;
     }
 

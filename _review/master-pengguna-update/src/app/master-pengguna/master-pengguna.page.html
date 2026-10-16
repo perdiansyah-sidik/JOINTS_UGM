@@ -1,0 +1,106 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="mp-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Master Pengguna</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="mp-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="muatDaftar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="mp-container">
+
+    <div class="mp-searchbar-wrap">
+      <ion-searchbar
+        placeholder="Cari nama atau email..."
+        [value]="kataKunci"
+        (ionInput)="ubahKataKunci($event.detail.value || '')"
+        inputmode="search"
+        mode="ios">
+      </ion-searchbar>
+    </div>
+
+    <div class="mp-filter-scroll">
+      <ion-segment [value]="filterPeran" (ionChange)="ubahFilterPeran($event.detail.value)" scrollable mode="ios">
+        <ion-segment-button value="SEMUA">
+          <ion-label>Semua</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="1">
+          <ion-label>Rumah Tangga</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="2">
+          <ion-label>UMKM</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="3">
+          <ion-label>Pedagang</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="4">
+          <ion-label>Pengelola</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="5">
+          <ion-label>Mitra</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    @if (sedangMuat) {
+      <div class="mp-state-box">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Memuat daftar akun...</p>
+      </div>
+    } @else if (pesanError) {
+      <div class="mp-state-box">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+        <p>{{ pesanError }}</p>
+        <ion-button fill="outline" size="small" (click)="muatDaftar()">Coba Lagi</ion-button>
+      </div>
+    } @else if (daftarTertampil.length === 0) {
+      <div class="mp-state-box">
+        <ion-icon name="people-outline"></ion-icon>
+        <p>Tidak ada akun yang cocok dengan pencarian/filter ini.</p>
+      </div>
+    } @else {
+      <div class="mp-list">
+        @for (pengguna of daftarTertampil; track pengguna.id_pengguna) {
+          <div class="mp-card" role="button" tabindex="0" (keydown.enter)="bukaUbah(pengguna)" [class.inactive]="!pengguna.aktif" (click)="bukaUbah(pengguna)">
+            <div class="mp-avatar" [class.avatar-mitra]="pengguna.peran === 5" [class.avatar-pengelola]="pengguna.peran === 4">
+              <ion-icon [name]="pengguna.peran === 5 ? 'bicycle-outline' : (pengguna.peran === 4 ? 'shield-checkmark-outline' : 'person-outline')"></ion-icon>
+            </div>
+
+            <div class="mp-info">
+              <div class="mp-top-row">
+                <h3>{{ pengguna.nama }}</h3>
+                @if (!pengguna.aktif) {
+                  <span class="mp-badge badge-nonaktif">Nonaktif</span>
+                }
+              </div>
+              <p class="mp-email">{{ pengguna.email }}</p>
+              <div class="mp-tags">
+                <span class="mp-tag">{{ labelPeran[pengguna.peran] }}</span>
+                @if (pengguna.nama_usaha) {
+                  <span class="mp-tag tag-muted">{{ pengguna.nama_usaha }}</span>
+                }
+              </div>
+            </div>
+
+            <button type="button" class="mp-toggle-btn" [disabled]="sedangUbahStatus" [attr.aria-label]="pengguna.aktif ? 'Nonaktifkan akun' : 'Aktifkan akun'"
+              (keydown.enter)="$event.stopPropagation()" (click)="konfirmasiNonaktifkan(pengguna); $event.stopPropagation()">
+              <ion-icon name="toggle-outline" [class.on]="pengguna.aktif"></ion-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button class="mp-fab" aria-label="Tambah petugas mitra" (click)="bukaTambahPetugasMitra()">
+      <ion-icon name="person-add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { NavController, ToastController, AlertController, LoadingController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { timeout, finalize } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../demo/demo-accounts';
 
 @Component({
   selector: 'app-login',
@@ -17,22 +19,39 @@ export class LoginPage {
   private loadingCtrl = inject(LoadingController);
 
   // Mendukung binding langsung dari HTML
-  jenisAkun: 'PRIBADI' | 'MITRA' = 'PRIBADI';
   tabAktif: 'PRIBADI' | 'MITRA' = 'PRIBADI';
   email: string = '';
   password: string = '';
   tampilkanSandi: boolean = false;
   showPassword: boolean = false;
   ingatSaya: boolean = false;
-
   formLogin = {
     email: '',
     password: ''
   };
+  peran: 'pribadi' | 'mitra' = 'pribadi';
+  readonly demoMode = environment.demoMode;
+  readonly demoAccounts = DEMO_ACCOUNTS;
+  readonly demoPassword = DEMO_PASSWORD;
+
+  pilihAkunDemo(email: string) {
+    this.email = email;
+    this.password = DEMO_PASSWORD;
+    this.peran = email.startsWith('mitra@') ? 'mitra' : 'pribadi';
+  }
+
+  get jenisAkun(): 'PRIBADI' | 'MITRA' {
+    return this.peran === 'mitra' ? 'MITRA' : 'PRIBADI';
+  }
 
   pilihJenisAkun(jenis: 'PRIBADI' | 'MITRA') {
-    this.jenisAkun = jenis;
     this.tabAktif = jenis;
+    this.peran = jenis === 'MITRA' ? 'mitra' : 'pribadi';
+  }
+
+  pilihPeran(peran: 'pribadi' | 'mitra') {
+    this.peran = peran;
+    this.tabAktif = peran === 'mitra' ? 'MITRA' : 'PRIBADI';
   }
 
   toggleSandi() {
@@ -40,7 +59,6 @@ export class LoginPage {
     this.showPassword = this.tampilkanSandi;
   }
 
-  // Fungsi Lupa Kata Sandi (Menghilangkan Error TS2339 lupaSandi)
   async lupaSandi() {
     const alert = await this.alertCtrl.create({
       header: 'Reset Kata Sandi',
@@ -71,15 +89,13 @@ export class LoginPage {
     await alert.present();
   }
 
-  // Proses Login dengan Pemisahan Ketat Tab Pribadi vs Tab Mitra/Komunitas
-  async prosesLogin() {
-    const inputUser = (this.email || this.formLogin.email || '').trim();
-    const inputLower = inputUser.toLowerCase();
-    const passwordInput = (this.password || this.formLogin.password || '').trim();
-
-    if (!inputUser || !passwordInput) {
-      this.tampilPesan('Mohon isi Email/No. Handphone dan Kata Sandi terlebih dahulu!', 'warning');
-      return;
+  ngOnInit() {
+    const emailTersimpan = localStorage.getItem('ecoapp_remember_email');
+    if (emailTersimpan) {
+      this.email = emailTersimpan;
+      this.ingatSaya = true;
+    }
+  }
     }
 
     // Deteksi apakah input yang dimasukkan adalah akun/email milik Mitra atau Kurir
@@ -89,7 +105,6 @@ export class LoginPage {
       inputLower.includes('daurulang') ||
       inputLower.includes('pt ');
 
-    // 1. CEK KETAT: Jika di tab PENGGUNA PRIBADI tapi memasukkan akun Mitra/Kurir -> TOLAK!
     if (this.jenisAkun === 'PRIBADI' && indikasiAkunMitra) {
       this.tampilPesan(
         'Akun Mitra/Kurir tidak dapat masuk dari tab Pengguna Pribadi! Silakan pindah ke tab "Mitra / Komunitas".',
@@ -97,6 +112,51 @@ export class LoginPage {
       );
       return;
     }
+
+    this.api.login({
+      email: inputLower,
+      password: passwordInput,
+      jenis_akun: 'PRIBADI'
+    })
+      .pipe(
+        timeout(10000),
+        finalize(() => loading.dismiss())
+      )
+      .subscribe({
+        next: async (res: any) => {
+          const userData = res?.data || res?.user || null;
+          if (!userData && !res?.token) {
+            this.tampilPesan('Sesi dari server tidak tersedia. Coba masuk lagi.', 'danger');
+            return;
+          }
+
+          const tokenSimpan = typeof res?.token === 'string' && res.token
+            ? res.token
+            : `ecoapp-session-${userData?.id_pengguna || 1}`;
+          localStorage.setItem('ecoapp_token', tokenSimpan);
+          if (userData) {
+            localStorage.setItem('ecoapp_user', JSON.stringify(userData));
+          }
+
+          if (this.ingatSaya) {
+            localStorage.setItem('ecoapp_remember_email', this.email.trim());
+          } else {
+            localStorage.removeItem('ecoapp_remember_email');
+          }
+      
+          await this.tampilPesan(`Selamat datang, ${userData?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
+          this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
+        },
+        error: async () => {
+          this.tampilPesan('Login gagal. Periksa kembali email dan password Anda.', 'danger');
+        }
+      });
+      return;
+      return;
+    }
+
+    localStorage.removeItem('ecoapp_token');
+    localStorage.removeItem('ecoapp_user');
 
     const loading = await this.loadingCtrl.create({
       message: 'Memverifikasi kredensial akun...',
@@ -157,7 +217,6 @@ export class LoginPage {
             };
 
             localStorage.setItem('ecoapp_user', JSON.stringify(sesiMitra));
-
             await this.tampilPesan(
               `Selamat datang di Portal Mitra, ${sesiMitra.nama} (${sesiMitra.nama_mitra})!`,
               'success'
@@ -187,7 +246,6 @@ export class LoginPage {
         next: async (res: any) => {
           const userData = res?.data;
 
-          // Tolak jika akun di DB memiliki id_mitra atau peran_aplikasi MITRA
           if (userData?.id_mitra || userData?.peran_aplikasi === 'MITRA') {
             this.tampilPesan(
               'Akun Mitra hanya dapat login melalui tab "Mitra / Komunitas"!',
@@ -202,7 +260,6 @@ export class LoginPage {
 
           await this.tampilPesan(`Selamat datang kembali, ${userData?.nama || 'Pengguna'}!`, 'success');
 
-          // Jika pengelola (peran = 4 atau email pengelola/admin) arahkan ke dashboard-pengelola
           const isPengelola =
             Number(userData?.peran) === 4 ||
             String(userData?.peran || '').toUpperCase() === 'PENGELOLA' ||
@@ -215,8 +272,27 @@ export class LoginPage {
             this.navCtrl.navigateRoot('/dashboard', { animated: true, animationDirection: 'forward' });
           }
         },
-        error: async (err: any) => {
-          const msg = err?.error?.message || 'Email/No. HP atau Kata Sandi salah!';
+        error: async () => {
+          this.tampilPesan('Login gagal. Periksa kembali email dan password Anda.', 'danger');
+        }
+      });
+          }
+
+          await this.tampilPesan(`Selamat datang, ${userData?.nama || 'Sobat EcoApp'}! 🌱`, 'success');
+          const peranNum = Number(userData?.peran);
+          const peranStr = String(userData?.peran || '').toUpperCase();
+          const peranApp = String(userData?.peran_aplikasi || '').toUpperCase();
+
+          let tujuan = '/dashboard';
+          if (peranNum === 4 || peranStr === 'PENGELOLA' || peranStr === 'ADMIN') {
+            tujuan = '/dashboard-pengelola';
+          } else if (peranNum === 5 || peranStr === 'MITRA' || peranApp === 'MITRA' || this.jenisAkun === 'MITRA') {
+            tujuan = '/dashboard-mitra';
+          }
+          await this.navCtrl.navigateRoot(tujuan, { animated: true, animationDirection: 'forward' });
+        },
+        error: async (err) => {
+          const msg = err.error?.message || 'Email atau password salah!';
           this.tampilPesan(msg, 'danger');
         }
       });

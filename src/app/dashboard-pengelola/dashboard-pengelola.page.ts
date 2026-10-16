@@ -4,6 +4,8 @@ import { AlertController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { KasService, MutasiKas, PosDana, MetodeBayar, PenjualanSiapLunas } from '../services/kas.service';
 import { PenimbanganService } from '../services/penimbangan.service';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard-pengelola',
@@ -12,6 +14,9 @@ import { PenimbanganService } from '../services/penimbangan.service';
   standalone: false
 })
 export class DashboardPengelolaPage implements OnInit {
+  readonly demoMode = environment.demoMode;
+  private http=inject(HttpClient);
+  loadError='';
   private router = inject(Router);
   private api = inject(ApiService);
   private kasSvc = inject(KasService);
@@ -21,20 +26,22 @@ export class DashboardPengelolaPage implements OnInit {
   cdr = inject(ChangeDetectorRef);
 
   pengelola = {
-    nama: 'Pak Andi',
-    lokasi: 'Drop Point Pasar Blok A'
+    nama: 'Pengelola',
+    lokasi: 'Pilahin'
   };
 
   kas = {
-    tersedia: 8350000,
-    dipesan: 1240000,
-    total: 12500000,
-    komunitas: 1250000,
-    operasional: 6250000
+    tersedia: 0,
+    dipesan: 0,
+    total: 0,
+    komunitas: 0,
+    operasional: 0
   };
 
-  countMenungguVerifikasi = 5;
+  countMenungguVerifikasi = 0;
   idPenggunaAktif = 1;
+
+  bukaProfil() { void this.router.navigate(['/profil']); }
 
   // State Modal Buku Kas (T08)
   modalKasTerbuka = false;
@@ -46,6 +53,7 @@ export class DashboardPengelolaPage implements OnInit {
   // Modal Tambah Mutasi Kas Baru
   modalTambahTerbuka = false;
   menyimpan = false;
+  kasRequestKey = crypto.randomUUID();
   form = {
     pos_dana: 'HASIL_PENJUALAN' as PosDana,
     tipe_arah: 'MASUK' as 'MASUK' | 'KELUAR',
@@ -57,13 +65,13 @@ export class DashboardPengelolaPage implements OnInit {
     bukti: '',
   };
 
-  jumlahMitraAktif = 1;
+  jumlahMitraAktif = 0;
 
   tindakanHariIni = [
-    { icon: 'clipboard-outline', title: 'Setoran menunggu verifikasi', subtitle: 'Hasil timbang petugas mitra', count: 5, badgeClass: 'badge-green', iconClass: 'box-green', route: '/penimbangan-verifikasi' },
-    { icon: 'bus-outline', title: 'Jemputan belum ditugaskan', subtitle: 'Pilih petugas mitra', count: 3, badgeClass: 'badge-amber', iconClass: 'box-amber', route: '/penugasan-jemput' },
-    { icon: 'cash-outline', title: 'Pengajuan pencairan poin', subtitle: 'Transfer manual & bukti', count: 2, badgeClass: 'badge-purple', iconClass: 'box-purple', route: '/pencairan-poin' },
-    { icon: 'cube-outline', title: 'Selisih kedatangan material', subtitle: 'Belum masuk stok', count: 1, badgeClass: 'badge-red', iconClass: 'box-red', route: '/terima-di-titik' }
+    { icon: 'clipboard-outline', title: 'Setoran menunggu verifikasi', subtitle: 'Hasil timbang petugas mitra', count: 0, badgeClass: 'badge-green', iconClass: 'box-green', route: '/setoran' },
+    { icon: 'bus-outline', title: 'Jemputan belum ditugaskan', subtitle: 'Pilih petugas mitra', count: 0, badgeClass: 'badge-amber', iconClass: 'box-amber', route: '/setoran' },
+    { icon: 'cash-outline', title: 'Pengajuan pencairan poin', subtitle: 'Transfer manual & bukti', count: 0, badgeClass: 'badge-purple', iconClass: 'box-purple', route: '/pencairan' },
+    { icon: 'cube-outline', title: 'Selisih kedatangan material', subtitle: 'Belum masuk stok', count: 0, badgeClass: 'badge-red', iconClass: 'box-red', route: '/terima-di-titik' }
   ];
 
   stok = {
@@ -107,6 +115,45 @@ export class DashboardPengelolaPage implements OnInit {
         if (res && Array.isArray(res.data)) {
           this.jumlahMitraAktif = res.data.filter((m: any) => Number(m.aktif) === 1).length;
         }
+      },
+      error: () => {}
+    });
+
+    this.api.getRingkasanPengelola().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          if (res.data.lokasi_drop_point) this.pengelola.lokasi = res.data.lokasi_drop_point;
+          this.tindakanHariIni[0].count = Number(res.data.menunggu_verifikasi ?? this.tindakanHariIni[0].count);
+          this.tindakanHariIni[1].count = Number(res.data.belum_ditugaskan ?? this.tindakanHariIni[1].count);
+          this.tindakanHariIni[2].count = Number(res.data.pengajuan_pencairan ?? this.tindakanHariIni[2].count);
+          this.tindakanHariIni[3].count = Number(res.data.selisih_kedatangan ?? this.tindakanHariIni[3].count);
+        }
+      },
+      error: () => {}
+    });
+
+    this.api.getLaporanStokPenjualan().subscribe({
+      next: (res) => {
+        if (res && res.status === 'success' && Array.isArray(res.data)) {
+          const totalStok = Number(res.ringkasan?.total_stok_tersedia_kg || 0);
+          const warnaMap: Record<string, string> = {
+            Plastik: '#2563EB',
+            Kardus: '#D97706',
+            Kaca: '#16A34A',
+            Logam: '#64748B'
+          };
+          this.stok.total = totalStok;
+          this.stok.items = res.data.map((m: any) => {
+            const brt = Number(m.stok_tersedia_kg || 0);
+            const pct = totalStok > 0 ? Math.round((brt / totalStok) * 100) : 0;
+            return {
+              nama: m.nama_jenis,
+              berat: brt,
+              persentase: pct,
+              warna: warnaMap[m.nama_jenis] || '#15803D'
+            };
+          });
+        }
         if (event?.target) event.target.complete();
       },
       error: () => {
@@ -116,6 +163,14 @@ export class DashboardPengelolaPage implements OnInit {
   }
 
   muatRingkasanKas() {
+    if(!this.demoMode){
+      this.http.get<any>(environment.apiUrl+'/ringkasan/pengelola').subscribe({next:r=>{
+        const d=r.data;this.loadError='';this.kas.tersedia=Number(d.cadangan.kas)-Number(d.cadangan.dipesan);
+        this.kas.dipesan=Number(d.cadangan.dipesan);this.countMenungguVerifikasi=d.setoran_menunggu;
+        this.tindakanHariIni[0].count=d.setoran_menunggu;this.tindakanHariIni[2].count=d.pencairan_menunggu;this.cdr.detectChanges();
+      },error:e=>{this.loadError=e.error?.message||'Ringkasan belum bisa dimuat.';this.cdr.detectChanges();}});
+      return;
+    }
     this.kasSvc.getRingkasanKas().subscribe({
       next: (r) => {
         this.kas.tersedia = r.cadangan_poin;
@@ -130,6 +185,7 @@ export class DashboardPengelolaPage implements OnInit {
   }
 
   muatAntreanTimbang() {
+    if (!this.demoMode) return;
     this.penimbanganSvc.getDaftarSetoran().subscribe({
       next: (data) => {
         const menunggu = data.filter(s => s.status === 2 || String(s.status).toUpperCase() === 'DIAJUKAN');
@@ -153,6 +209,13 @@ export class DashboardPengelolaPage implements OnInit {
     this.router.navigate(['/master-drop-point']);
   }
 
+  bukaTindakan(item: any) {
+    if (item.route === '/terima-di-titik') {
+      this.router.navigate(['/terima-di-titik']);
+      return;
+    }
+    this.bukaMenu(item.title);
+  }
   // Navigasi ke Modul Master Jenis Sampah (M04)
   goToJenisSampah() {
     this.router.navigate(['/jenis-sampah']);
@@ -160,17 +223,47 @@ export class DashboardPengelolaPage implements OnInit {
 
   // Navigasi ke Penimbangan & Verifikasi (T02)
   goToTimbang() {
-    this.router.navigate(['/penimbangan-verifikasi']);
+    this.router.navigate([this.demoMode ? '/penimbangan-verifikasi' : '/setoran']);
+  }
+
+  // Navigasi ke Laporan Penyetoran (Tugas Perdi)
+  goToLaporanPenyetoran() {
+    this.router.navigate(['/laporan-penyetoran']);
   }
 
   async bukaMenu(namaFitur: string) {
     const fiturLower = (namaFitur || '').toLowerCase();
-    if (
-      fiturLower.includes('jemput') ||
-      fiturLower.includes('slot') ||
-      fiturLower.includes('penugasan')
-    ) {
+    if (namaFitur === 'Master Pengguna') { this.router.navigate(['/master-pengguna']); return; }
+    if (/pencairan/i.test(namaFitur)) { this.router.navigate(['/pencairan']); return; }
+    if (/jemput|slot/i.test(namaFitur) && !this.demoMode) { this.router.navigate(['/setoran']); return; }
+    if (fiturLower.includes('jemput') || fiturLower.includes('slot') || fiturLower.includes('penugasan')) {
       this.router.navigate(['/penugasan-jemput']);
+      return;
+    }
+    if (namaFitur === 'Laporan Penyetoran') {
+      this.goToLaporanPenyetoran();
+      return;
+    }
+    if (namaFitur === 'Timbang & Verifikasi' || namaFitur === 'Setoran menunggu verifikasi') {
+      this.goToTimbang();
+      return;
+    }
+    if (namaFitur === 'Master Jenis Sampah') {
+      this.goToJenisSampah();
+      return;
+    }
+    if (namaFitur === 'Master Mitra') {
+      this.goToMitra();
+      return;
+    }
+    if (namaFitur === 'Master Drop Point') {
+      this.goToDropPoint();
+      return;
+    }
+    if (namaFitur === 'Mutasi Kas & Alokasi') {
+      this.bukaModalKas();
+      return;
+    }
       return;
     }
 
@@ -181,6 +274,27 @@ export class DashboardPengelolaPage implements OnInit {
       position: 'top'
     });
     await toast.present();
+  }
+  async keluarAkun() {
+    (document.activeElement as HTMLElement)?.blur();
+    const alert = await this.alertCtrl.create({
+      header: 'Keluar Akun?',
+      message: 'Apakah Anda yakin ingin keluar dari sesi Pengelola?',
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Ya, Keluar',
+          role: 'destructive',
+          handler: () => {
+            localStorage.removeItem('ecoapp_user');
+            localStorage.removeItem('pengguna');
+            localStorage.removeItem('token');
+            this.router.navigateByUrl('/login', { replaceUrl: true });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
   // --- LOGIKA BUKU KAS (T08) ---
   bukaModalKas() {
@@ -194,8 +308,11 @@ export class DashboardPengelolaPage implements OnInit {
         this.muatPenjualan();
       },
       error: () => {
-        if (this.daftarMutasi.length === 0) {
+        if (this.demoMode && this.daftarMutasi.length === 0) {
           this.daftarMutasi = this.generateFallbackMutasi();
+        } else if (!this.demoMode) {
+          this.daftarMutasi = [];
+          this.loadError = 'Buku kas gagal dimuat dari Supabase.';
         }
         this.muatPenjualan();
       }
@@ -210,10 +327,10 @@ export class DashboardPengelolaPage implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.penjualanTersedia = [
+        this.penjualanTersedia = this.demoMode ? [
           { id_penjualan: 501, nama_mitra: 'PT Daur Ulang Nusantara', tanggal_penjualan: '2026-10-15', total_tagihan: 2500000, status: 'DIKIRIM', sudah_lunas: false },
           { id_penjualan: 502, nama_mitra: 'CV Logam Jaya Abadi', tanggal_penjualan: '2026-10-16', total_tagihan: 1800000, status: 'DITERIMA', sudah_lunas: false }
-        ];
+        ] : [];
         this.sedangMuatKas = false;
         this.cdr.detectChanges();
       }
@@ -228,6 +345,7 @@ export class DashboardPengelolaPage implements OnInit {
   }
 
   bukaModalTambah() {
+    this.kasRequestKey = crypto.randomUUID();
     this.form = {
       pos_dana: 'HASIL_PENJUALAN',
       tipe_arah: 'MASUK',
@@ -336,11 +454,13 @@ export class DashboardPengelolaPage implements OnInit {
         keterangan: this.form.keterangan,
         dicatat_oleh: this.idPenggunaAktif,
         waktu_transaksi: new Date().toISOString(),
+        request_key: this.kasRequestKey,
       }).subscribe({
         next: () => {
           this.selesaiSimpan();
         },
-        error: () => {
+        error: (e) => {
+          if (!this.demoMode) { this.menyimpan = false; this.toast(e.error?.message || 'Kas belum tersimpan di Supabase.', 'danger'); return; }
           // Mock update lokal
           this.daftarMutasi.unshift({
             id_mutasi_kas: Date.now(),
@@ -375,11 +495,13 @@ export class DashboardPengelolaPage implements OnInit {
         bukti: this.form.bukti,
         dicatat_oleh: this.idPenggunaAktif,
         waktu_transaksi: new Date().toISOString(),
+        request_key: this.kasRequestKey,
       }).subscribe({
         next: () => {
           this.selesaiSimpan();
         },
-        error: () => {
+        error: (e) => {
+          if (!this.demoMode) { this.menyimpan = false; this.toast(e.error?.message || 'Kas belum tersimpan di Supabase.', 'danger'); return; }
           this.daftarMutasi.unshift({
             id_mutasi_kas: Date.now(),
             pos_dana: this.form.pos_dana,
