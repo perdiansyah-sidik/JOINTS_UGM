@@ -42,7 +42,15 @@ const routes: Routes = [
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
-  }
+  },
+  {
+    path: 'dashboard-pengelola',
+    loadChildren: () => import('./dashboard-pengelola/dashboard-pengelola.module').then(m => m.DashboardPengelolaPageModule)
+  },
+  {
+    path: 'master-mitra',
+    loadChildren: () => import('./master-mitra/master-mitra.module').then(m => m.MasterMitraPageModule)
+  },
 ];
 
 @NgModule({

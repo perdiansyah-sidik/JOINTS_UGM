@@ -1,142 +1,229 @@
-<ion-content color="light">
-  <!-- Header Section -->
-  <div class="header-section">
-    <div class="location-badge">
-      <ion-icon name="location-outline"></ion-icon>
-      <span>{{ pengelola.lokasi }} &bull; Pengelola</span>
-    </div>
-    
-    <div class="greeting-row">
-      <h2>Selamat pagi, <strong>{{ pengelola.nama }}</strong> 👋</h2>
-      <ion-button fill="clear" color="dark" class="bell-btn">
+<ion-content [fullscreen]="true" class="pengelola-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="sinkronDataPengelola($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="pengelola-container">
+
+    <!-- 1. HEADER ATAS -->
+    <div class="header-section">
+      <div class="header-left">
+        <div class="location-pill">
+          <ion-icon name="location"></ion-icon>
+          <span>{{ pengelola.lokasi }} &bull; <strong>Pengelola</strong></span>
+        </div>
+        <h1 class="greeting-title">
+          Selamat pagi, <span>{{ pengelola.nama }}</span> 👋
+        </h1>
+      </div>
+
+      <button type="button" class="bell-btn" (click)="bukaMenu('Notifikasi Pengelola')">
         <ion-icon name="notifications-outline"></ion-icon>
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+
+    <!-- 2. KARTU UTAMA CADANGAN POIN & KAS -->
+    <div class="balance-hero-card">
+      <div class="hero-circle-1"></div>
+      <div class="hero-circle-2"></div>
+
+      <div class="card-top">
+        <div class="title-with-shield">
+          <div class="shield-box">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <span>Cadangan Poin Tersedia</span>
+        </div>
+
+        <button type="button" class="btn-lihat-kas" (click)="bukaMenu('Mutasi Kas & Alokasi')">
+          <span>Lihat kas</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      </div>
+
+      <h2 class="balance-amount">Rp {{ kas.tersedia | number }}</h2>
+
+      <div class="reserved-badge">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <span>Dipesan pencairan <strong>Rp {{ kas.dipesan | number }}</strong></span>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <div class="fund-split-row">
+        <span class="split-pill">Cadangan 40%</span>
+        <span class="split-dot">&bull;</span>
+        <span class="split-pill">Komunitas 10%</span>
+        <span class="split-dot">&bull;</span>
+        <span class="split-pill">Operasional 50%</span>
+      </div>
+    </div>
+
+    <!-- 3. QUICK ACTIONS OPERASIONAL -->
+    <div class="quick-actions-grid">
+      <div class="action-card" (click)="bukaMenu('Timbang & Verifikasi')">
+        <div class="icon-wrap">
+          <span class="badge-counter">{{ tindakanHariIni[0].count }}</span>
+          <ion-icon name="scale-outline"></ion-icon>
+        </div>
+        <span class="action-name">Timbang &<br>Verifikasi</span>
+      </div>
+
+      <div class="action-card" (click)="bukaMenu('Slot Jemput')">
+        <div class="icon-wrap">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <span class="action-name">Slot<br>Jemput</span>
+      </div>
+
+      <div class="action-card" (click)="bukaMenu('Penerimaan Fisik Drop Point')">
+        <div class="icon-wrap">
+          <span class="badge-counter">{{ tindakanHariIni[3].count }}</span>
+          <ion-icon name="cube-outline"></ion-icon>
+        </div>
+        <span class="action-name">Terima di<br>Titik</span>
+      </div>
+
+      <div class="action-card" (click)="bukaMenu('Penjualan & Retur Mitra')">
+        <div class="icon-wrap">
+          <ion-icon name="cart-outline"></ion-icon>
+        </div>
+        <span class="action-name">Penjualan<br>Material</span>
+      </div>
+    </div>
+
+    <!-- 4. PERLU TINDAKAN HARI INI -->
+    <div class="section-header-row">
+      <span class="section-eyebrow">PERLU TINDAKAN HARI INI</span>
+      <span class="section-hint">Prioritas Operasional</span>
+    </div>
+
+    <div class="tindakan-stack">
+      @for (item of tindakanHariIni; track item.title) {
+      <div class="tindakan-card" (click)="bukaMenu(item.title)">
+        <div class="tindakan-icon" [ngClass]="item.iconClass">
+          <ion-icon [name]="item.icon"></ion-icon>
+        </div>
+        <div class="tindakan-info">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.subtitle }}</p>
+        </div>
+        <div class="tindakan-right">
+          <span class="count-pill" [ngClass]="item.badgeClass">{{ item.count }}</span>
+          <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- 5. STOK FISIK DI DROP POINT -->
+    <div class="white-panel-card stok-panel">
+      <div class="panel-top-row">
+        <div>
+          <h3>Stok di Drop Point</h3>
+          <p>Setoran FINAL & DITERIMA di titik, setelah penjualan</p>
+        </div>
+        <div class="total-stok-badge">
+          {{ stok.total }} kg
+        </div>
+      </div>
+
+      <div class="stok-bars-wrap">
+        @for (item of stok.items; track item.nama) {
+        <div class="stok-row">
+          <div class="stok-label-line">
+            <span class="mat-label">
+              <i class="mat-dot" [style.background]="item.warna"></i>
+              {{ item.nama }}
+            </span>
+            <span class="mat-val">
+              <strong>{{ item.berat }} kg</strong> ({{ item.persentase }}%)
+            </span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="item.persentase" [style.background]="item.warna"></div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- 6. PENJEMPUTAN BERIKUTNYA -->
+    <div class="section-header-row">
+      <span class="section-eyebrow">PENJEMPUTAN BERIKUTNYA</span>
+    </div>
+
+    <div class="white-panel-card schedule-panel" (click)="bukaMenu('Penugasan Jemput')">
+      <div class="date-badge-box">
+        <span class="day">SEL</span>
+        <span class="date">14</span>
+      </div>
+      <div class="schedule-text">
+        <h3>Slot 08.00 - 10.00 WIB</h3>
+        <p>Terpakai <strong>4 dari 5 kuota</strong> &bull; <span class="warn-text">1 belum ditugaskan</span></p>
+      </div>
+      <span class="status-pill-green">Terjadwal</span>
+    </div>
+
+    <!-- 7. KELOLA MASTER DATA (4 MASTER PILAHIN) -->
+    <div class="section-header-row">
+      <span class="section-eyebrow">KELOLA MASTER DATA</span>
+      <span class="section-hint">4 Tabel Referensi</span>
+    </div>
+
+    <div class="master-grid-card">
+      <div class="master-grid">
+        <!-- M01 Pengguna -->
+        <div class="master-item" (click)="bukaMenu('Master Pengguna')">
+          <div class="master-icon-box">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <span class="master-title">Pengguna</span>
+          <span class="master-sub">Akun & Peran</span>
+        </div>
+
+        <!-- M02 Mitra (AKTIF -> KE /master-mitra) -->
+        <div class="master-item highlight-master" (click)="goToMitra()">
+          <span class="active-master-Dot">{{ jumlahMitraAktif }} Aktif</span>
+          <div class="master-icon-box active-box">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+          <span class="master-title">Mitra</span>
+          <span class="master-sub">Organisasi</span>
+        </div>
+
+        <!-- M03 Drop Point -->
+        <div class="master-item" (click)="goToDropPoint()">
+          <div class="master-icon-box">
+            <ion-icon name="location-outline"></ion-icon>
+          </div>
+          <span class="master-title">Drop Point</span>
+          <span class="master-sub">Titik Kumpul</span>
+        </div>
+
+        <!-- M04 Jenis Sampah -->
+        <div class="master-item" (click)="bukaMenu('Master Jenis Sampah')">
+          <div class="master-icon-box">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <span class="master-title">Jenis Sampah</span>
+          <span class="master-sub">4 Material</span>
+        </div>
+      </div>
+
+      <div class="master-footer-note">
+        Tambah &bull; Lihat Detail &bull; Ubah &bull; Nonaktifkan (Soft Delete)
+      </div>
+    </div>
+
+    <!-- 8. TOMBOL BAWAH BUKA SLOT JEMPUT -->
+    <div class="bottom-cta-wrap">
+      <ion-button expand="block" class="btn-buka-slot" (click)="bukaMenu('Buka Slot Jemput Baru')">
+        <span>Buka Slot Jemput Baru</span>
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
     </div>
-  </div>
 
-  <!-- Main Balance Card -->
-  <div class="balance-card">
-    <div class="card-top">
-      <div class="title-with-shield">
-        <ion-icon name="shield-checkmark-outline"></ion-icon>
-        <span>Cadangan Poin Tersedia</span>
-      </div>
-      <ion-button size="small" class="btn-lihat-kas" color="light">Lihat kas &rsaquo;</ion-button>
-    </div>
-    <!-- Format angka sudah diperbaiki di sini -->
-    <h1 class="balance-amount">Rp {{ kas.tersedia | number }}</h1>
-    <div class="reserved-badge">
-      <ion-icon name="wallet-outline"></ion-icon>
-      <!-- Format angka sudah diperbaiki di sini -->
-      <span>Dipesan pencairan Rp {{ kas.dipesan | number }}</span>
-    </div>
-    <p class="fund-split">Pembagian dana: Cadangan 40% &bull; Komunitas 10% &bull; Operasional 50%</p>
-  </div>
-
-  <!-- Quick Actions Grid -->
-  <div class="quick-actions">
-    <div class="action-item">
-      <div class="icon-box">
-        <ion-badge color="danger" class="floating-badge">5</ion-badge>
-        <ion-icon name="scale-outline" color="success"></ion-icon>
-      </div>
-      <span>Timbang & Verifikasi</span>
-    </div>
-    <div class="action-item">
-      <div class="icon-box">
-        <ion-icon name="calendar-outline" color="success"></ion-icon>
-      </div>
-      <span>Slot Jemput</span>
-    </div>
-    <div class="action-item">
-      <div class="icon-box">
-        <ion-badge color="danger" class="floating-badge">1</ion-badge>
-        <ion-icon name="cube-outline" color="success"></ion-icon>
-      </div>
-      <span>Terima di Titik</span>
-    </div>
-    <div class="action-item">
-      <div class="icon-box">
-        <ion-icon name="cart-outline" color="success"></ion-icon>
-      </div>
-      <span>Penjualan</span>
-    </div>
-  </div>
-
-  <!-- Perlu Tindakan Hari Ini -->
-  <div class="section-title">PERLU TINDAKAN HARI INI</div>
-  <ion-list lines="none" class="action-list">
-    <ion-item *ngFor="let item of tindakanHariIni" detail="true" class="action-list-item">
-      <div slot="start" class="list-icon-box">
-        <ion-icon [name]="item.icon" [color]="item.color"></ion-icon>
-      </div>
-      <ion-label>
-        <h3><strong>{{ item.title }}</strong></h3>
-        <p>{{ item.subtitle }}</p>
-      </ion-label>
-      <ion-badge slot="end" [color]="item.color" mode="ios">{{ item.count }}</ion-badge>
-    </ion-item>
-  </ion-list>
-
-  <!-- Stok di Drop Point -->
-  <div class="stok-card">
-    <div class="stok-header">
-      <h2><strong>Stok di Drop Point</strong></h2>
-      <ion-badge color="light" class="stok-total">{{ stok.total }} kg</ion-badge>
-    </div>
-    <p class="stok-subtitle">Setoran FINAL & DITERIMA di titik, setelah penjualan</p>
-    
-    <div class="stok-item" *ngFor="let item of stok.items">
-      <div class="stok-item-header">
-        <span class="stok-name"><span class="dot" [class]="'bg-' + item.color"></span> {{ item.nama }}</span>
-        <span class="stok-weight">{{ item.berat }} kg ({{ item.persentase }}%)</span>
-      </div>
-      <ion-progress-bar [value]="item.value" [color]="item.color"></ion-progress-bar>
-    </div>
-  </div>
-
-  <!-- Penjemputan Berikutnya -->
-  <div class="section-title">PENJEMPUTAN BERIKUTNYA</div>
-  <div class="schedule-card">
-    <div class="date-box">
-      <span class="day">SEL</span>
-      <span class="date">14</span>
-    </div>
-    <div class="schedule-info">
-      <h3><strong>Slot 08.00 - 10.00</strong></h3>
-      <p>Terpakai 4 dari 5 kuota &bull; 1 belum ditugaskan</p>
-    </div>
-    <ion-badge color="success" mode="ios" class="status-badge">Terjadwal</ion-badge>
-  </div>
-
-  <!-- Kelola Master Data -->
-  <div class="section-title">KELOLA MASTER DATA</div>
-  <div class="master-data-grid">
-    <div class="md-item">
-      <div class="md-icon-box"><ion-icon name="people-outline"></ion-icon></div>
-      <span>Pengguna</span>
-    </div>
-    <div class="md-item">
-      <div class="md-icon-box"><ion-icon name="business-outline"></ion-icon></div>
-      <span>Mitra</span>
-    </div>
-    
-    <div class="md-item" (click)="goToDropPoint()" style="cursor: pointer;">
-      <div class="md-icon-box"><ion-icon name="location-outline"></ion-icon></div>
-      <span>Drop Point</span>
-    </div>
-    
-    <div class="md-item">
-      <div class="md-icon-box"><ion-icon name="extension-puzzle-outline"></ion-icon></div>
-      <span>Jenis Sampah</span>
-    </div>
-  </div>
-  <p class="md-subtitle text-center">Tambah &bull; Lihat &bull; Ubah &bull; Nonaktifkan</p>
-
-  <!-- Bottom Button -->
-  <div class="bottom-action">
-    <ion-button expand="block" color="success" class="btn-buka-slot">
-      Buka Slot Jemput Baru <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-    </ion-button>
   </div>
 </ion-content>

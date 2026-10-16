@@ -83,4 +83,49 @@ export class ApiService {
       jenis_pelanggan: jenisPelanggan
     });
   }
+
+  // ================= MASTER MITRA (M02) =================
+  getMitraList(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/mitra`);
+  }
+
+  getMitraDetail(idMitra: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/mitra/${idMitra}`);
+  }
+
+  tambahMitra(payload: {
+    nama_mitra: string;
+    nama_penanggung_jawab?: string | null;
+    no_hp?: string | null;
+    alamat_mitra: string;
+    dibuat_oleh?: number | null;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/mitra`, payload);
+  }
+
+  updateMitra(idMitra: number, payload: {
+    nama_mitra: string;
+    nama_penanggung_jawab?: string | null;
+    no_hp?: string | null;
+    alamat_mitra: string;
+    aktif?: number;
+    diubah_oleh?: number | null;
+  }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/mitra/${idMitra}`, payload);
+  }
+
+  ubahStatusMitra(idMitra: number, aktif: number, diubahOleh?: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/mitra/${idMitra}/status`, {
+      aktif,
+      diubah_oleh: diubahOleh
+    });
+  }
+
+  hapusMitra(idMitra: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/mitra/${idMitra}`);
+  }
+
+  getRingkasanPengelola(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/dashboard-pengelola`);
+  }
 }
