@@ -1,0 +1,113 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="defaultBackHref"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Jenis Sampah</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="js-content">
+  <ion-refresher slot="fixed" (ionRefresh)="muat($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Status Memuat -->
+  <div class="state" *ngIf="memuat">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Memuat data...</p>
+  </div>
+
+  <!-- Status Gagal -->
+  <div class="state" *ngIf="gagal && !memuat">
+    <p>Data belum bisa dimuat.</p>
+    <ion-button size="small" (click)="muat()">Coba lagi</ion-button>
+  </div>
+
+  <!-- Konten Utama -->
+  <div class="js-container" *ngIf="!memuat && !gagal">
+    <p class="intro">
+      Empat material yang diterima Pilahin, lengkap dengan ketentuan penerimaan dan tarif poin per kilogram.
+    </p>
+
+    <div class="empty" *ngIf="daftar.length === 0">Belum ada jenis sampah.</div>
+
+    <div class="jenis" *ngFor="let j of daftar" [class.nonaktif]="j.aktif === 0">
+      <div class="jenis-head">
+        <div class="ikon" [style.background]="warna(j) + '26'">
+          <ion-icon [name]="ikon(j)" [style.color]="warna(j)"></ion-icon>
+        </div>
+        <div class="judul">
+          <h3>{{ j.nama_jenis }}</h3>
+          <span class="badge-off" *ngIf="j.aktif === 0">Nonaktif</span>
+        </div>
+        <div class="tarif">
+          <strong>{{ fmt(j.poin_per_kg) }}</strong>
+          <span>poin/kg</span>
+        </div>
+      </div>
+
+      <p class="ketentuan">{{ j.ketentuan }}</p>
+
+      <div class="aksi" *ngIf="bolehUbah">
+        <button type="button" (click)="bukaUbah(j)">
+          <ion-icon name="create-outline"></ion-icon> Ubah
+        </button>
+        <button type="button" (click)="ubahStatus(j)">
+          <ion-icon [name]="j.aktif === 0 ? 'checkmark-circle-outline' : 'pause-circle-outline'"></ion-icon>
+          {{ j.aktif === 0 ? 'Aktifkan' : 'Nonaktifkan' }}
+        </button>
+        <button type="button" class="bahaya" (click)="hapus(j)">
+          <ion-icon name="trash-outline"></ion-icon> Hapus
+        </button>
+      </div>
+    </div>
+
+    <ion-button *ngIf="bolehUbah && belumAda.length" expand="block" class="btn-tambah" (click)="bukaTambah()">
+      <ion-icon slot="start" name="add"></ion-icon>
+      Tambah jenis sampah
+    </ion-button>
+    <p class="hint" *ngIf="bolehUbah && !belumAda.length">Keempat jenis sudah terdaftar.</p>
+  </div>
+</ion-content>
+
+<!-- Modal Tambah / Ubah -->
+<ion-modal [isOpen]="modalTerbuka" (didDismiss)="modalTerbuka = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ mode === 'tambah' ? 'Tambah Jenis Sampah' : 'Ubah ' + form.nama_jenis }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalTerbuka = false">Tutup</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="form">
+        <ion-select *ngIf="mode === 'tambah'" label="Jenis" labelPlacement="stacked" fill="outline"
+          [(ngModel)]="form.nama_jenis">
+          <ion-select-option *ngFor="let n of belumAda" [value]="n">{{ n }}</ion-select-option>
+        </ion-select>
+
+        <ion-input *ngIf="mode === 'ubah'" label="Jenis" labelPlacement="stacked" fill="outline"
+          [value]="form.nama_jenis" [disabled]="true"></ion-input>
+
+        <ion-textarea label="Ketentuan penerimaan" labelPlacement="stacked" fill="outline"
+          [counter]="true" maxlength="500" [autoGrow]="true" rows="4"
+          placeholder="Contoh: botol plastik bersih, tanpa sisa isi"
+          [(ngModel)]="form.ketentuan"></ion-textarea>
+
+        <ion-input label="Tarif poin per kg" labelPlacement="stacked" fill="outline"
+          type="number" inputmode="decimal" placeholder="Contoh: 10"
+          [(ngModel)]="form.poin_per_kg"></ion-input>
+
+        <ion-note>Tarif baru hanya berlaku untuk setoran berikutnya. Setoran lama tetap memakai tarif saat itu.</ion-note>
+
+        <ion-button expand="block" class="btn-simpan" [disabled]="menyimpan" (click)="simpan()">
+          Simpan
+        </ion-button>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -1,0 +1,169 @@
+.js-content {
+  --background: #f9fafb;
+}
+
+.js-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 8px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intro {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 80px 20px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.empty, .hint {
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 20px 0;
+  margin: 0;
+}
+
+.jenis {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+
+  &.nonaktif {
+    opacity: 0.6;
+  }
+
+  .jenis-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ikon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+
+  .judul {
+    flex: 1;
+    h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .badge-off {
+      display: inline-block;
+      margin-top: 3px;
+      background: #f3f4f6;
+      color: #6b7280;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+  }
+
+  .tarif {
+    text-align: right;
+    strong {
+      display: block;
+      font-size: 18px;
+      font-weight: 800;
+      color: #16a34a;
+      line-height: 1.1;
+    }
+    span {
+      font-size: 10px;
+      color: #9ca3af;
+    }
+  }
+
+  .ketentuan {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: #4b5563;
+    line-height: 1.5;
+  }
+
+  .aksi {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f3f4f6;
+
+    button {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+
+      &.bahaya {
+        color: #dc2626;
+        border-color: #fecaca;
+      }
+    }
+  }
+}
+
+.btn-tambah {
+  --background: #22c55e;
+  --border-radius: 12px;
+  --box-shadow: none;
+  height: 48px;
+  font-weight: 700;
+  text-transform: none;
+  margin: 4px 0 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  ion-note {
+    font-size: 11px;
+  }
+
+  .btn-simpan {
+    --background: #22c55e;
+    --border-radius: 12px;
+    --box-shadow: none;
+    height: 48px;
+    font-weight: 700;
+    text-transform: none;
+    margin: 4px 0 0;
+  }
+}
