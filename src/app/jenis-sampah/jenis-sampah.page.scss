@@ -1,21 +1,51 @@
+ion-toolbar {
+  --background: #1fa048;
+  --color: #ffffff;
+}
+
 .js-content {
-  --background: #f9fafb;
+  --background: #f8f9fa;
 }
 
 .js-container {
-  max-width: 480px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 8px 16px 24px;
+  padding: 12px 16px 32px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-.intro {
-  margin: 0 0 4px;
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.5;
+.header-section {
+  padding: 4px 0 8px;
+  
+  .location-badge {
+    display: flex;
+    align-items: center;
+    color: #1fa048;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    gap: 4px;
+
+    span {
+      color: #64748b;
+    }
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e293b;
+  }
+
+  .intro {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+  }
 }
 
 .state {
@@ -26,26 +56,27 @@
   gap: 10px;
   padding: 80px 20px;
   font-size: 13px;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .empty, .hint {
   text-align: center;
   font-size: 12px;
-  color: #9ca3af;
+  color: #94a3b8;
   padding: 20px 0;
   margin: 0;
 }
 
 .jenis {
-  background: #fff;
-  border: 1px solid #f0f0f0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
-  padding: 14px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 
   &.nonaktif {
     opacity: 0.6;
+    background: #f8fafc;
   }
 
   .jenis-head {
@@ -55,14 +86,14 @@
   }
 
   .ikon {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     ion-icon {
-      font-size: 22px;
+      font-size: 24px;
     }
   }
 
@@ -70,15 +101,15 @@
     flex: 1;
     h3 {
       margin: 0;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 800;
-      color: #111827;
+      color: #1e293b;
     }
     .badge-off {
       display: inline-block;
-      margin-top: 3px;
-      background: #f3f4f6;
-      color: #6b7280;
+      margin-top: 4px;
+      background: #f1f5f9;
+      color: #64748b;
       font-size: 10px;
       font-weight: 700;
       padding: 2px 8px;
@@ -92,20 +123,39 @@
       display: block;
       font-size: 18px;
       font-weight: 800;
-      color: #16a34a;
+      color: #1fa048;
       line-height: 1.1;
     }
     span {
       font-size: 10px;
-      color: #9ca3af;
+      color: #94a3b8;
+    }
+    .badge-zero {
+      display: inline-block;
+      background: #fef3c7;
+      color: #b45309;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      margin-bottom: 2px;
+    }
+    .zero-rate {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
     }
   }
 
   .ketentuan {
-    margin: 10px 0 0;
+    margin: 12px 0 0;
     font-size: 12px;
-    color: #4b5563;
+    color: #475569;
     line-height: 1.5;
+    background: #f8fafc;
+    padding: 8px 10px;
+    border-radius: 8px;
   }
 
   .aksi {
@@ -113,7 +163,7 @@
     gap: 8px;
     margin-top: 12px;
     padding-top: 10px;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid #f1f5f9;
 
     button {
       flex: 1;
@@ -121,26 +171,27 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
       border-radius: 10px;
       padding: 8px 4px;
       font-size: 11px;
-      font-weight: 600;
-      color: #374151;
+      font-weight: 700;
+      color: #334155;
       cursor: pointer;
 
       &.bahaya {
         color: #dc2626;
         border-color: #fecaca;
+        background: #fef2f2;
       }
     }
   }
 }
 
 .btn-tambah {
-  --background: #22c55e;
-  --border-radius: 12px;
+  --background: #1fa048;
+  --border-radius: 14px;
   --box-shadow: none;
   height: 48px;
   font-weight: 700;
@@ -155,15 +206,17 @@
 
   ion-note {
     font-size: 11px;
+    line-height: 1.4;
+    color: #64748b;
   }
 
   .btn-simpan {
-    --background: #22c55e;
-    --border-radius: 12px;
+    --background: #1fa048;
+    --border-radius: 14px;
     --box-shadow: none;
     height: 48px;
     font-weight: 700;
     text-transform: none;
-    margin: 4px 0 0;
+    margin: 6px 0 0;
   }
 }
