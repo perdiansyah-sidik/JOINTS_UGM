@@ -164,24 +164,13 @@ export class DashboardPengelolaPage implements OnInit {
   }
 
   async bukaMenu(namaFitur: string) {
-    if (namaFitur === 'Timbang & Verifikasi' || namaFitur === 'Setoran menunggu verifikasi') {
-      this.goToTimbang();
-      return;
-    }
-    if (namaFitur === 'Master Jenis Sampah') {
-      this.goToJenisSampah();
-      return;
-    }
-    if (namaFitur === 'Master Mitra') {
-      this.goToMitra();
-      return;
-    }
-    if (namaFitur === 'Master Drop Point') {
-      this.goToDropPoint();
-      return;
-    }
-    if (namaFitur === 'Mutasi Kas & Alokasi') {
-      this.bukaModalKas();
+    const fiturLower = (namaFitur || '').toLowerCase();
+    if (
+      fiturLower.includes('jemput') ||
+      fiturLower.includes('slot') ||
+      fiturLower.includes('penugasan')
+    ) {
+      this.router.navigate(['/penugasan-jemput']);
       return;
     }
 
@@ -193,7 +182,6 @@ export class DashboardPengelolaPage implements OnInit {
     });
     await toast.present();
   }
-
   // --- LOGIKA BUKU KAS (T08) ---
   bukaModalKas() {
     this.modalKasTerbuka = true;

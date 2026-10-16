@@ -8,8 +8,7 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
-//  Map
-@import "leaflet/dist/leaflet.css";
+/* Map - leaflet diimpor langsung lewat angular.json jika dibutuhkan */
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 

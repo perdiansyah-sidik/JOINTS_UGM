@@ -80,6 +80,14 @@ const routes: Routes = [
   {
     path: 'dashboard-mitra',
     loadChildren: () => import('./dashboard-mitra/dashboard-mitra.module').then(m => m.DashboardMitraPageModule)
+  },
+  {
+    path: 'penugasan-jemput',
+    loadChildren: () => import('./penugasan-jemput/penugasan-jemput.module').then(m => m.PenugasanJemputPageModule)
+  },
+  {
+    path: 'kurir-mitra',
+    loadChildren: () => import('./kurir-mitra/kurir-mitra.module').then(m => m.KurirMitraPageModule)
   }
 ];
 

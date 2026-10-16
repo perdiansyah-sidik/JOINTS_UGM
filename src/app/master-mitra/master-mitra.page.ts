@@ -8,6 +8,7 @@ export interface MitraModel {
   nama_penanggung_jawab: string | null;
   no_hp: string | null;
   alamat_fasilitas: string;
+  alamat_mitra?: string;
   aktif: number;
   dibuat_pada?: string;
   diubah_pada?: string;
@@ -53,7 +54,7 @@ export class MasterMitraPage implements OnInit {
     nama_mitra: '',
     nama_penanggung_jawab: '',
     no_hp: '',
-    alamat_fasilitas: '',
+    alamat_mitra: '',
     aktif: 1
   };
 
@@ -86,6 +87,11 @@ export class MasterMitraPage implements OnInit {
       next: (res) => {
         this.loading = false;
         this.daftarMitra = Array.isArray(res?.data) ? res.data : [];
+        // Normalisasi alamat — backend mengembalikan alamat_mitra, tampilkan sebagai alamat_fasilitas
+        this.daftarMitra = this.daftarMitra.map(m => ({
+          ...m,
+          alamat_fasilitas: m.alamat_fasilitas || m.alamat_mitra || ''
+        }));
         this.hitungStatistik();
         this.terapkanFilter();
         if (event?.target) event.target.complete();
@@ -130,7 +136,10 @@ export class MasterMitraPage implements OnInit {
     });
   }
 
-  // Buka Form Tambah Mitra Baru
+  // =========================================================
+  // MODAL FORM: Tambah / Ubah
+  // =========================================================
+
   bukaModalTambah() {
     this.modeEdit = false;
     this.idMitraDiedit = null;
@@ -138,13 +147,12 @@ export class MasterMitraPage implements OnInit {
       nama_mitra: '',
       nama_penanggung_jawab: '',
       no_hp: '',
-      alamat_fasilitas: '',
+      alamat_mitra: '',
       aktif: 1
     };
     this.tampilModalForm = true;
   }
 
-  // Buka Form Edit Mitra
   bukaModalEdit(mitra: MitraModel) {
     this.modeEdit = true;
     this.idMitraDiedit = mitra.id_mitra;
@@ -152,7 +160,7 @@ export class MasterMitraPage implements OnInit {
       nama_mitra: mitra.nama_mitra || '',
       nama_penanggung_jawab: mitra.nama_penanggung_jawab || '',
       no_hp: mitra.no_hp || '',
-      alamat_fasilitas: mitra.alamat_fasilitas || '',
+      alamat_mitra: mitra.alamat_fasilitas || mitra.alamat_mitra || '',
       aktif: Number(mitra.aktif) === 1 ? 1 : 0
     };
     this.tampilModalForm = true;
@@ -162,16 +170,23 @@ export class MasterMitraPage implements OnInit {
     this.tampilModalForm = false;
   }
 
-  // Buka Modal Detail Mitra & Daftar Petugasnya
-  bukaDetailMitra(mitra: MitraModel) {
-    this.mitraDetailTerpilih = { ...mitra, daftar_petugas: [] };
-    this.tampilModalDetail = true;
+  // =========================================================
+  // MODAL DETAIL: Lihat Detail & Daftar Petugas
+  // =========================================================
 
+  bukaDetailMitra(mitra: MitraModel) {
+    // Ambil detail lengkap termasuk daftar petugas dari API
     this.api.getMitraDetail(mitra.id_mitra).subscribe({
       next: (res) => {
-        if (res && res.data) {
-          this.mitraDetailTerpilih = res.data;
-        }
+        this.mitraDetailTerpilih = res?.data
+          ? { ...res.data, alamat_fasilitas: res.data.alamat_fasilitas || res.data.alamat_mitra || '' }
+          : { ...mitra };
+        this.tampilModalDetail = true;
+      },
+      error: () => {
+        // Tampilkan data yang sudah ada jika detail API gagal
+        this.mitraDetailTerpilih = { ...mitra };
+        this.tampilModalDetail = true;
       }
     });
   }
@@ -181,25 +196,22 @@ export class MasterMitraPage implements OnInit {
     this.mitraDetailTerpilih = null;
   }
 
+  // =========================================================
+  // SIMPAN: Tambah atau Update
+  // =========================================================
+
   async simpanMitra() {
-    const nama = (this.formMitra.nama_mitra || '').trim();
-    const alamat = (this.formMitra.alamat_fasilitas || '').trim();
-    const pj = (this.formMitra.nama_penanggung_jawab || '').trim();
-    const hp = (this.formMitra.no_hp || '').trim();
+    const nama = String(this.formMitra.nama_mitra || '').trim();
+    const alamat = String(this.formMitra.alamat_mitra || '').trim();
+    const pj = String(this.formMitra.nama_penanggung_jawab || '').trim();
+    const hp = String(this.formMitra.no_hp || '').trim();
 
-    // 1. Validasi pastikan terisi (Perbaiki teks pesan agar sesuai dengan Alamat Fasilitas)
-    if (!nama || !alamat) {
-      this.tampilPesan('Nama Organisasi Mitra dan Alamat Fasilitas wajib diisi!', 'warning');
+    if (!nama) {
+      this.tampilPesan('Nama Organisasi Mitra wajib diisi!', 'warning');
       return;
     }
-
-    if (nama.length > 150) {
-      this.tampilPesan('Nama Mitra maksimal 150 karakter sesuai kamus data!', 'warning');
-      return;
-    }
-
-    if (alamat.length > 255) {
-      this.tampilPesan('Alamat Fasilitas maksimal 255 karakter sesuai kamus data!', 'warning');
+    if (!alamat) {
+      this.tampilPesan('Alamat Fasilitas Mitra wajib diisi!', 'warning');
       return;
     }
 
@@ -209,18 +221,22 @@ export class MasterMitraPage implements OnInit {
     });
     await loading.present();
 
+    // Payload sesuai dengan yang diterima backend (nama_mitra + alamat_mitra)
+    const payload = {
+      nama_mitra: nama,
+      nama_penanggung_jawab: pj || null,
+      no_hp: hp || null,
+      alamat_mitra: alamat,
+      aktif: this.formMitra.aktif,
+      dibuat_oleh: this.idPengelolaLogin,
+      diubah_oleh: this.idPengelolaLogin
+    };
+
     if (this.modeEdit && this.idMitraDiedit !== null) {
-      this.api.updateMitra(this.idMitraDiedit, {
-        nama_mitra: nama,
-        nama_penanggung_jawab: pj || null,
-        no_hp: hp || null,
-        alamat_fasilitas: alamat, // <-- Mengirim alamat_fasilitas dengan benar
-        aktif: this.formMitra.aktif,
-        diubah_oleh: this.idPengelolaLogin
-      }).subscribe({
+      this.api.updateMitra(this.idMitraDiedit, payload).subscribe({
         next: async (res) => {
           await loading.dismiss();
-          this.tampilModalForm = false;
+          this.tutupModalForm();
           await this.tampilPesan(res?.message || 'Data organisasi mitra berhasil diperbarui!', 'success');
           this.muatDataMitra();
         },
@@ -230,16 +246,10 @@ export class MasterMitraPage implements OnInit {
         }
       });
     } else {
-      this.api.tambahMitra({
-        nama_mitra: nama,
-        nama_penanggung_jawab: pj || null,
-        no_hp: hp || null,
-        alamat_fasilitas: alamat, // <-- Mengirim alamat_fasilitas dengan benar
-        dibuat_oleh: this.idPengelolaLogin
-      }).subscribe({
+      this.api.tambahMitra(payload).subscribe({
         next: async (res) => {
           await loading.dismiss();
-          this.tampilModalForm = false;
+          this.tutupModalForm();
           await this.tampilPesan(res?.message || 'Organisasi mitra baru berhasil ditambahkan!', 'success');
           this.muatDataMitra();
         },
@@ -250,7 +260,11 @@ export class MasterMitraPage implements OnInit {
       });
     }
   }
-  // Konfirmasi Aktifkan / Nonaktifkan Mitra
+
+  // =========================================================
+  // TOGGLE STATUS & SOFT DELETE
+  // =========================================================
+
   async konfirmasiToggleStatus(mitra: MitraModel) {
     const targetAktif = Number(mitra.aktif) === 1 ? 0 : 1;
     const aksiTeks = targetAktif === 1 ? 'Aktifkan' : 'Nonaktifkan';
@@ -281,7 +295,6 @@ export class MasterMitraPage implements OnInit {
     await alert.present();
   }
 
-  // Konfirmasi Soft Delete sesuai Kamus Data (is_deleted = 1, aktif = 0)
   async konfirmasiSoftDelete(mitra: MitraModel) {
     const alert = await this.alertCtrl.create({
       header: 'Nonaktifkan / Soft Delete Mitra?',

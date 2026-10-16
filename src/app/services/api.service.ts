@@ -92,7 +92,7 @@ export class ApiService {
     });
   }
 
-  // ================= MASTER MITRA (M02) =================
+ // ================= MASTER MITRA (M02) =================
   getMitraList(): Observable<any> {
     return this.http.get(`${this.apiUrl}/mitra`);
   }
@@ -105,7 +105,8 @@ export class ApiService {
     nama_mitra: string;
     nama_penanggung_jawab?: string | null;
     no_hp?: string | null;
-    alamat_fasilitas: string;
+    alamat_fasilitas?: string;
+    alamat_mitra?: string;
     dibuat_oleh?: number | null;
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/mitra`, payload);
@@ -115,7 +116,8 @@ export class ApiService {
     nama_mitra: string;
     nama_penanggung_jawab?: string | null;
     no_hp?: string | null;
-    alamat_fasilitas: string;
+    alamat_fasilitas?: string;
+    alamat_mitra?: string;
     aktif?: number;
     diubah_oleh?: number | null;
   }): Observable<any> {
@@ -131,6 +133,23 @@ export class ApiService {
 
   hapusMitra(idMitra: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/mitra/${idMitra}`);
+  }
+
+  // ================= TRANSAKSI T04 (PENUGASAN) & T03 (PENJEMPUTAN MITRA) =================
+  getPenjemputanTransaksi(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/penjemputan-transaksi`);
+  }
+
+  buatPesananJemput(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/penjemputan-transaksi/buat-pesanan`, payload);
+  }
+
+  tugaskanMitraJemput(idPenjemputan: number, payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/penjemputan-transaksi/${idPenjemputan}/tugaskan`, payload);
+  }
+
+  updateStatusKurirDanTimbang(idPenjemputan: number, payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/penjemputan-transaksi/${idPenjemputan}/status-kurir`, payload);
   }
 
   getRingkasanPengelola(): Observable<any> {

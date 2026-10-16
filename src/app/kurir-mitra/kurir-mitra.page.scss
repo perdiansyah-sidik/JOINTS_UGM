@@ -1,0 +1,219 @@
+/* TAB SWITCHER OPERASIONAL VS LAPORAN T03 */
+.main-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: #E2ECE7;
+  padding: 5px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+
+  .m-tab {
+    height: 38px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+
+    &.active {
+      background: #FFFFFF;
+      color: #0F6E38;
+      box-shadow: 0 2px 8px rgba(15, 41, 30, 0.08);
+    }
+  }
+}
+
+/* LAPORAN T03 CARD */
+.laporan-t03-card {
+  background: #FFFFFF;
+  border: 1px solid #E2ECE7;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+
+  .lap-head {
+    margin-bottom: 14px;
+    h3 { font-size: 15px; font-weight: 800; color: #0F291E; margin: 0 0 3px; }
+    p { font-size: 11.5px; color: #64748B; margin: 0 0 12px; }
+
+    .export-row {
+      display: flex;
+      gap: 8px;
+      .btn-exp {
+        flex: 1;
+        height: 38px;
+        border-radius: 11px;
+        border: none;
+        color: #FFFFFF;
+        font-size: 11.5px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        &.excel { background: #0F6E38; }
+        &.pdf { background: #1D4ED8; }
+      }
+    }
+  }
+
+  .table-scroll { overflow-x: auto; }
+  .t03-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    th { background: #0F6E38; color: #FFFFFF; padding: 8px; text-align: left; }
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #E2E8F0;
+      strong { display: block; color: #0F291E; &.pts { color: #15803D; } }
+      small { color: #64748B; font-size: 10px; }
+    }
+    .st-pill {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      background: #FEF3C7;
+      color: #B45309;
+      &[data-st="DIJADWALKAN"] { background: #DBEAFE; color: #1D4ED8; }
+      &[data-st="DALAM_PERJALANAN"] { background: #E0F2FE; color: #0369A1; }
+      &[data-st="SELESAI"] { background: #DCFCE7; color: #15803D; }
+    }
+  }
+}
+
+/* MODAL TIMBANG & PROGRES T03 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 41, 30, 0.55);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  background: #FFFFFF;
+  border-radius: 24px 24px 0 0;
+  padding: 18px 16px 22px;
+  display: flex;
+  flex-direction: column;
+
+  .m-head {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #E2E8F0;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    .eyebrow { font-size: 10px; font-weight: 800; color: #0F6E38; display: block; }
+    h3 { font-size: 16px; font-weight: 800; margin: 2px 0 0; color: #0F291E; }
+    .close-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: #F1F5F9; font-size: 18px; cursor: pointer; }
+  }
+
+  .m-body {
+    overflow-y: auto;
+    .cust-banner {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      strong { font-size: 13px; color: #0F291E; display: block; }
+      p { font-size: 11.5px; color: #475569; margin: 2px 0 0; }
+    }
+
+    .weight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+      .w-field {
+        label { display: block; font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 4px; }
+        input {
+          width: 100%; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 8px 10px;
+          font-size: 14px; font-weight: 800; color: #0F291E;
+        }
+      }
+    }
+
+    .f-notes {
+      margin-bottom: 12px;
+      label { display: block; font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 4px; }
+      input { width: 100%; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 8px 10px; font-size: 12px; }
+    }
+
+    .calc-summary {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      .c-line {
+        display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0;
+        &.highlight { border-top: 1px dashed #6EE7B7; margin-top: 4px; padding-top: 6px; font-size: 13px; color: #065F46; }
+      }
+    }
+
+    .bag-code-card {
+      background: #F0FDF4;
+      border: 1px solid #86EFAC;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      .lbl { font-size: 10px; font-weight: 800; color: #15803D; }
+      h4 { font-size: 17px; font-weight: 800; margin: 2px 0 0; color: #0F291E; }
+      .st-badge { background: #15803D; color: #FFFFFF; font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 12px; }
+    }
+
+    .tl-title { font-size: 13px; font-weight: 800; margin: 0 0 10px; color: #0F291E; }
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      .tl-item {
+        display: flex;
+        gap: 10px;
+        opacity: 0.55;
+        &.done { opacity: 1; }
+        .tl-dot {
+          width: 28px; height: 28px; border-radius: 50%; background: #E2E8F0; color: #475569;
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        &.done .tl-dot { background: #15803D; color: #FFFFFF; }
+        .tl-content {
+          h5 { font-size: 12.5px; font-weight: 800; margin: 0 0 2px; color: #0F291E; }
+          p { font-size: 11px; color: #64748B; margin: 0; }
+        }
+      }
+    }
+  }
+
+  .m-foot {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #E2E8F0;
+    padding-top: 12px;
+    margin-top: 10px;
+    .btn-cancel { flex: 1; height: 42px; border-radius: 11px; border: 1px solid #CBD5E1; background: #F8FAFC; font-weight: 800; cursor: pointer; }
+    .btn-save {
+      flex: 2; height: 42px; border-radius: 11px; border: none; background: #0F6E38; color: #FFFFFF;
+      font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+    }
+  }
+}
