@@ -95,7 +95,7 @@ export class DashboardMitraPage implements OnInit {
             this.namaMitra = d.profil_mitra.nama_mitra || this.namaMitra;
             this.penanggungJawab = d.profil_mitra.nama_penanggung_jawab || 'Penanggung Jawab';
             this.noHpMitra = d.profil_mitra.no_hp || '-';
-            this.alamatFasilitas = d.profil_mitra.alamat_fasilitas || d.profil_mitra.alamat_mitra || '-';
+            this.alamatFasilitas = d.profil_mitra.alamat_fasilitas || d.profil_mitra.alamat_fasilitas || '-';
             this.statusAktif = Number(d.profil_mitra.aktif) === 1;
           }
 

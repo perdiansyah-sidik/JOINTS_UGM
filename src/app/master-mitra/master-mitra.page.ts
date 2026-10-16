@@ -7,7 +7,7 @@ export interface MitraModel {
   nama_mitra: string;
   nama_penanggung_jawab: string | null;
   no_hp: string | null;
-  alamat_mitra: string;
+  alamat_fasilitas: string;
   aktif: number;
   dibuat_pada?: string;
   diubah_pada?: string;
@@ -53,7 +53,7 @@ export class MasterMitraPage implements OnInit {
     nama_mitra: '',
     nama_penanggung_jawab: '',
     no_hp: '',
-    alamat_mitra: '',
+    alamat_fasilitas: '',
     aktif: 1
   };
 
@@ -123,7 +123,7 @@ export class MasterMitraPage implements OnInit {
         !q ||
         (m.nama_mitra || '').toLowerCase().includes(q) ||
         (m.nama_penanggung_jawab || '').toLowerCase().includes(q) ||
-        (m.alamat_mitra || '').toLowerCase().includes(q) ||
+        (m.alamat_fasilitas || '').toLowerCase().includes(q) ||
         (m.no_hp || '').toLowerCase().includes(q);
 
       return cocokStatus && cocokKata;
@@ -138,7 +138,7 @@ export class MasterMitraPage implements OnInit {
       nama_mitra: '',
       nama_penanggung_jawab: '',
       no_hp: '',
-      alamat_mitra: '',
+      alamat_fasilitas: '',
       aktif: 1
     };
     this.tampilModalForm = true;
@@ -152,7 +152,7 @@ export class MasterMitraPage implements OnInit {
       nama_mitra: mitra.nama_mitra || '',
       nama_penanggung_jawab: mitra.nama_penanggung_jawab || '',
       no_hp: mitra.no_hp || '',
-      alamat_mitra: mitra.alamat_mitra || '',
+      alamat_fasilitas: mitra.alamat_fasilitas || '',
       aktif: Number(mitra.aktif) === 1 ? 1 : 0
     };
     this.tampilModalForm = true;
@@ -181,13 +181,13 @@ export class MasterMitraPage implements OnInit {
     this.mitraDetailTerpilih = null;
   }
 
-  // Simpan Tambah atau Perubahan Mitra ke SQL Server
   async simpanMitra() {
     const nama = (this.formMitra.nama_mitra || '').trim();
-    const alamat = (this.formMitra.alamat_mitra || '').trim();
+    const alamat = (this.formMitra.alamat_fasilitas || '').trim();
     const pj = (this.formMitra.nama_penanggung_jawab || '').trim();
     const hp = (this.formMitra.no_hp || '').trim();
 
+    // 1. Validasi pastikan terisi (Perbaiki teks pesan agar sesuai dengan Alamat Fasilitas)
     if (!nama || !alamat) {
       this.tampilPesan('Nama Organisasi Mitra dan Alamat Fasilitas wajib diisi!', 'warning');
       return;
@@ -199,7 +199,7 @@ export class MasterMitraPage implements OnInit {
     }
 
     if (alamat.length > 255) {
-      this.tampilPesan('Alamat Mitra maksimal 255 karakter sesuai kamus data!', 'warning');
+      this.tampilPesan('Alamat Fasilitas maksimal 255 karakter sesuai kamus data!', 'warning');
       return;
     }
 
@@ -214,7 +214,7 @@ export class MasterMitraPage implements OnInit {
         nama_mitra: nama,
         nama_penanggung_jawab: pj || null,
         no_hp: hp || null,
-        alamat_mitra: alamat,
+        alamat_fasilitas: alamat, // <-- Mengirim alamat_fasilitas dengan benar
         aktif: this.formMitra.aktif,
         diubah_oleh: this.idPengelolaLogin
       }).subscribe({
@@ -234,7 +234,7 @@ export class MasterMitraPage implements OnInit {
         nama_mitra: nama,
         nama_penanggung_jawab: pj || null,
         no_hp: hp || null,
-        alamat_mitra: alamat,
+        alamat_fasilitas: alamat, // <-- Mengirim alamat_fasilitas dengan benar
         dibuat_oleh: this.idPengelolaLogin
       }).subscribe({
         next: async (res) => {
@@ -250,7 +250,6 @@ export class MasterMitraPage implements OnInit {
       });
     }
   }
-
   // Konfirmasi Aktifkan / Nonaktifkan Mitra
   async konfirmasiToggleStatus(mitra: MitraModel) {
     const targetAktif = Number(mitra.aktif) === 1 ? 0 : 1;

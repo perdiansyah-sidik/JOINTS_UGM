@@ -105,7 +105,7 @@ export class ApiService {
     nama_mitra: string;
     nama_penanggung_jawab?: string | null;
     no_hp?: string | null;
-    alamat_mitra: string;
+    alamat_fasilitas: string;
     dibuat_oleh?: number | null;
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/mitra`, payload);
@@ -115,7 +115,7 @@ export class ApiService {
     nama_mitra: string;
     nama_penanggung_jawab?: string | null;
     no_hp?: string | null;
-    alamat_mitra: string;
+    alamat_fasilitas: string;
     aktif?: number;
     diubah_oleh?: number | null;
   }): Observable<any> {

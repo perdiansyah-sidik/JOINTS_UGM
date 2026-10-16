@@ -171,7 +171,7 @@
               <ion-icon name="location-outline"></ion-icon>
               <div>
                 <span class="lbl">Alamat Fasilitas Mitra</span>
-                <p>{{ mitra.alamat_mitra }}</p>
+                <p>{{ mitra.alamat_fasilitas }}</p>
               </div>
             </div>
           </div>
@@ -279,7 +279,7 @@
               rows="3"
               maxlength="255"
               placeholder="Alamat lengkap gudang/fasilitas pengolahan mitra..."
-              [(ngModel)]="formMitra.alamat_mitra"></textarea>
+              [(ngModel)]="formMitra.alamat_fasilitas"></textarea>
           </div>
           <small class="field-hint">Wajib diisi (Maks. 255 karakter).</small>
         </div>
@@ -344,7 +344,7 @@
           </div>
           <div class="detail-line">
             <span>Alamat Fasilitas</span>
-            <strong>{{ mitraDetailTerpilih.alamat_mitra }}</strong>
+            <strong>{{ mitraDetailTerpilih.alamat_fasilitas || '-' }}</strong>
           </div>
         </div>
 
