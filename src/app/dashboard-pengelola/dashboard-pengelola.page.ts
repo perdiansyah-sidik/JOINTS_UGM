@@ -249,6 +249,28 @@ export class DashboardPengelolaPage implements OnInit {
     await toast.present();
   }
 
+  async keluarAkun() {
+    (document.activeElement as HTMLElement)?.blur();
+    const alert = await this.alertCtrl.create({
+      header: 'Keluar Akun?',
+      message: 'Apakah Anda yakin ingin keluar dari sesi Pengelola?',
+      buttons: [
+        { text: 'Batal', role: 'cancel' },
+        {
+          text: 'Ya, Keluar',
+          role: 'destructive',
+          handler: () => {
+            localStorage.removeItem('ecoapp_user');
+            localStorage.removeItem('pengguna');
+            localStorage.removeItem('token');
+            this.router.navigateByUrl('/login', { replaceUrl: true });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
   // --- LOGIKA BUKU KAS (T08) ---
   bukaModalKas() {
     this.modalKasTerbuka = true;

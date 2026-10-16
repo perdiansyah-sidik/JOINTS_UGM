@@ -54,30 +54,57 @@
     }
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .bell-btn {
     position: relative;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 14px;
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 21px;
+    font-size: 20px;
     color: #0F291E;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(15, 41, 30, 0.05);
 
     .notif-dot {
       position: absolute;
-      top: 10px;
-      right: 11px;
+      top: 9px;
+      right: 10px;
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #D97724;
       border: 1.5px solid #FFFFFF;
+    }
+  }
+
+  .logout-top-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #DC2626;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+    transition: transform 0.15s ease, background 0.15s ease;
+
+    &:active {
+      transform: scale(0.95);
+      background: #FEE2E2;
     }
   }
 }
@@ -704,6 +731,10 @@
 
 /* 8. BOTTOM CTA */
 .bottom-cta-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
   .btn-buka-slot {
     --background: #15803D;
     --background-activated: #14532D;
@@ -714,6 +745,34 @@
     font-weight: 800;
     text-transform: none;
     margin: 0;
+  }
+
+  .btn-logout-bottom {
+    width: 100%;
+    height: 48px;
+    border-radius: 16px;
+    background: #FEF2F2;
+    border: 1.5px solid #FECACA;
+    color: #DC2626;
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    ion-icon {
+      font-size: 19px;
+    }
+
+    &:hover,
+    &:active {
+      background: #FEE2E2;
+      border-color: #FCA5A5;
+      transform: translateY(-1px);
+    }
   }
 }
 

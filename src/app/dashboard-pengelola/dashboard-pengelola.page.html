@@ -17,10 +17,16 @@
         </h1>
       </div>
 
-      <button type="button" class="bell-btn" (click)="bukaMenu('Notifikasi Pengelola')">
-        <ion-icon name="notifications-outline"></ion-icon>
-        <span class="notif-dot"></span>
-      </button>
+      <div class="header-actions">
+        <button type="button" class="bell-btn" (click)="bukaMenu('Notifikasi Pengelola')" title="Notifikasi">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <span class="notif-dot"></span>
+        </button>
+
+        <button type="button" class="logout-top-btn" (click)="keluarAkun()" title="Keluar Akun">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
     </div>
 
     <!-- 2. KARTU UTAMA CADANGAN POIN & KAS -->
@@ -235,12 +241,17 @@
       </div>
     </div>
 
-    <!-- 8. TOMBOL BAWAH BUKA SLOT JEMPUT -->
+    <!-- 8. TOMBOL BAWAH BUKA SLOT JEMPUT & LOG OUT -->
     <div class="bottom-cta-wrap">
       <ion-button expand="block" class="btn-buka-slot" (click)="bukaMenu('Buka Slot Jemput Baru')">
         <span>Buka Slot Jemput Baru</span>
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
+
+      <button type="button" class="btn-logout-bottom" (click)="keluarAkun()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Keluar dari Akun Pengelola</span>
+      </button>
     </div>
 
   </div>
